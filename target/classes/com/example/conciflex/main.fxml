@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.example.conciflex.controller.MainController"
+            style="-fx-background-color: #EDEDED;"
+            prefHeight="780.0" prefWidth="590.0">
+    <top>
+        <HBox alignment="CENTER_RIGHT" minHeight="86.0">
+            <HBox alignment="CENTER_RIGHT">
+                <ImageView>
+                    <image>
+                        <Image url="@images/pasta.png"/>
+                    </image>
+                </ImageView>
+            </HBox>
+            <HBox alignment="CENTER_RIGHT" minWidth="30"></HBox>
+            <HBox alignment="CENTER_RIGHT">
+                <ImageView>
+                    <image>
+                        <Image url="@images/config.png"/>
+                    </image>
+                </ImageView>
+            </HBox>
+            <HBox alignment="CENTER_RIGHT" minWidth="30"></HBox>
+        </HBox>
+    </top>
+    <center>
+        <VBox alignment="CENTER">
+            <HBox alignment="CENTER">
+                <VBox>
+                    <ImageView>
+                        <image>
+                            <Image url="@images/logo.png"/>
+                        </image>
+                    </ImageView>
+                </VBox>
+                <VBox.margin>
+                    <Insets>
+                        <bottom>60</bottom>
+                    </Insets>
+                </VBox.margin>
+            </HBox>
+            <HBox alignment="CENTER">
+                <VBox>
+                    <ImageView>
+                        <image>
+                            <Image url="@images/titulo.png"/>
+                        </image>
+                    </ImageView>
+                </VBox>
+                <VBox.margin>
+                    <Insets>
+                        <bottom>60</bottom>
+                    </Insets>
+                </VBox.margin>
+            </HBox>
+            <HBox alignment="CENTER">
+                <VBox>
+                    <ImageView>
+                        <image>
+                            <Image url="@images/subtitulo.png"/>
+                        </image>
+                    </ImageView>
+                </VBox>
+                <VBox.margin>
+                    <Insets>
+                        <bottom>60</bottom>
+                    </Insets>
+                </VBox.margin>
+            </HBox>
+            <HBox alignment="CENTER">
+                <Button prefHeight="50.0"
+                        prefWidth="287.0"
+                        style="-fx-border-radius: 5;
+                                -fx-background-color: linear-gradient(to right, #2D5275, #46525F);"
+                        textAlignment="CENTER"
+                        onAction="#processar"
+                >
+                    <graphic>
+                        <ImageView>
+                            <Image url="@images/botao-titulo.png"/>
+                        </ImageView>
+                    </graphic>
+                </Button>
+                <VBox.margin>
+                    <Insets>
+                        <bottom>60</bottom>
+                    </Insets>
+                </VBox.margin>
+            </HBox>
+        </VBox>
+    </center>
+</BorderPane>
