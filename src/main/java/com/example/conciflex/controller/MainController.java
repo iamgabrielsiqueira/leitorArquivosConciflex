@@ -2,6 +2,7 @@ package com.example.conciflex.controller;
 
 import com.example.conciflex.model.classes.*;
 import com.example.conciflex.model.jdbc.JDBCHeaderArquivoDAO;
+import com.example.conciflex.model.jdbc.JDBCHeaderLoteTransacoesDAO;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -167,7 +168,12 @@ public class MainController {
                 }
             } else if(identificador.equals("L0")) {
                 headerLoteTransacao = processarHeaderLote(line.toCharArray());
-                //mostrarHeaderLoteTransacao(headerLoteTransacao);
+
+                try {
+                    JDBCHeaderLoteTransacoesDAO.getInstance().create(headerLoteTransacao, arquivo);
+                } catch (Exception e) {
+                    System.out.println(e);
+                }
             } else if(identificador.equals("RV")) {
                 resumoVenda = processarResumoVenda(line.toCharArray());
                 //mostrarResumoVendas(resumoVenda);
