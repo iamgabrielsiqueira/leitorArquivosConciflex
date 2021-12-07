@@ -1,18 +1,17 @@
 package com.example.conciflex.model.classes;
 
-import java.util.Date;
-
 public class ResumoVenda {
     private String codigoRegistro;
     private String identificacaoLoja;
     private String numeroResumoVenda;
-    private Date dataResumoVenda;
+    private String dataResumoVenda;
     private TipoLancamento tipoLancamento;
-    private Date dataPagamento;
-    private int CVsAprovados;
-    private int CVsRejeitados;
+    private String dataPagamento;
+    private String CVsAprovados;
+    private String CVsRejeitados;
     private String tipoProduto;
-    private int codigoProduto;
+    private String codigoProduto;
+    private Produto produto;
     private String banco;
     private String agencia;
     private String contaCorrente;
@@ -26,6 +25,7 @@ public class ResumoVenda {
     private String sinalValorComissao;
     private String identificadorAjusteRV;
     private String codigoAjustes;
+    private Ajuste ajuste;
     private String codigoEC;
     private String codigoAdquirente;
     private String NSEQ;
@@ -54,11 +54,11 @@ public class ResumoVenda {
         this.numeroResumoVenda = numeroResumoVenda;
     }
 
-    public Date getDataResumoVenda() {
+    public String getDataResumoVenda() {
         return dataResumoVenda;
     }
 
-    public void setDataResumoVenda(Date dataResumoVenda) {
+    public void setDataResumoVenda(String dataResumoVenda) {
         this.dataResumoVenda = dataResumoVenda;
     }
 
@@ -70,27 +70,27 @@ public class ResumoVenda {
         this.tipoLancamento = tipoLancamento;
     }
 
-    public Date getDataPagamento() {
+    public String getDataPagamento() {
         return dataPagamento;
     }
 
-    public void setDataPagamento(Date dataPagamento) {
+    public void setDataPagamento(String dataPagamento) {
         this.dataPagamento = dataPagamento;
     }
 
-    public int getCVsAprovados() {
+    public String getCVsAprovados() {
         return CVsAprovados;
     }
 
-    public void setCVsAprovados(int CVsAprovados) {
+    public void setCVsAprovados(String CVsAprovados) {
         this.CVsAprovados = CVsAprovados;
     }
 
-    public int getCVsRejeitados() {
+    public String getCVsRejeitados() {
         return CVsRejeitados;
     }
 
-    public void setCVsRejeitados(int CVsRejeitados) {
+    public void setCVsRejeitados(String CVsRejeitados) {
         this.CVsRejeitados = CVsRejeitados;
     }
 
@@ -100,6 +100,14 @@ public class ResumoVenda {
 
     public void setTipoProduto(String tipoProduto) {
         this.tipoProduto = tipoProduto;
+    }
+
+    public String getCodigoProduto() {
+        return codigoProduto;
+    }
+
+    public void setCodigoProduto(String codigoProduto) {
+        this.codigoProduto = codigoProduto;
     }
 
     public String getBanco() {
@@ -124,14 +132,6 @@ public class ResumoVenda {
 
     public void setContaCorrente(String contaCorrente) {
         this.contaCorrente = contaCorrente;
-    }
-
-    public int getCodigoProduto() {
-        return codigoProduto;
-    }
-
-    public void setCodigoProduto(int codigoProduto) {
-        this.codigoProduto = codigoProduto;
     }
 
     public String getValorBruto() {
@@ -236,5 +236,21 @@ public class ResumoVenda {
 
     public void setNSEQ(String NSEQ) {
         this.NSEQ = NSEQ;
+    }
+
+    public Produto getProduto() {
+        return produto;
+    }
+
+    public void setProduto(Produto produto) {
+        this.produto = produto;
+    }
+
+    public Ajuste getAjuste() {
+        return ajuste;
+    }
+
+    public void setAjuste(Ajuste ajuste) {
+        this.ajuste = ajuste;
     }
 }

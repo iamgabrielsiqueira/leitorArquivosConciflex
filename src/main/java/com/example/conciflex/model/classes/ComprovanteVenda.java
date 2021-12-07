@@ -1,8 +1,5 @@
 package com.example.conciflex.model.classes;
 
-import java.sql.Time;
-import java.util.Date;
-
 public class ComprovanteVenda {
     private String codigoRegistro;
     private String identificacaoLoja;
@@ -10,10 +7,11 @@ public class ComprovanteVenda {
     private String NSUTEF;
     private String NSUTerminal;
     private String codigoAdquirente;
-    private Date dataTransacao;
-    private Time horaTransacao;
+    private Adquirente adquirente;
+    private String dataTransacao;
+    private String horaTransacao;
     private TipoLancamento tipoLancamento;
-    private Date dataLancamento;
+    private String dataLancamento;
     private String tipoProduto;
     private MeioCaptura meioCaptura;
     private String valorBruto;
@@ -26,6 +24,7 @@ public class ComprovanteVenda {
     private String codigoAutorizacao;
     private String codigoBandeira;
     private String codigoProduto;
+    private Produto produto;
     private String codigoEC;
     private String NSEQ;
 
@@ -77,19 +76,27 @@ public class ComprovanteVenda {
         this.codigoAdquirente = codigoAdquirente;
     }
 
-    public Date getDataTransacao() {
+    public Adquirente getAdquirente() {
+        return adquirente;
+    }
+
+    public void setAdquirente(Adquirente adquirente) {
+        this.adquirente = adquirente;
+    }
+
+    public String getDataTransacao() {
         return dataTransacao;
     }
 
-    public void setDataTransacao(Date dataTransacao) {
+    public void setDataTransacao(String dataTransacao) {
         this.dataTransacao = dataTransacao;
     }
 
-    public Time getHoraTransacao() {
+    public String getHoraTransacao() {
         return horaTransacao;
     }
 
-    public void setHoraTransacao(Time horaTransacao) {
+    public void setHoraTransacao(String horaTransacao) {
         this.horaTransacao = horaTransacao;
     }
 
@@ -101,11 +108,11 @@ public class ComprovanteVenda {
         this.tipoLancamento = tipoLancamento;
     }
 
-    public Date getDataLancamento() {
+    public String getDataLancamento() {
         return dataLancamento;
     }
 
-    public void setDataLancamento(Date dataLancamento) {
+    public void setDataLancamento(String dataLancamento) {
         this.dataLancamento = dataLancamento;
     }
 
@@ -203,6 +210,14 @@ public class ComprovanteVenda {
 
     public void setCodigoProduto(String codigoProduto) {
         this.codigoProduto = codigoProduto;
+    }
+
+    public Produto getProduto() {
+        return produto;
+    }
+
+    public void setProduto(Produto produto) {
+        this.produto = produto;
     }
 
     public String getCodigoEC() {

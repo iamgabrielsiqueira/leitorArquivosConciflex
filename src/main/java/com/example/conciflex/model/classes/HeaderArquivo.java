@@ -1,11 +1,10 @@
 package com.example.conciflex.model.classes;
 
-import java.util.Date;
-
 public class HeaderArquivo {
     private String codigoRegistro;
     private String versaoLayout;
-    private Date dataGeracao;
+    private String dataGeracao;
+    private String horaGeracao;
     private String idMovimento;
     private String nomeAdministradora;
     private String identificacaoRemetente;
@@ -27,14 +26,6 @@ public class HeaderArquivo {
 
     public void setVersaoLayout(String versaoLayout) {
         this.versaoLayout = versaoLayout;
-    }
-
-    public Date getDataGeracao() {
-        return dataGeracao;
-    }
-
-    public void setDataGeracao(Date dataGeracao) {
-        this.dataGeracao = dataGeracao;
     }
 
     public String getNomeAdministradora() {
@@ -83,5 +74,21 @@ public class HeaderArquivo {
 
     public void setTipoProcessamento(TipoProcessamento tipoProcessamento) {
         this.tipoProcessamento = tipoProcessamento;
+    }
+
+    public String getDataGeracao() {
+        return dataGeracao;
+    }
+
+    public void setDataGeracao(String dataGeracao) {
+        this.dataGeracao = dataGeracao;
+    }
+
+    public String getHoraGeracao() {
+        return horaGeracao;
+    }
+
+    public void setHoraGeracao(String horaGeracao) {
+        this.horaGeracao = horaGeracao;
     }
 }

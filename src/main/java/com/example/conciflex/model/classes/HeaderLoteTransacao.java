@@ -1,10 +1,8 @@
 package com.example.conciflex.model.classes;
 
-import java.util.Date;
-
 public class HeaderLoteTransacao {
     private String codigoRegistro;
-    private Date dataMovimento;
+    private String dataMovimento;
     private MoedaCorrente moedaCorrente;
     private String NSEQ;
 
@@ -14,14 +12,6 @@ public class HeaderLoteTransacao {
 
     public void setCodigoRegistro(String codigoRegistro) {
         this.codigoRegistro = codigoRegistro;
-    }
-
-    public Date getDataMovimento() {
-        return dataMovimento;
-    }
-
-    public void setDataMovimento(Date dataMovimento) {
-        this.dataMovimento = dataMovimento;
     }
 
     public String getNSEQ() {
@@ -38,5 +28,13 @@ public class HeaderLoteTransacao {
 
     public void setMoedaCorrente(MoedaCorrente moedaCorrente) {
         this.moedaCorrente = moedaCorrente;
+    }
+
+    public String getDataMovimento() {
+        return dataMovimento;
+    }
+
+    public void setDataMovimento(String dataMovimento) {
+        this.dataMovimento = dataMovimento;
     }
 }

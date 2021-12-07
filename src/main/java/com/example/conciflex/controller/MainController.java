@@ -1,13 +1,12 @@
 package com.example.conciflex.controller;
 
 import com.example.conciflex.model.classes.*;
+import com.example.conciflex.model.jdbc.JDBCHeaderArquivoDAO;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import java.io.*;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 public class MainController {
 
@@ -132,14 +131,14 @@ public class MainController {
 
         for (int i = 0; i < listOfFiles.length; i++) {
             if (listOfFiles[i].isFile()) {
-                lerArquivo(folder.getAbsolutePath() + "\\" + listOfFiles[i].getName());
+                lerArquivo(folder.getAbsolutePath(), listOfFiles[i].getName());
             }
         }
 
     }
 
-    public void lerArquivo(String arquivo) throws IOException, ParseException {
-        FileInputStream stream = new FileInputStream(arquivo);
+    public void lerArquivo(String pasta, String arquivo) throws IOException, ParseException {
+        FileInputStream stream = new FileInputStream(pasta + "\\" + arquivo);
         InputStreamReader reader = new InputStreamReader(stream);
         BufferedReader br = new BufferedReader(reader);
 
@@ -160,33 +159,38 @@ public class MainController {
 
             if(identificador.equals("A0")) {
                 headerArquivo = processarHeaderArquivo(line.toCharArray());
+
+                try {
+                    JDBCHeaderArquivoDAO.getInstance().create(headerArquivo, arquivo);
+                } catch (Exception e) {
+                    System.out.println(e);
+                }
             } else if(identificador.equals("L0")) {
                 headerLoteTransacao = processarHeaderLote(line.toCharArray());
+                //mostrarHeaderLoteTransacao(headerLoteTransacao);
             } else if(identificador.equals("RV")) {
                 resumoVenda = processarResumoVenda(line.toCharArray());
+                //mostrarResumoVendas(resumoVenda);
             } else if(identificador.equals("CV")) {
                 comprovanteVenda = processarComprovanteVenda(line.toCharArray());
+                //mostrarComprovanteVenda(comprovanteVenda);
             } else if(identificador.equals("AJ")) {
                 ajusteCreditoDebito = processarAjusteCreditoDebito(line.toCharArray());
+                //mostrarAjusteCreditoDebito(ajusteCreditoDebito);
             } else if(identificador.equals("CC")) {
                 cancelamento = processarCancelamento(line.toCharArray());
+                //mostrarCancelamento(cancelamento);
             } else if(identificador.equals("L9")) {
                 trailerLoteTransacao = processarTrailerLoteTransacoes(line.toCharArray());
+                //mostrarTrailerLoteTransacao(trailerLoteTransacao);
             } else if(identificador.equals("A9")) {
                 trailerArquivo = processarTrailerArquivo(line.toCharArray());
+                //mostrarTrailerArquivo(trailerArquivo);
             }
 
+            //System.out.println("");
             line = br.readLine();
         }
-
-//        mostrarHeaderArquivo(headerArquivo);
-//        mostrarHeaderLoteTransacao(headerLoteTransacao);
-//        mostrarResumoVendas(resumoVenda);
-//        mostrarComprovanteVenda(comprovanteVenda);
-        mostrarAjusteCreditoDebito(ajusteCreditoDebito);
-        mostrarCancelamento(cancelamento);
-//        mostrarTrailerLoteTransacao(trailerLoteTransacao);
-//        mostrarTrailerArquivo(trailerArquivo);
 
         br.close();
         reader.close();
@@ -198,8 +202,8 @@ public class MainController {
 
         String codigoRegistro = line[0] + "" + line[1];
         String versaoLayout = "";
-        String data = "";
-        String hora = "";
+        String dataGeracao = "";
+        String horaGeracao = "";
         String idMovimento = "";
         String nomeAdministradora = "";
         String identificacaoRemetente = "";
@@ -209,8 +213,8 @@ public class MainController {
         String codigoTipoProcessamento = String.valueOf(line[98]);
 
         for (int i = 2; i < 8; i++) { versaoLayout += "" + line[i]; }
-        for (int i = 8; i < 16; i++) { data += "" + line[i]; }
-        for (int i = 16; i < 22; i++) { hora += "" + line[i]; }
+        for (int i = 8; i < 16; i++) { dataGeracao += "" + line[i]; }
+        for (int i = 16; i < 22; i++) { horaGeracao += "" + line[i]; }
         for (int i = 22; i < 28; i++) { idMovimento += "" + line[i]; }
         for (int i = 28; i < 88; i++) { nomeAdministradora += "" + line[i]; }
         for (int i = 88; i < 92; i++) { identificacaoRemetente += "" + line[i]; }
@@ -223,17 +227,10 @@ public class MainController {
             }
         }
 
-        Date dataGeracao = null;
-
-        try {
-            dataGeracao = new SimpleDateFormat("yyyyMMdd HHmmss").parse(data + " " + hora);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-
         headerArquivo.setCodigoRegistro(codigoRegistro);
         headerArquivo.setVersaoLayout(versaoLayout);
         headerArquivo.setDataGeracao(dataGeracao);
+        headerArquivo.setHoraGeracao(horaGeracao);
         headerArquivo.setIdMovimento(idMovimento);
         headerArquivo.setNomeAdministradora(nomeAdministradora.trim());
         headerArquivo.setIdentificacaoRemetente(identificacaoRemetente);
@@ -248,22 +245,14 @@ public class MainController {
         HeaderLoteTransacao headerLoteTransacao = new HeaderLoteTransacao();
 
         String codigoRegistro = line[0] + "" + line[1];
-        String data = "";
+        String dataMovimento = "";
         String idMoeda = "";
         MoedaCorrente moedaCorrente = null;
         String nseq = "";
 
-        Date dataMovimento = null;
-
-        for (int i = 2; i < 10; i++) { data += "" + line[i]; }
+        for (int i = 2; i < 10; i++) { dataMovimento += "" + line[i]; }
         for (int i = 10; i < 12; i++) { idMoeda += "" + line[i]; }
         for (int i = 12; i < 18; i++) { nseq += "" + line[i]; }
-
-        try {
-            dataMovimento = new SimpleDateFormat("yyyyMMdd").parse(data);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
 
         for (MoedaCorrente moeda : listaMoedasCorrente) {
             if(moeda.getIdentificador().equals(idMoeda)) {
@@ -285,8 +274,8 @@ public class MainController {
         String codigoRegistro = line[0] + "" + line[1];
         String identificacaoLoja = "";
         String numeroResumoVenda = "";
-        String data = "";
-        String dataPag = "";
+        String dataResumoVenda = "";
+        String dataPagamentoVenda = "";
         String cvsAprovados = "";
         String cvsRejeitados = "";
         String tipoProduto = (String.valueOf(line[72]).equals("V")) ? "Voucher" : String.valueOf(line[72]);
@@ -307,15 +296,17 @@ public class MainController {
         String codigoEC = "";
         String codigoAdquirente = "";
         String NSEQ = "";
+
         TipoLancamento tipoLancamento = null;
+        Produto produto = null;
+        Ajuste ajuste = null;
+
         int codigoTipoLancamento = Integer.parseInt(String.valueOf(line[45]));
-        Date dataResumoVenda = null;
-        Date dataPagamentoVenda = null;
 
         for (int i = 2; i < 17; i++) { identificacaoLoja += "" + line[i]; }
         for (int i = 17; i < 37; i++) { numeroResumoVenda += "" + line[i]; }
-        for (int i = 37; i < 45; i++) { data += "" + line[i]; }
-        for (int i = 46; i < 54; i++) { dataPag += "" + line[i]; }
+        for (int i = 37; i < 45; i++) { dataResumoVenda += "" + line[i]; }
+        for (int i = 46; i < 54; i++) { dataPagamentoVenda += "" + line[i]; }
         for (int i = 54; i < 63; i++) { cvsAprovados += "" + line[i]; }
         for (int i = 63; i < 72; i++) { cvsRejeitados += "" + line[i]; }
         for (int i = 73; i < 76; i++) { codigoProduto += "" + line[i]; }
@@ -331,16 +322,21 @@ public class MainController {
         for (int i = 180; i < 186; i++) { codigoAdquirente += "" + line[i]; }
         for (int i = 186; i < 192; i++) { NSEQ += "" + line[i]; }
 
-        try {
-            dataResumoVenda = new SimpleDateFormat("yyyyMMdd").parse(data);
-            dataPagamentoVenda = new SimpleDateFormat("yyyyMMdd").parse(dataPag);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-
         for (TipoLancamento tipo:listaTiposLancamento) {
             if(tipo.getId() == codigoTipoLancamento) {
                 tipoLancamento = tipo;
+            }
+        }
+
+        for (Produto produto1:listaProdutos) {
+            if(produto1.getId() == Integer.parseInt(codigoProduto)) {
+                produto = produto1;
+            }
+        }
+
+        for (Ajuste ajuste1:listaAjustes) {
+            if(ajuste1.getId() == Integer.parseInt(codigoAjustes)) {
+                ajuste = ajuste1;
             }
         }
 
@@ -350,10 +346,10 @@ public class MainController {
         resumoVenda.setDataResumoVenda(dataResumoVenda);
         resumoVenda.setTipoLancamento(tipoLancamento);
         resumoVenda.setDataPagamento(dataPagamentoVenda);
-        resumoVenda.setCVsAprovados(Integer.parseInt(cvsAprovados));
-        resumoVenda.setCVsRejeitados(Integer.parseInt(cvsRejeitados));
+        resumoVenda.setCVsAprovados(cvsAprovados);
+        resumoVenda.setCVsRejeitados(cvsRejeitados);
         resumoVenda.setTipoProduto(tipoProduto);
-        resumoVenda.setCodigoProduto(Integer.parseInt(codigoProduto));
+        resumoVenda.setCodigoProduto(codigoProduto);
         resumoVenda.setBanco(banco);
         resumoVenda.setAgencia(agencia);
         resumoVenda.setContaCorrente(contaCorrente);
@@ -370,6 +366,8 @@ public class MainController {
         resumoVenda.setCodigoEC(codigoEC);
         resumoVenda.setCodigoAdquirente(codigoAdquirente);
         resumoVenda.setNSEQ(NSEQ);
+        resumoVenda.setProduto(produto);
+        resumoVenda.setAjuste(ajuste);
 
         return resumoVenda;
     }
@@ -383,7 +381,7 @@ public class MainController {
         String nsuTef = "";
         String nsuTerminal = "";
         String codigoAdquirente = "";
-        String dataTransacao = "";
+        String dataTransacaoVenda = "";
         String horaTransacao = "";
         String tipoProduto = (String.valueOf(line[82]).equals("V")) ? "Voucher" : String.valueOf(line[82]);
         String valorBruto = "";
@@ -398,23 +396,24 @@ public class MainController {
         String codigoProduto = "";
         String codigoEC = "";
         String nseq = "";
+        String dataLancamento = "";
 
         int codigoMeioCaptura = Integer.parseInt(String.valueOf(line[83]));
         int codigoTipoLancamento = Integer.parseInt(String.valueOf(line[73]));
 
-        Date dataTransacaoVenda = null;
-
         TipoLancamento tipoLancamento = null;
         MeioCaptura meioCaptura = null;
+        Adquirente adquirente = null;
+        Produto produto = null;
 
         for (int i = 2; i < 17; i++) { identificacaoLoja += "" + line[i]; }
         for (int i = 17; i < 29; i++) { nsuHost += "" + line[i]; }
         for (int i = 29; i < 41; i++) { nsuTef += "" + line[i]; }
         for (int i = 41; i < 53; i++) { nsuTerminal += "" + line[i]; }
         for (int i = 53; i < 59; i++) { codigoAdquirente += "" + line[i]; }
-        for (int i = 59; i < 67; i++) { dataTransacao += "" + line[i]; }
+        for (int i = 59; i < 67; i++) { dataTransacaoVenda += "" + line[i]; }
         for (int i = 59; i < 67; i++) { horaTransacao += "" + line[i]; }
-
+        for (int i = 74; i < 82; i++) { dataLancamento += "" + line[i]; }
         for (int i = 84; i < 95; i++) { valorBruto += "" + line[i]; }
         for (int i = 95; i < 106; i++) { valorDesconto += "" + line[i]; }
         for (int i = 106; i < 117; i++) { valorLiquido += "" + line[i]; }
@@ -428,12 +427,6 @@ public class MainController {
         for (int i = 174; i < 189; i++) { codigoEC += "" + line[i]; }
         for (int i = 189; i < 195; i++) { nseq += "" + line[i]; }
 
-        try {
-            dataTransacaoVenda = new SimpleDateFormat("yyyyMMdd HHmmss").parse(dataTransacao + " " + horaTransacao);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-
         for (TipoLancamento tipo:listaTiposLancamento) {
             if(tipo.getId() == codigoTipoLancamento) {
                 tipoLancamento = tipo;
@@ -446,13 +439,24 @@ public class MainController {
             }
         }
 
+        for (Adquirente adquirente1:listaAdquirentes) {
+            if(adquirente1.getId() == Integer.parseInt(codigoAdquirente)) {
+                adquirente = adquirente1;
+            }
+        }
+
+        for (Produto produto1:listaProdutos) {
+            if(produto1.getId() == Integer.parseInt(codigoProduto)) {
+                produto = produto1;
+            }
+        }
+
         comprovanteVenda.setCodigoRegistro(codigoRegistro);
         comprovanteVenda.setIdentificacaoLoja(identificacaoLoja);
         comprovanteVenda.setNSUHostTransacao(nsuHost);
         comprovanteVenda.setNSUTEF(nsuTef);
         comprovanteVenda.setNSUTerminal(nsuTerminal);
         comprovanteVenda.setCodigoAdquirente(codigoAdquirente);
-        comprovanteVenda.setDataTransacao(dataTransacaoVenda);
         comprovanteVenda.setTipoLancamento(tipoLancamento);
         comprovanteVenda.setTipoProduto(tipoProduto);
         comprovanteVenda.setMeioCaptura(meioCaptura);
@@ -468,6 +472,11 @@ public class MainController {
         comprovanteVenda.setCodigoProduto(codigoProduto);
         comprovanteVenda.setCodigoEC(codigoEC);
         comprovanteVenda.setNSEQ(nseq);
+        comprovanteVenda.setAdquirente(adquirente);
+        comprovanteVenda.setProduto(produto);
+        comprovanteVenda.setDataTransacao(dataTransacaoVenda);
+        comprovanteVenda.setHoraTransacao(horaTransacao);
+        comprovanteVenda.setDataLancamento(dataLancamento);
 
         return comprovanteVenda;
     }
@@ -507,6 +516,9 @@ public class MainController {
 
         TipoLancamento tipoLancamento = null;
         MeioCaptura meioCaptura = null;
+        Adquirente adquirente = null;
+        Produto produto = null;
+        Ajuste ajuste = null;
 
         for (int i = 2; i < 17; i++) { identificacaoLoja += "" + line[i]; }
         for (int i = 17; i < 29; i++) { nsuHostTransacaoOriginal += "" + line[i]; }
@@ -545,6 +557,24 @@ public class MainController {
             }
         }
 
+        for (Adquirente adquirente1:listaAdquirentes) {
+            if(adquirente1.getId() == Integer.parseInt(codigoAdquirente)) {
+                adquirente = adquirente1;
+            }
+        }
+
+        for (Produto produto1:listaProdutos) {
+            if(produto1.getId() == Integer.parseInt(codigoProduto)) {
+                produto = produto1;
+            }
+        }
+
+        for (Ajuste ajuste1:listaAjustes) {
+            if(ajuste1.getId() == Integer.parseInt(codigoAjuste)) {
+                ajuste = ajuste1;
+            }
+        }
+
         ajusteCreditoDebito.setCodigoRegistro(codigoRegistro);
         ajusteCreditoDebito.setIdentificacaoLoja(identificacaoLoja);
         ajusteCreditoDebito.setNSUHostTransacaoOriginal(nsuHostTransacaoOriginal);
@@ -573,12 +603,74 @@ public class MainController {
         ajusteCreditoDebito.setCodigoEC(codigoEC);
         ajusteCreditoDebito.setCodigoAutorizacao(codigoAutorizacao);
         ajusteCreditoDebito.setNSEQ(nseq);
+        ajusteCreditoDebito.setAdquirente(adquirente);
+        ajusteCreditoDebito.setAjuste(ajuste);
+        ajusteCreditoDebito.setProduto(produto);
 
         return ajusteCreditoDebito;
     }
 
     public Cancelamento processarCancelamento(char[] line) {
         Cancelamento cancelamento = new Cancelamento();
+
+        String codigoRegistro = line[0] + "" + line[1];
+        String identificacaoLoja = "";
+        String nsuHostTransacaoOriginal = "";
+        String nsuTef = "";
+        String nsuTerminal = "";
+        String codigoAdquirente = "";
+        String dataTransacaoOriginal = "";
+        String nsuHostTransacao = "";
+        String dataTransacao = "";
+        String horarioTransacao = "";
+        int codigoMeioCaptura = Integer.parseInt(String.valueOf(line[93]));
+        String codigoEC = "";
+        String codigoAutorizacao = "";
+        String nseq = "";
+
+        MeioCaptura meioCaptura = null;
+        Adquirente adquirente = null;
+
+        for (int i = 2; i < 17; i++) { identificacaoLoja += "" + line[i]; }
+        for (int i = 17; i < 29; i++) { nsuHostTransacaoOriginal += "" + line[i]; }
+        for (int i = 29; i < 41; i++) { nsuTef += "" + line[i]; }
+        for (int i = 41; i < 53; i++) { nsuTerminal += "" + line[i]; }
+        for (int i = 53; i < 59; i++) { codigoAdquirente += "" + line[i]; }
+        for (int i = 59; i < 67; i++) { dataTransacaoOriginal += "" + line[i]; }
+        for (int i = 67; i < 79; i++) { nsuHostTransacao += "" + line[i]; }
+        for (int i = 79; i < 87; i++) { dataTransacao += "" + line[i]; }
+        for (int i = 87; i < 93; i++) { horarioTransacao += "" + line[i]; }
+        for (int i = 94; i < 109; i++) { codigoEC += "" + line[i]; }
+        for (int i = 109; i < 121; i++) { codigoAutorizacao += "" + line[i]; }
+        for (int i = 121; i < 127; i++) { nseq += "" + line[i]; }
+
+        for (MeioCaptura meio:listaMeioCaptura) {
+            if(meio.getId() == codigoMeioCaptura) {
+                meioCaptura = meio;
+            }
+        }
+
+        for (Adquirente adquirente1:listaAdquirentes) {
+            if(adquirente1.getId() == Integer.parseInt(codigoAdquirente)) {
+                adquirente = adquirente1;
+            }
+        }
+
+        cancelamento.setCodigoRegistro(codigoRegistro);
+        cancelamento.setIdentificacaoLoja(identificacaoLoja);
+        cancelamento.setNSUHostTransacaoOriginal(nsuHostTransacaoOriginal);
+        cancelamento.setNSUTEF(nsuTef);
+        cancelamento.setNSUTerminal(nsuTerminal);
+        cancelamento.setCodigoAdquirente(codigoAdquirente);
+        cancelamento.setDataTransacaoOriginal(dataTransacaoOriginal);
+        cancelamento.setNSUHostTransacao(nsuHostTransacao);
+        cancelamento.setDataTransacao(dataTransacao);
+        cancelamento.setHoraTransacao(horarioTransacao);
+        cancelamento.setMeioCaptura(meioCaptura);
+        cancelamento.setCodigoEC(codigoEC);
+        cancelamento.setCodigoAutorizacao(codigoAutorizacao);
+        cancelamento.setNSEQ(nseq);
+        cancelamento.setAdquirente(adquirente);
 
         return cancelamento;
     }
@@ -628,14 +720,22 @@ public class MainController {
         System.out.println("Nome da Administradora: " + headerArquivo.getNomeAdministradora());
         System.out.println("Identificação Remetente: " + headerArquivo.getIdentificacaoRemetente());
         System.out.println("Identificação Destinatário: " + headerArquivo.getIdentificacaoDestinatario());
-        System.out.println("Tipo de Processamento: " + headerArquivo.getTipoProcessamento().getDescricao());
+
+        if(headerArquivo.getTipoProcessamento() != null) {
+            System.out.println("Tipo de Processamento: " + headerArquivo.getTipoProcessamento().getDescricao());
+        }
+
         System.out.println("NSEQ: " + headerArquivo.getNSEQ());
     }
 
     public void mostrarHeaderLoteTransacao(HeaderLoteTransacao headerLoteTransacao) {
         System.out.println("Código de registro: " + headerLoteTransacao.getCodigoRegistro());
         System.out.println("Data do movimento: " + headerLoteTransacao.getDataMovimento());
-        System.out.println("Identificação da moeda: " + headerLoteTransacao.getMoedaCorrente().getDescricao());
+
+        if(headerLoteTransacao.getMoedaCorrente() != null) {
+            System.out.println("Identificação da moeda: " + headerLoteTransacao.getMoedaCorrente().getDescricao());
+        }
+
         System.out.println("NSEQ: " + headerLoteTransacao.getNSEQ());
     }
 
@@ -644,7 +744,11 @@ public class MainController {
         System.out.println("Identificação da Loja: " + resumoVenda.getIdentificacaoLoja());
         System.out.println("Número do RV: " + resumoVenda.getNumeroResumoVenda());
         System.out.println("Data do RV: " + resumoVenda.getDataResumoVenda());
-        System.out.println("Tipo de lançamento: " + resumoVenda.getTipoLancamento().getDescricao());
+
+        if(resumoVenda.getTipoLancamento() != null) {
+            System.out.println("Tipo de lançamento: " + resumoVenda.getTipoLancamento().getDescricao());
+        }
+
         System.out.println("Data de pagamento: " + resumoVenda.getDataPagamento());
         System.out.println("CV´s Aprovados: " + resumoVenda.getCVsAprovados());
         System.out.println("CV´s Rejeitados: " + resumoVenda.getCVsRejeitados());
@@ -666,6 +770,14 @@ public class MainController {
         System.out.println("Código do EC: " + resumoVenda.getCodigoEC());
         System.out.println("Código da adquirente: " + resumoVenda.getCodigoAdquirente());
         System.out.println("NSEQ: " + resumoVenda.getNSEQ());
+
+        if(resumoVenda.getProduto() != null) {
+            System.out.println("Produto: " + resumoVenda.getProduto().getDescricao());
+        }
+
+        if(resumoVenda.getAjuste() != null) {
+            System.out.println("Ajuste: " + resumoVenda.getAjuste().getDescricao());
+        }
     }
 
     public void mostrarComprovanteVenda(ComprovanteVenda comprovanteVenda) {
@@ -676,10 +788,18 @@ public class MainController {
         System.out.println("NSU Terminal: " + comprovanteVenda.getNSUTerminal());
         System.out.println("Código do Adquirente: " + comprovanteVenda.getCodigoAdquirente());
         System.out.println("Data da transação: " + comprovanteVenda.getDataTransacao());
-        System.out.println("Tipo de lançamento: " + comprovanteVenda.getTipoLancamento().getDescricao());
+
+        if(comprovanteVenda.getTipoLancamento() != null) {
+            System.out.println("Tipo de lançamento: " + comprovanteVenda.getTipoLancamento().getDescricao());
+        }
+
         System.out.println("Data de lançamento: " + comprovanteVenda.getDataLancamento());
         System.out.println("Tipo do Produto: " + comprovanteVenda.getTipoProduto());
-        System.out.println("Meio de Captura: " + comprovanteVenda.getMeioCaptura().getDescricao());
+
+        if(comprovanteVenda.getMeioCaptura() != null) {
+            System.out.println("Meio de Captura: " + comprovanteVenda.getMeioCaptura().getDescricao());
+        }
+
         System.out.println("Valor Bruto da Venda: " + comprovanteVenda.getValorBruto());
         System.out.println("Valor do Desconto: " + comprovanteVenda.getValorDesconto());
         System.out.println("Valor Líq da Venda: " + comprovanteVenda.getValorLiquido());
@@ -692,14 +812,90 @@ public class MainController {
         System.out.println("Código do Produto: " + comprovanteVenda.getCodigoProduto());
         System.out.println("Código do EC: " + comprovanteVenda.getCodigoEC());
         System.out.println("NSEQ: " + comprovanteVenda.getNSEQ());
+
+        if(comprovanteVenda.getAdquirente() != null) {
+            System.out.println("Adquirente: " + comprovanteVenda.getAdquirente().getDescricao());
+        }
+
+        if(comprovanteVenda.getProduto() != null) {
+            System.out.println("Produto: " + comprovanteVenda.getProduto().getDescricao());
+        }
     }
 
     public void mostrarAjusteCreditoDebito(AjusteCreditoDebito ajusteCreditoDebito) {
+        System.out.println("Código do registro: " + ajusteCreditoDebito.getCodigoRegistro());
+        System.out.println("Identificação da Loja: " + ajusteCreditoDebito.getIdentificacaoLoja());
+        System.out.println("NSU Host da transação original: " + ajusteCreditoDebito.getNSUHostTransacaoOriginal());
+        System.out.println("NSU TEF: " + ajusteCreditoDebito.getNSUTEF());
+        System.out.println("NSU Terminal: " + ajusteCreditoDebito.getNSUTerminal());
+        System.out.println("Código do Adquirente: " + ajusteCreditoDebito.getCodigoAdquirente());
+        System.out.println("Data da transação original: " + ajusteCreditoDebito.getDataTransacaoOriginal());
+        System.out.println("NSU Host da transação: " + ajusteCreditoDebito.getNSUHostTransacao());
+        System.out.println("Data da transação AJ: " + ajusteCreditoDebito.getDataTransacaoAJ());
+        System.out.println("Horário da transação: " + ajusteCreditoDebito.getHoraTransacaoAJ());
 
+        if(ajusteCreditoDebito.getTipoLancamento() != null) {
+            System.out.println("Tipo de lançamento: " + ajusteCreditoDebito.getTipoLancamento().getDescricao());
+        }
+
+        System.out.println("Data de lançamento: " + ajusteCreditoDebito.getDataLancamento());
+
+        if(ajusteCreditoDebito.getMeioCaptura() != null) {
+            System.out.println("Meio de Captura do Ajuste: " + ajusteCreditoDebito.getMeioCaptura().getDescricao());
+        }
+
+        System.out.println("Tipo de Ajuste: " + ajusteCreditoDebito.getTipoAjuste());
+        System.out.println("Código do Ajuste: " + ajusteCreditoDebito.getCodigoAjuste());
+        System.out.println("Descrição do Motivo do Ajuste: " + ajusteCreditoDebito.getDescricaoMotivoAjuste());
+        System.out.println("Valor Bruto: " + ajusteCreditoDebito.getValorBruto());
+        System.out.println("Valor do Desconto ou Comissão: " + ajusteCreditoDebito.getValorDesconto());
+        System.out.println("Valor Líquido: " + ajusteCreditoDebito.getValorLiquido());
+        System.out.println("Banco: " + ajusteCreditoDebito.getBanco());
+        System.out.println("Agência: " + ajusteCreditoDebito.getAgencia());
+        System.out.println("Conta: " + ajusteCreditoDebito.getConta());
+        System.out.println("Número do Cartão da transação original: " + ajusteCreditoDebito.getNumeroCartaoTransacaoOriginal());
+        System.out.println("Código da Bandeira: " + ajusteCreditoDebito.getCodigoBandeira());
+        System.out.println("Código do Produto: " + ajusteCreditoDebito.getCodigoProduto());
+        System.out.println("Código do EC: " + ajusteCreditoDebito.getCodigoEC());
+        System.out.println("Código de autorização: " + ajusteCreditoDebito.getCodigoAutorizacao());
+        System.out.println("NSEQ: " + ajusteCreditoDebito.getNSEQ());
+
+        if(ajusteCreditoDebito.getAdquirente() != null) {
+            System.out.println("Adquirente: " + ajusteCreditoDebito.getAdquirente().getDescricao());
+        }
+
+        if(ajusteCreditoDebito.getAjuste() != null) {
+            System.out.println("Ajuste: " + ajusteCreditoDebito.getAjuste().getDescricao());
+        }
+
+        if(ajusteCreditoDebito.getProduto() != null) {
+            System.out.println("Produto: " + ajusteCreditoDebito.getProduto().getDescricao());
+        }
     }
 
     public void mostrarCancelamento(Cancelamento cancelamento) {
+        System.out.println("Código do registro: " + cancelamento.getCodigoRegistro());
+        System.out.println("Identificação da Loja: " + cancelamento.getIdentificacaoLoja());
+        System.out.println("NSU Host da transação original: " + cancelamento.getNSUHostTransacaoOriginal());
+        System.out.println("NSU TEF: " + cancelamento.getNSUTEF());
+        System.out.println("NSU Terminal: " + cancelamento.getNSUTerminal());
+        System.out.println("Código do Adquirente: " + cancelamento.getCodigoAdquirente());
+        System.out.println("Data da transação original: " + cancelamento.getDataTransacaoOriginal());
+        System.out.println("NSU Host da transação: " + cancelamento.getNSUHostTransacao());
+        System.out.println("Data da transação: " + cancelamento.getDataTransacao());
+        System.out.println("Horário da transação: " + cancelamento.getHoraTransacao());
 
+        if(cancelamento.getMeioCaptura() != null) {
+            System.out.println("Meio de Captura: " + cancelamento.getMeioCaptura().getDescricao());
+        }
+
+        System.out.println("Código do EC: " + cancelamento.getCodigoEC());
+        System.out.println("Código de autorização: " + cancelamento.getCodigoAutorizacao());
+        System.out.println("NSEQ: " + cancelamento.getNSEQ());
+
+        if(cancelamento.getAdquirente() != null) {
+            System.out.println("Adquirente: " + cancelamento.getAdquirente().getDescricao());
+        }
     }
 
     public void mostrarTrailerLoteTransacao(TrailerLoteTransacao trailerLoteTransacao) {

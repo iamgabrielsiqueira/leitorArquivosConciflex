@@ -1,7 +1,5 @@
 package com.example.conciflex.model.classes;
 
-import java.util.Date;
-
 public class AjusteCreditoDebito {
     private String codigoRegistro;
     private String identificacaoLoja;
@@ -9,6 +7,7 @@ public class AjusteCreditoDebito {
     private String NSUTEF;
     private String NSUTerminal;
     private String codigoAdquirente;
+    private Adquirente adquirente;
     private String dataTransacaoOriginal;
     private String NSUHostTransacao;
     private String dataTransacaoAJ;
@@ -18,6 +17,7 @@ public class AjusteCreditoDebito {
     private MeioCaptura meioCaptura;
     private String tipoAjuste;
     private String codigoAjuste;
+    private Ajuste ajuste;
     private String descricaoMotivoAjuste;
     private String valorBruto;
     private String valorDesconto;
@@ -28,6 +28,7 @@ public class AjusteCreditoDebito {
     private String numeroCartaoTransacaoOriginal;
     private String codigoBandeira;
     private String codigoProduto;
+    private Produto produto;
     private String codigoEC;
     private String codigoAutorizacao;
     private String NSEQ;
@@ -254,5 +255,29 @@ public class AjusteCreditoDebito {
 
     public void setHoraTransacaoAJ(String horaTransacaoAJ) {
         this.horaTransacaoAJ = horaTransacaoAJ;
+    }
+
+    public Adquirente getAdquirente() {
+        return adquirente;
+    }
+
+    public void setAdquirente(Adquirente adquirente) {
+        this.adquirente = adquirente;
+    }
+
+    public Ajuste getAjuste() {
+        return ajuste;
+    }
+
+    public void setAjuste(Ajuste ajuste) {
+        this.ajuste = ajuste;
+    }
+
+    public Produto getProduto() {
+        return produto;
+    }
+
+    public void setProduto(Produto produto) {
+        this.produto = produto;
     }
 }
