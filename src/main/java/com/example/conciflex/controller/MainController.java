@@ -1,10 +1,7 @@
 package com.example.conciflex.controller;
 
 import com.example.conciflex.model.classes.*;
-import com.example.conciflex.model.jdbc.JDBCComprovanteVendaDAO;
-import com.example.conciflex.model.jdbc.JDBCHeaderArquivoDAO;
-import com.example.conciflex.model.jdbc.JDBCHeaderLoteTransacoesDAO;
-import com.example.conciflex.model.jdbc.JDBCResumoVendasDAO;
+import com.example.conciflex.model.jdbc.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -91,12 +88,21 @@ public class MainController {
         Adquirente getnet = new Adquirente(1, "GETNET");
         Adquirente stone = new Adquirente(2, "STONE");
         Adquirente safra = new Adquirente(3, "SAFRA");
-        Adquirente cielo = new Adquirente(4, "CIELO");
+        Adquirente pagseguro = new Adquirente(4, "PAGSEGURO");
+        Adquirente cielo = new Adquirente(5, "CIELO");
+
+        Adquirente rede = new Adquirente(6, "REDE");
+        Adquirente onyo = new Adquirente(100, "ONYO");
+        Adquirente ifood = new Adquirente(101, "IFOOD");
 
         listaAdquirentes.add(getnet);
         listaAdquirentes.add(stone);
         listaAdquirentes.add(safra);
+        listaAdquirentes.add(pagseguro);
         listaAdquirentes.add(cielo);
+        listaAdquirentes.add(rede);
+        listaAdquirentes.add(onyo);
+        listaAdquirentes.add(ifood);
     }
 
     public void listarAjustes() {
@@ -129,7 +135,8 @@ public class MainController {
 
     @FXML
     public void processar() throws IOException, ParseException {
-        File folder = new File("C:\\Users\\Gabriel\\IdeaProjects\\LeituraArquivosConciflex\\arquivos");
+
+        File folder = new File("C:\\Users\\Gabriel\\Desktop\\teste");
         File[] listOfFiles = folder.listFiles();
 
         for (int i = 0; i < listOfFiles.length; i++) {
@@ -161,52 +168,61 @@ public class MainController {
             String identificador = line.toCharArray()[0] + "" + line.toCharArray()[1];
 
             if(identificador.equals("A0")) {
-                headerArquivo = processarHeaderArquivo(line.toCharArray());
+                //headerArquivo = processarHeaderArquivo(line.toCharArray());
 
-                try {
+                /*try {
                     JDBCHeaderArquivoDAO.getInstance().create(headerArquivo, arquivo);
                 } catch (Exception e) {
                     System.out.println(e);
-                }
+                }*/
             } else if(identificador.equals("L0")) {
-                headerLoteTransacao = processarHeaderLote(line.toCharArray());
+                //headerLoteTransacao = processarHeaderLote(line.toCharArray());
 
-                try {
+                /*try {
                     JDBCHeaderLoteTransacoesDAO.getInstance().create(headerLoteTransacao, arquivo);
                 } catch (Exception e) {
                     System.out.println(e);
-                }
+                }*/
             } else if(identificador.equals("RV")) {
-                resumoVenda = processarResumoVenda(line.toCharArray());
+                //resumoVenda = processarResumoVenda(line.toCharArray());
 
-                try {
+                /*try {
                     JDBCResumoVendasDAO.getInstance().create(resumoVenda, arquivo);
                 } catch (Exception e) {
                     System.out.println(e);
-                }
+                }*/
             } else if(identificador.equals("CV")) {
-                comprovanteVenda = processarComprovanteVenda(line.toCharArray());
+                //comprovanteVenda = processarComprovanteVenda(line.toCharArray());
 
-                try {
+                /*try {
                     JDBCComprovanteVendaDAO.getInstance().create(comprovanteVenda, arquivo);
                 } catch (Exception e) {
                     System.out.println(e);
-                }
+                }*/
             } else if(identificador.equals("AJ")) {
-                ajusteCreditoDebito = processarAjusteCreditoDebito(line.toCharArray());
+                //ajusteCreditoDebito = processarAjusteCreditoDebito(line.toCharArray());
                 //mostrarAjusteCreditoDebito(ajusteCreditoDebito);
             } else if(identificador.equals("CC")) {
-                cancelamento = processarCancelamento(line.toCharArray());
+                //cancelamento = processarCancelamento(line.toCharArray());
                 //mostrarCancelamento(cancelamento);
             } else if(identificador.equals("L9")) {
-                trailerLoteTransacao = processarTrailerLoteTransacoes(line.toCharArray());
-                //mostrarTrailerLoteTransacao(trailerLoteTransacao);
+                //trailerLoteTransacao = processarTrailerLoteTransacoes(line.toCharArray());
+
+                /*try {
+                    JDBCTrailerLoteTransacoesDAO.getInstance().create(trailerLoteTransacao, arquivo);
+                } catch (Exception e) {
+                    System.out.println(e);
+                }*/
             } else if(identificador.equals("A9")) {
-                trailerArquivo = processarTrailerArquivo(line.toCharArray());
-                //mostrarTrailerArquivo(trailerArquivo);
+                //trailerArquivo = processarTrailerArquivo(line.toCharArray());
+
+                /*try {
+                    JDBCTrailerArquivoDAO.getInstance().create(trailerArquivo, arquivo);
+                } catch (Exception e) {
+                    System.out.println(e);
+                }*/
             }
 
-            //System.out.println("");
             line = br.readLine();
         }
 
@@ -318,6 +334,7 @@ public class MainController {
         TipoLancamento tipoLancamento = null;
         Produto produto = null;
         Ajuste ajuste = null;
+        Adquirente adquirente = null;
 
         int codigoTipoLancamento = Integer.parseInt(String.valueOf(line[45]));
 
@@ -358,6 +375,12 @@ public class MainController {
             }
         }
 
+        for (Adquirente adquirente1:listaAdquirentes) {
+            if(adquirente1.getId() == Integer.parseInt(codigoAdquirente)) {
+                adquirente = adquirente1;
+            }
+        }
+
         resumoVenda.setCodigoRegistro(codigoRegistro);
         resumoVenda.setIdentificacaoLoja(identificacaoLoja);
         resumoVenda.setNumeroResumoVenda(numeroResumoVenda);
@@ -386,6 +409,7 @@ public class MainController {
         resumoVenda.setNSEQ(NSEQ);
         resumoVenda.setProduto(produto);
         resumoVenda.setAjuste(ajuste);
+        resumoVenda.setAdquirente(adquirente);
 
         return resumoVenda;
     }

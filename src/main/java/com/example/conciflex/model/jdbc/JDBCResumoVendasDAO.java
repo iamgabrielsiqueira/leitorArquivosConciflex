@@ -35,8 +35,8 @@ public class JDBCResumoVendasDAO implements ResumoVendasDAO {
                 "BANCO, AGENCIA, CONTA_CORRENTE, VALOR_BRUTO, SINAL_VALOR_BRUTO, VALOR_LIQUIDO," +
                 "SINAL_VALOR_LIQUIDO, VALOR_CREDITO, SINAL_VALOR_CREDITO, VALOR_COMISSAO," +
                 "SINAL_VALOR_COMISSAO, IDENTIFICADOR_AJUSTE_RV, CODIGO_AJUSTES, DESCRICAO_AJUSTE," +
-                "CODIGO_EC, CODIGO_ADQUIRENTE, NSEQ, NOME_ARQUIVO" +
-                ") values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                "CODIGO_EC, CODIGO_ADQUIRENTE, DESCRICAO_ADQUIRENTE, NSEQ, NOME_ARQUIVO" +
+                ") values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         PreparedStatement preparedStatement = connection.prepareStatement(sql);
 
@@ -96,8 +96,9 @@ public class JDBCResumoVendasDAO implements ResumoVendasDAO {
 
         preparedStatement.setString(27, resumoVenda.getCodigoEC());
         preparedStatement.setString(28, resumoVenda.getCodigoAdquirente());
-        preparedStatement.setString(29, resumoVenda.getNSEQ());
-        preparedStatement.setString(30, arquivo);
+        preparedStatement.setString(29, resumoVenda.getAdquirente().getDescricao());
+        preparedStatement.setString(30, resumoVenda.getNSEQ());
+        preparedStatement.setString(31, arquivo);
 
         preparedStatement.execute();
         preparedStatement.close();

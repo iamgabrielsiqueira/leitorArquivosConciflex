@@ -28,6 +28,7 @@ public class ResumoVenda {
     private Ajuste ajuste;
     private String codigoEC;
     private String codigoAdquirente;
+    private Adquirente adquirente;
     private String NSEQ;
 
     public String getCodigoRegistro() {
@@ -252,5 +253,13 @@ public class ResumoVenda {
 
     public void setAjuste(Ajuste ajuste) {
         this.ajuste = ajuste;
+    }
+
+    public Adquirente getAdquirente() {
+        return adquirente;
+    }
+
+    public void setAdquirente(Adquirente adquirente) {
+        this.adquirente = adquirente;
     }
 }

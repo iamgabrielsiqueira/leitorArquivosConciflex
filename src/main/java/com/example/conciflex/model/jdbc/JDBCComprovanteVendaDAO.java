@@ -58,12 +58,7 @@ public class JDBCComprovanteVendaDAO implements ComprovanteVendaDAO {
         }
 
         preparedStatement.setInt(6, Integer.parseInt(comprovanteVenda.getCodigoAdquirente()));
-
-        if(comprovanteVenda.getAdquirente() != null) {
-            preparedStatement.setString(7, comprovanteVenda.getAdquirente().getDescricao());
-        } else {
-            preparedStatement.setString(7, "teste");
-        }
+        preparedStatement.setString(7, comprovanteVenda.getAdquirente().getDescricao());
 
         Date dataTransacao = null;
 
