@@ -1,8 +1,10 @@
 package com.example.conciflex.controller;
 
 import com.example.conciflex.model.classes.*;
+import com.example.conciflex.model.jdbc.JDBCComprovanteVendaDAO;
 import com.example.conciflex.model.jdbc.JDBCHeaderArquivoDAO;
 import com.example.conciflex.model.jdbc.JDBCHeaderLoteTransacoesDAO;
+import com.example.conciflex.model.jdbc.JDBCResumoVendasDAO;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -176,10 +178,20 @@ public class MainController {
                 }
             } else if(identificador.equals("RV")) {
                 resumoVenda = processarResumoVenda(line.toCharArray());
-                //mostrarResumoVendas(resumoVenda);
+
+                try {
+                    JDBCResumoVendasDAO.getInstance().create(resumoVenda, arquivo);
+                } catch (Exception e) {
+                    System.out.println(e);
+                }
             } else if(identificador.equals("CV")) {
                 comprovanteVenda = processarComprovanteVenda(line.toCharArray());
-                //mostrarComprovanteVenda(comprovanteVenda);
+
+                try {
+                    JDBCComprovanteVendaDAO.getInstance().create(comprovanteVenda, arquivo);
+                } catch (Exception e) {
+                    System.out.println(e);
+                }
             } else if(identificador.equals("AJ")) {
                 ajusteCreditoDebito = processarAjusteCreditoDebito(line.toCharArray());
                 //mostrarAjusteCreditoDebito(ajusteCreditoDebito);
