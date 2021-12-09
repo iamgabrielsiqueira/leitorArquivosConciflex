@@ -6,7 +6,12 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import java.io.*;
+import java.sql.Date;
+import java.sql.Time;
 import java.text.ParseException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Calendar;
 
 public class MainController {
 
@@ -139,15 +144,81 @@ public class MainController {
         File folder = new File("C:\\Users\\Gabriel\\Desktop\\teste");
         File[] listOfFiles = folder.listFiles();
 
+        String pasta = "";
+        String arquivo = "";
+
+        Estabelecimento estabelecimento = null;
+        Cliente cliente = null;
+        Arquivo arquivoBuscar = null;
+
         for (int i = 0; i < listOfFiles.length; i++) {
             if (listOfFiles[i].isFile()) {
-                lerArquivo(folder.getAbsolutePath(), listOfFiles[i].getName());
+                pasta = folder.getAbsolutePath();
+                arquivo = listOfFiles[i].getName();
+                estabelecimento = getFileEstabelecimento(pasta, arquivo);
+
+                if(estabelecimento != null) {
+                    cliente = estabelecimento.getCliente();
+                    if(cliente != null) {
+                        try {
+                            arquivoBuscar = JDBCArquivoDAO.getInstance().search(arquivo, 268, cliente.getCnpj());
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
+                        if(arquivoBuscar == null) {
+                            lerArquivo(pasta, arquivo, estabelecimento);
+                        }
+                    }
+                }
             }
         }
 
+        System.out.println("Fim!");
     }
 
-    public void lerArquivo(String pasta, String arquivo) throws IOException, ParseException {
+    public Estabelecimento getFileEstabelecimento(String pasta, String arquivo) throws IOException {
+        FileInputStream stream = new FileInputStream(pasta + "\\" + arquivo);
+        InputStreamReader reader = new InputStreamReader(stream);
+        BufferedReader br = new BufferedReader(reader);
+        String line = br.readLine();
+        Cliente cliente = null;
+        Boolean flag = true;
+        Estabelecimento estabelecimento = null;
+
+        while(line != null) {
+            String identificador = line.toCharArray()[0] + "" + line.toCharArray()[1];
+            String CNPJ = "";
+
+            if(identificador.equals("RV") && flag == true) {
+                for (int i = 2; i < 17; i++) { CNPJ += "" + line.toCharArray()[i]; }
+                CNPJ = CNPJ.replaceFirst("^0+(?!$)", "");
+
+                try {
+                    estabelecimento = JDBCEstabelecimentoDAO.getInstance().search(CNPJ);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                if(estabelecimento != null) {
+                    cliente = estabelecimento.getCliente();
+                    if(cliente != null) {
+                        flag = false;
+                    }
+                }
+            }
+
+            line = br.readLine();
+        }
+
+        br.close();
+        reader.close();
+        stream.close();
+
+        return estabelecimento;
+    }
+
+    public void lerArquivo(String pasta, String arquivo, Estabelecimento estabelecimento) throws IOException, ParseException {
         FileInputStream stream = new FileInputStream(pasta + "\\" + arquivo);
         InputStreamReader reader = new InputStreamReader(stream);
         BufferedReader br = new BufferedReader(reader);
@@ -168,7 +239,7 @@ public class MainController {
             String identificador = line.toCharArray()[0] + "" + line.toCharArray()[1];
 
             if(identificador.equals("A0")) {
-                //headerArquivo = processarHeaderArquivo(line.toCharArray());
+                headerArquivo = processarHeaderArquivo(line.toCharArray());
 
                 /*try {
                     JDBCHeaderArquivoDAO.getInstance().create(headerArquivo, arquivo);
@@ -176,15 +247,15 @@ public class MainController {
                     System.out.println(e);
                 }*/
             } else if(identificador.equals("L0")) {
-                //headerLoteTransacao = processarHeaderLote(line.toCharArray());
+                headerLoteTransacao = processarHeaderLote(line.toCharArray());
 
-                /*try {
+               /* try {
                     JDBCHeaderLoteTransacoesDAO.getInstance().create(headerLoteTransacao, arquivo);
                 } catch (Exception e) {
                     System.out.println(e);
                 }*/
             } else if(identificador.equals("RV")) {
-                //resumoVenda = processarResumoVenda(line.toCharArray());
+                resumoVenda = processarResumoVenda(line.toCharArray());
 
                 /*try {
                     JDBCResumoVendasDAO.getInstance().create(resumoVenda, arquivo);
@@ -192,7 +263,7 @@ public class MainController {
                     System.out.println(e);
                 }*/
             } else if(identificador.equals("CV")) {
-                //comprovanteVenda = processarComprovanteVenda(line.toCharArray());
+                comprovanteVenda = processarComprovanteVenda(line.toCharArray());
 
                 /*try {
                     JDBCComprovanteVendaDAO.getInstance().create(comprovanteVenda, arquivo);
@@ -206,7 +277,7 @@ public class MainController {
                 //cancelamento = processarCancelamento(line.toCharArray());
                 //mostrarCancelamento(cancelamento);
             } else if(identificador.equals("L9")) {
-                //trailerLoteTransacao = processarTrailerLoteTransacoes(line.toCharArray());
+                trailerLoteTransacao = processarTrailerLoteTransacoes(line.toCharArray());
 
                 /*try {
                     JDBCTrailerLoteTransacoesDAO.getInstance().create(trailerLoteTransacao, arquivo);
@@ -214,7 +285,7 @@ public class MainController {
                     System.out.println(e);
                 }*/
             } else if(identificador.equals("A9")) {
-                //trailerArquivo = processarTrailerArquivo(line.toCharArray());
+                trailerArquivo = processarTrailerArquivo(line.toCharArray());
 
                 /*try {
                     JDBCTrailerArquivoDAO.getInstance().create(trailerArquivo, arquivo);
@@ -229,6 +300,41 @@ public class MainController {
         br.close();
         reader.close();
         stream.close();
+
+        try {
+            salvarArquivoProcessado(arquivo, pasta, estabelecimento);
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+    }
+
+    public void salvarArquivoProcessado(String arquivo, String pasta, Estabelecimento estabelecimento) {
+        Date dataAgoraSQL = new Date(Calendar.getInstance().getTime().getTime());
+
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH:mm:ss");
+        LocalDateTime now = LocalDateTime.now();
+        Time horaAgora = Time.valueOf(dtf.format(now));
+
+        Arquivo arquivoProcessado = new Arquivo();
+
+        arquivoProcessado.setArquivo(arquivo);
+        arquivoProcessado.setLocalizacao(pasta + "\\" +arquivo);
+        arquivoProcessado.setDataProcessamento(dataAgoraSQL);
+        arquivoProcessado.setHoraProcessamento(horaAgora);
+        arquivoProcessado.setIdAdquirente(268);
+        arquivoProcessado.setCNPJ(estabelecimento.getCliente().getCnpj());
+        arquivoProcessado.setDataArquivo(null);
+        arquivoProcessado.setDataMenorVenda(null);
+        arquivoProcessado.setDataMaiorVenda(null);
+        arquivoProcessado.setDataMenorPagamento(null);
+        arquivoProcessado.setDataMaiorPagamento(null);
+        arquivoProcessado.setEstabelecimentoCNPJ(estabelecimento.getCNPJ());
+
+        try {
+            JDBCArquivoDAO.getInstance().create(arquivoProcessado);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public HeaderArquivo processarHeaderArquivo(char[] line) {
