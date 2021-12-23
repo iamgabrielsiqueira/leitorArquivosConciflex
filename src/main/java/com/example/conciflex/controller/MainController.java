@@ -676,6 +676,7 @@ public class MainController {
         String autorizacaoFormatada = codigoAutorizacao.replaceFirst("^0+(?!$)", "");
         String nsuFormatada = nsuHost.replaceFirst("^0+(?!$)", "");
         String tidFormatada = nsuTef.replaceFirst("^0+(?!$)", "");
+        String cartaoFormatada = numeroCartao.replaceFirst("^0+(?!$)", "");
 
         Double taxaPercentual = calcularTaxaPercentual(valorBruto, valorDesconto);
 
@@ -726,6 +727,7 @@ public class MainController {
         comprovanteVenda.setNsuFormatada(nsuFormatada);
         comprovanteVenda.setTidFormatada(tidFormatada);
         comprovanteVenda.setTaxaPercentual(taxaPercentual);
+        comprovanteVenda.setCartaoFormatado(cartaoFormatada);
 
         return comprovanteVenda;
     }

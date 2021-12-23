@@ -71,7 +71,7 @@ public class JDBCVendaDAO implements VendaDAO {
         preparedStatement.setDouble(17, comprovanteVenda.getValorBruto());
         preparedStatement.setDouble(18, comprovanteVenda.getValorDesconto());
         preparedStatement.setDouble(19, comprovanteVenda.getValorLiquido());
-        preparedStatement.setString(20, comprovanteVenda.getNumeroCartao());
+        preparedStatement.setString(20, comprovanteVenda.getCartaoFormatado());
         preparedStatement.setInt(21, Integer.parseInt(comprovanteVenda.getBanco()));
         preparedStatement.setString(22, comprovanteVenda.getAgenciaFormatado());
         preparedStatement.setString(23, comprovanteVenda.getContaFormatada());
