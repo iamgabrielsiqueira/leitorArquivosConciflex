@@ -5,7 +5,6 @@ import com.example.conciflex.model.classes.ComprovanteVenda;
 import com.example.conciflex.model.dao.ComprovanteVendaDAO;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.Time;
@@ -59,53 +58,17 @@ public class JDBCComprovanteVendaDAO implements ComprovanteVendaDAO {
 
         preparedStatement.setInt(6, Integer.parseInt(comprovanteVenda.getCodigoAdquirente()));
         preparedStatement.setString(7, comprovanteVenda.getAdquirente().getDescricao());
-
-        Date dataTransacao = null;
-
-        if(comprovanteVenda.getDataTransacao() != null) {
-            dataTransacao = new SimpleDateFormat("yyyyMMdd").parse(comprovanteVenda.getDataTransacao());
-        }
-
-        long timeInMilliSeconds = dataTransacao.getTime();
-        java.sql.Date dataTransacaoSQL = new java.sql.Date(timeInMilliSeconds);
-
-        preparedStatement.setDate(8, dataTransacaoSQL);
-
-        Date horaTransacao = null;
-        Time horaTransacaoSQL = null;
-
-        if(comprovanteVenda.getHoraTransacao() != null) {
-            horaTransacao = new SimpleDateFormat("HHmmss").parse(comprovanteVenda.getHoraTransacao());
-        }
-
-        horaTransacaoSQL = new Time(horaTransacao.getTime());
-
-        if(comprovanteVenda.getHoraTransacao() != null) {
-            preparedStatement.setTime(9, horaTransacaoSQL);
-        } else {
-            preparedStatement.setNull(9, java.sql.Types.TIMESTAMP);
-        }
-
+        preparedStatement.setDate(8, comprovanteVenda.getDataTransacao());
+        preparedStatement.setTime(9, comprovanteVenda.getHoraTransacao());
         preparedStatement.setInt(10, comprovanteVenda.getTipoLancamento().getId());
         preparedStatement.setString(11, comprovanteVenda.getTipoLancamento().getDescricao());
-
-        Date dataLancamento = null;
-
-        if(comprovanteVenda.getDataLancamento() != null) {
-            dataLancamento = new SimpleDateFormat("yyyyMMdd").parse(comprovanteVenda.getDataLancamento());
-        }
-
-        long timeInMilliSeconds2 = dataLancamento.getTime();
-        java.sql.Date dataLancamentoSQL = new java.sql.Date(timeInMilliSeconds2);
-
-        preparedStatement.setDate(12, dataLancamentoSQL);
+        preparedStatement.setDate(12, comprovanteVenda.getDataLancamento());
         preparedStatement.setString(13, comprovanteVenda.getTipoProduto());
-
         preparedStatement.setInt(14, comprovanteVenda.getMeioCaptura().getId());
         preparedStatement.setString(15, comprovanteVenda.getMeioCaptura().getDescricao());
-        preparedStatement.setString(16, comprovanteVenda.getValorBruto());
-        preparedStatement.setString(17, comprovanteVenda.getValorDesconto());
-        preparedStatement.setString(18, comprovanteVenda.getValorLiquido());
+        preparedStatement.setString(16, comprovanteVenda.getValorBrutoString());
+        preparedStatement.setString(17, comprovanteVenda.getValorDescontoString());
+        preparedStatement.setString(18, comprovanteVenda.getValorLiquidoString());
         preparedStatement.setString(19, comprovanteVenda.getNumeroCartao());
         preparedStatement.setString(20, comprovanteVenda.getBanco());
         preparedStatement.setString(21, comprovanteVenda.getAgencia());

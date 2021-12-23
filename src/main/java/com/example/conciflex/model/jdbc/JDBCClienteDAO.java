@@ -49,9 +49,12 @@ public class JDBCClienteDAO implements ClienteDAO {
         preparedStatement.setInt(1, id);
 
         ResultSet resultSet = preparedStatement.executeQuery();
-        resultSet.next();
 
-        Cliente cliente = carregaCliente(resultSet);
+        Cliente cliente = null;
+
+        if(resultSet.next()) {
+            cliente = carregaCliente(resultSet);
+        }
 
         resultSet.close();
         preparedStatement.close();

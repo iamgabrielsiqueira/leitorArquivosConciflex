@@ -5,9 +5,7 @@ import com.example.conciflex.model.classes.HeaderArquivo;
 import com.example.conciflex.model.dao.HeaderArquivoDAO;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.Time;
+import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -71,4 +69,46 @@ public class JDBCHeaderArquivoDAO implements HeaderArquivoDAO {
         preparedStatement.close();
         connection.close();
     }
+
+    private HeaderArquivo carregarHeaderArquivo(ResultSet resultSet) throws SQLException {
+        String nomeArquivo = resultSet.getString("ID_MOVIMENTO");
+        java.sql.Date dataGeracao = resultSet.getDate("DATA_GERACAO");
+
+        HeaderArquivo headerArquivo = new HeaderArquivo();
+
+        headerArquivo.setIdMovimento(nomeArquivo);
+        headerArquivo.setDataGeracao(String.valueOf(dataGeracao));
+
+        return headerArquivo;
+    }
+
+    @Override
+    public HeaderArquivo search(String dataGeracao, String idMovimento) throws Exception {
+        Connection connection = ConnectionFactory.getConnection();
+
+        PreparedStatement preparedStatement;
+        String sql = "select * from edi_ben_header_arquivo where DATA_GERACAO = ? and ID_MOVIMENTO = ?";
+        preparedStatement = connection.prepareStatement(sql);
+
+        Date data = new SimpleDateFormat("yyyyMMdd").parse(dataGeracao);
+        long timeInMilliSeconds = data.getTime();
+        java.sql.Date dataSQL = new java.sql.Date(timeInMilliSeconds);
+
+        preparedStatement.setDate(1, dataSQL);
+        preparedStatement.setString(2, idMovimento);
+
+        ResultSet resultSet = preparedStatement.executeQuery();
+        HeaderArquivo headerArquivo = null;
+
+        if(resultSet.next()) {
+            headerArquivo = carregarHeaderArquivo(resultSet);
+        }
+
+        resultSet.close();
+        preparedStatement.close();
+        connection.close();
+
+        return headerArquivo;
+    }
+
 }

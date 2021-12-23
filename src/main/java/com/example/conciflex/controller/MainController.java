@@ -9,6 +9,7 @@ import java.io.*;
 import java.sql.Date;
 import java.sql.Time;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
@@ -62,14 +63,14 @@ public class MainController {
     }
 
     public void listarMeioCaptura() {
-        MeioCaptura manual = new MeioCaptura(1, "Manual");
-        MeioCaptura pos = new MeioCaptura(2, "POS");
-        MeioCaptura tef = new MeioCaptura(3, "TEF");
-        MeioCaptura trn = new MeioCaptura(4, "TRN Off");
-        MeioCaptura internet = new MeioCaptura(5, "Internet");
-        MeioCaptura ura = new MeioCaptura(6, "URA");
-        MeioCaptura indefinido = new MeioCaptura(8, "Indefinido");
-        MeioCaptura outros = new MeioCaptura(9, "Outros");
+        MeioCaptura manual = new MeioCaptura(1, "Manual", 12);
+        MeioCaptura pos = new MeioCaptura(2, "POS", 1);
+        MeioCaptura tef = new MeioCaptura(3, "TEF", 2);
+        MeioCaptura trn = new MeioCaptura(4, "TRN Off", 0);
+        MeioCaptura internet = new MeioCaptura(5, "Internet", 0);
+        MeioCaptura ura = new MeioCaptura(6, "URA", 11);
+        MeioCaptura indefinido = new MeioCaptura(8, "Indefinido", 13);
+        MeioCaptura outros = new MeioCaptura(9, "Outros", 13);
 
         listaMeioCaptura.add(manual);
         listaMeioCaptura.add(pos);
@@ -82,8 +83,8 @@ public class MainController {
     }
 
     public void listarProdutos() {
-        Produto alimentacao = new Produto(1, "PAT - Alimentação");
-        Produto refeicao = new Produto(2, "PAT - Refeição");
+        Produto alimentacao = new Produto(1, "PAT - Alimentação", 2, "Alimentação");
+        Produto refeicao = new Produto(2, "PAT - Refeição", 3, "Refeição");
 
         listaProdutos.add(alimentacao);
         listaProdutos.add(refeicao);
@@ -174,7 +175,7 @@ public class MainController {
             }
         }
 
-        System.out.println("Fim!");
+        System.out.println("Fim");
     }
 
     public Estabelecimento getFileEstabelecimento(String pasta, String arquivo) throws IOException {
@@ -233,65 +234,101 @@ public class MainController {
         Cancelamento cancelamento = new Cancelamento();
         TrailerLoteTransacao trailerLoteTransacao = new TrailerLoteTransacao();
         TrailerArquivo trailerArquivo = new TrailerArquivo();
+        Boolean flag = true;
 
         while(line != null) {
             currentLine++;
             String identificador = line.toCharArray()[0] + "" + line.toCharArray()[1];
 
-            if(identificador.equals("A0")) {
-                headerArquivo = processarHeaderArquivo(line.toCharArray());
+            if(flag == true) {
+                if(identificador.equals("A0")) {
+                    headerArquivo = processarHeaderArquivo(line.toCharArray());
 
-                /*try {
-                    JDBCHeaderArquivoDAO.getInstance().create(headerArquivo, arquivo);
-                } catch (Exception e) {
-                    System.out.println(e);
-                }*/
-            } else if(identificador.equals("L0")) {
-                headerLoteTransacao = processarHeaderLote(line.toCharArray());
+                    if(headerArquivo != null) {
+                        String dataGeracao = headerArquivo.getDataGeracao();
+                        String idMovimento = headerArquivo.getIdMovimento();
+                        try {
+                            HeaderArquivo headerBuscar = JDBCHeaderArquivoDAO.getInstance().search(dataGeracao, idMovimento);
 
-               /* try {
-                    JDBCHeaderLoteTransacoesDAO.getInstance().create(headerLoteTransacao, arquivo);
-                } catch (Exception e) {
-                    System.out.println(e);
-                }*/
-            } else if(identificador.equals("RV")) {
-                resumoVenda = processarResumoVenda(line.toCharArray());
+                            if(headerBuscar == null) {
+                                /*try {
+                                    JDBCHeaderArquivoDAO.getInstance().create(headerArquivo, arquivo);
+                                } catch (Exception e) {
+                                    System.out.println(e);
+                                }*/
+                            } else {
+                                flag = false;
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                } else if(identificador.equals("L0")) {
+                    headerLoteTransacao = processarHeaderLote(line.toCharArray());
 
-                /*try {
-                    JDBCResumoVendasDAO.getInstance().create(resumoVenda, arquivo);
-                } catch (Exception e) {
-                    System.out.println(e);
-                }*/
-            } else if(identificador.equals("CV")) {
-                comprovanteVenda = processarComprovanteVenda(line.toCharArray());
+                    /*try {
+                        JDBCHeaderLoteTransacoesDAO.getInstance().create(headerLoteTransacao, arquivo);
+                    } catch (Exception e) {
+                        System.out.println(e);
+                    }*/
+                } else if(identificador.equals("RV")) {
+                    resumoVenda = processarResumoVenda(line.toCharArray());
 
-                /*try {
-                    JDBCComprovanteVendaDAO.getInstance().create(comprovanteVenda, arquivo);
-                } catch (Exception e) {
-                    System.out.println(e);
-                }*/
-            } else if(identificador.equals("AJ")) {
-                //ajusteCreditoDebito = processarAjusteCreditoDebito(line.toCharArray());
-                //mostrarAjusteCreditoDebito(ajusteCreditoDebito);
-            } else if(identificador.equals("CC")) {
-                //cancelamento = processarCancelamento(line.toCharArray());
-                //mostrarCancelamento(cancelamento);
-            } else if(identificador.equals("L9")) {
-                trailerLoteTransacao = processarTrailerLoteTransacoes(line.toCharArray());
+                    /*try {
+                        JDBCResumoVendasDAO.getInstance().create(resumoVenda, arquivo);
+                    } catch (Exception e) {
+                        System.out.println(e);
+                    }*/
+                } else if(identificador.equals("CV")) {
+                    comprovanteVenda = processarComprovanteVenda(line.toCharArray());
+                    //mostrarComprovanteVenda(comprovanteVenda);
 
-                /*try {
-                    JDBCTrailerLoteTransacoesDAO.getInstance().create(trailerLoteTransacao, arquivo);
-                } catch (Exception e) {
-                    System.out.println(e);
-                }*/
-            } else if(identificador.equals("A9")) {
-                trailerArquivo = processarTrailerArquivo(line.toCharArray());
+                    /*if(comprovanteVenda.getTipoLancamento().getId() == 0) {
+                        try {
+                            JDBCPagamentoDAO.getInstance().create(comprovanteVenda);
+                        } catch (Exception e) {
+                            System.out.println(e);
+                        }
+                    }*/
 
-                /*try {
-                    JDBCTrailerArquivoDAO.getInstance().create(trailerArquivo, arquivo);
-                } catch (Exception e) {
-                    System.out.println(e);
-                }*/
+                    if(comprovanteVenda.getTipoLancamento().getId() == 1) {
+                        java.util.Date data = new java.util.Date();
+
+                        Date dataImportacao = new java.sql.Date(Calendar.getInstance().getTime().getTime());
+                        Time horaImportacao = java.sql.Time.valueOf(new SimpleDateFormat("HH:mm:ss").format(data));
+
+                        try {
+                            System.out.println("Inserindo..." + comprovanteVenda.getDataTransacao());
+                            JDBCVendaDAO.getInstance().create(comprovanteVenda, dataImportacao, horaImportacao, arquivo);
+                            System.out.println("Inseriu!");
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                } else if(identificador.equals("AJ")) {
+                    //ajusteCreditoDebito = processarAjusteCreditoDebito(line.toCharArray());
+                    //mostrarAjusteCreditoDebito(ajusteCreditoDebito);
+                } else if(identificador.equals("CC")) {
+                    //cancelamento = processarCancelamento(line.toCharArray());
+                    //mostrarCancelamento(cancelamento);
+                } else if(identificador.equals("L9")) {
+                    trailerLoteTransacao = processarTrailerLoteTransacoes(line.toCharArray());
+
+                    /*try {
+                        JDBCTrailerLoteTransacoesDAO.getInstance().create(trailerLoteTransacao, arquivo);
+                    } catch (Exception e) {
+                        System.out.println(e);
+                    }*/
+                } else if(identificador.equals("A9")) {
+                    trailerArquivo = processarTrailerArquivo(line.toCharArray());
+
+                    /*try {
+                        JDBCTrailerArquivoDAO.getInstance().create(trailerArquivo, arquivo);
+                    } catch (Exception e) {
+                        System.out.println(e);
+                    }*/
+                }
             }
 
             line = br.readLine();
@@ -301,11 +338,13 @@ public class MainController {
         reader.close();
         stream.close();
 
-        try {
-            salvarArquivoProcessado(arquivo, pasta, estabelecimento);
-        } catch (Exception e) {
-            System.out.println(e);
-        }
+        /*if(flag == true) {
+            try {
+                salvarArquivoProcessado(arquivo, pasta, estabelecimento);
+            } catch (Exception e) {
+                System.out.println(e);
+            }
+        }*/
     }
 
     public void salvarArquivoProcessado(String arquivo, String pasta, Estabelecimento estabelecimento) {
@@ -328,7 +367,7 @@ public class MainController {
         arquivoProcessado.setDataMaiorVenda(null);
         arquivoProcessado.setDataMenorPagamento(null);
         arquivoProcessado.setDataMaiorPagamento(null);
-        arquivoProcessado.setEstabelecimentoCNPJ(estabelecimento.getCNPJ());
+        arquivoProcessado.setEstabelecimentoCNPJ(estabelecimento.getCnpj());
 
         try {
             JDBCArquivoDAO.getInstance().create(arquivoProcessado);
@@ -532,9 +571,9 @@ public class MainController {
         String dataTransacaoVenda = "";
         String horaTransacao = "";
         String tipoProduto = (String.valueOf(line[82]).equals("V")) ? "Voucher" : String.valueOf(line[82]);
-        String valorBruto = "";
-        String valorDesconto = "";
-        String valorLiquido = "";
+        String valorBrutoString = "";
+        String valorDescontoString = "";
+        String valorLiquidoString = "";
         String numeroCartao = "";
         String banco = "";
         String agencia = "";
@@ -553,6 +592,7 @@ public class MainController {
         MeioCaptura meioCaptura = null;
         Adquirente adquirente = null;
         Produto produto = null;
+        Estabelecimento estabelecimento = null;
 
         for (int i = 2; i < 17; i++) { identificacaoLoja += "" + line[i]; }
         for (int i = 17; i < 29; i++) { nsuHost += "" + line[i]; }
@@ -562,9 +602,9 @@ public class MainController {
         for (int i = 59; i < 67; i++) { dataTransacaoVenda += "" + line[i]; }
         for (int i = 59; i < 67; i++) { horaTransacao += "" + line[i]; }
         for (int i = 74; i < 82; i++) { dataLancamento += "" + line[i]; }
-        for (int i = 84; i < 95; i++) { valorBruto += "" + line[i]; }
-        for (int i = 95; i < 106; i++) { valorDesconto += "" + line[i]; }
-        for (int i = 106; i < 117; i++) { valorLiquido += "" + line[i]; }
+        for (int i = 84; i < 95; i++) { valorBrutoString += "" + line[i]; }
+        for (int i = 95; i < 106; i++) { valorDescontoString += "" + line[i]; }
+        for (int i = 106; i < 117; i++) { valorLiquidoString += "" + line[i]; }
         for (int i = 117; i < 136; i++) { numeroCartao += "" + line[i]; }
         for (int i = 136; i < 139; i++) { banco += "" + line[i]; }
         for (int i = 139; i < 145; i++) { agencia += "" + line[i]; }
@@ -599,6 +639,59 @@ public class MainController {
             }
         }
 
+        identificacaoLoja = identificacaoLoja.replaceFirst("^0+(?!$)", "");
+        codigoEC = codigoEC.replaceFirst("^0+(?!$)", "");
+
+        Empresa empresa = null;
+        Cliente cliente = null;
+
+        try {
+            empresa = JDBCEmpresaDAO.getInstance().search(identificacaoLoja);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        if(empresa != null) {
+            cliente = empresa.getCliente();
+            if(cliente != null) {
+                empresa.setCliente(cliente);
+            }
+        }
+
+        Date dataTransacaoSQL = converterDataSQL(dataTransacaoVenda);
+        Date dataLancamentoSQL = converterDataSQL(dataLancamento);
+
+        Double valorBruto = converterValorDouble(valorBrutoString);
+        Double valorDesconto = converterValorDouble(valorDescontoString);
+        Double valorLiquido = converterValorDouble(valorLiquidoString);
+
+        try {
+            estabelecimento = JDBCEstabelecimentoDAO.getInstance().search(codigoEC);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        String agenciaFormatada = agencia.replaceFirst("^0+(?!$)", "");
+        String contaFormatada = conta.replaceFirst("^0+(?!$)", "");
+        String autorizacaoFormatada = codigoAutorizacao.replaceFirst("^0+(?!$)", "");
+        String nsuFormatada = nsuHost.replaceFirst("^0+(?!$)", "");
+        String tidFormatada = nsuTef.replaceFirst("^0+(?!$)", "");
+
+        Double taxaPercentual = calcularTaxaPercentual(valorBruto, valorDesconto);
+
+        Time horaTransacaoSQL = null;
+        java.util.Date horaTransacaoDate = null;
+
+        if(horaTransacao != null) {
+            try {
+                horaTransacaoDate = new SimpleDateFormat("HHmmss").parse(horaTransacao);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
+
+        horaTransacaoSQL = new Time(horaTransacaoDate.getTime());
+
         comprovanteVenda.setCodigoRegistro(codigoRegistro);
         comprovanteVenda.setIdentificacaoLoja(identificacaoLoja);
         comprovanteVenda.setNSUHostTransacao(nsuHost);
@@ -622,9 +715,17 @@ public class MainController {
         comprovanteVenda.setNSEQ(nseq);
         comprovanteVenda.setAdquirente(adquirente);
         comprovanteVenda.setProduto(produto);
-        comprovanteVenda.setDataTransacao(dataTransacaoVenda);
-        comprovanteVenda.setHoraTransacao(horaTransacao);
-        comprovanteVenda.setDataLancamento(dataLancamento);
+        comprovanteVenda.setDataTransacao(dataTransacaoSQL);
+        comprovanteVenda.setHoraTransacao(horaTransacaoSQL);
+        comprovanteVenda.setDataLancamento(dataLancamentoSQL);
+        comprovanteVenda.setEmpresa(empresa);
+        comprovanteVenda.setEstabelecimento(estabelecimento);
+        comprovanteVenda.setAgenciaFormatado(agenciaFormatada);
+        comprovanteVenda.setContaFormatada(contaFormatada);
+        comprovanteVenda.setAutorizacaoFormatada(autorizacaoFormatada);
+        comprovanteVenda.setNsuFormatada(nsuFormatada);
+        comprovanteVenda.setTidFormatada(tidFormatada);
+        comprovanteVenda.setTaxaPercentual(taxaPercentual);
 
         return comprovanteVenda;
     }
@@ -1057,5 +1158,53 @@ public class MainController {
         System.out.println("Código do registro: " + trailerArquivo.getCodigoRegistro());
         System.out.println("Data do Movimento: " + trailerArquivo.getDataMovimento());
         System.out.println("NSEQ: " + trailerArquivo.getNSEQ());
+    }
+
+    public Date converterDataSQL(String dataString) {
+        java.util.Date dataUtilFormat = null;
+
+        if(dataString != null) {
+            try {
+                dataUtilFormat = new SimpleDateFormat("yyyyMMdd").parse(dataString);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
+
+        long timeInMilliSeconds = dataUtilFormat.getTime();
+        Date dataSQL = new java.sql.Date(timeInMilliSeconds);
+
+        return dataSQL;
+    }
+
+    public Double converterValorDouble(String valorString) {
+        Double valorFinal = null;
+        String valorFormatado = "";
+
+        for (int i = 0; i < valorString.length(); i++) {
+            valorFormatado += valorString.toCharArray()[i];
+            if(i == (valorString.length() - 3)) {
+                valorFormatado += ".";
+            }
+        }
+
+        valorFormatado = valorFormatado.replaceFirst("^0+(?!$)", "");
+
+        String primeiro = String.valueOf(valorFormatado.toCharArray()[0]);
+
+        if(primeiro.equals(".")) {
+            valorFormatado = "0" + valorFormatado;
+        }
+
+        valorFinal = Double.parseDouble(valorFormatado);
+
+        return valorFinal;
+    }
+
+    public Double calcularTaxaPercentual(Double valorBruto, Double valorDesconto) {
+        Double taxaPercentual = 0.0;
+        taxaPercentual = (valorDesconto * 100) / valorBruto;
+
+        return taxaPercentual;
     }
 }

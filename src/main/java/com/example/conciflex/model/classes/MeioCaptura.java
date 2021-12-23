@@ -3,10 +3,12 @@ package com.example.conciflex.model.classes;
 public class MeioCaptura {
     private int id;
     private String descricao;
+    private int idConciflex;
 
-    public MeioCaptura(int id, String descricao) {
+    public MeioCaptura(int id, String descricao, int idConciflex) {
         this.id = id;
         this.descricao = descricao;
+        this.idConciflex = idConciflex;
     }
 
     public MeioCaptura() {}
@@ -25,5 +27,13 @@ public class MeioCaptura {
 
     public void setDescricao(String descricao) {
         this.descricao = descricao;
+    }
+
+    public int getIdConciflex() {
+        return idConciflex;
+    }
+
+    public void setIdConciflex(int idConciflex) {
+        this.idConciflex = idConciflex;
     }
 }

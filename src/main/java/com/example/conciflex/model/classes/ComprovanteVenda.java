@@ -1,5 +1,8 @@
 package com.example.conciflex.model.classes;
 
+import java.sql.Date;
+import java.sql.Time;
+
 public class ComprovanteVenda {
     private String codigoRegistro;
     private String identificacaoLoja;
@@ -8,15 +11,18 @@ public class ComprovanteVenda {
     private String NSUTerminal;
     private String codigoAdquirente;
     private Adquirente adquirente;
-    private String dataTransacao;
-    private String horaTransacao;
+    private Date dataTransacao;
+    private Time horaTransacao;
     private TipoLancamento tipoLancamento;
-    private String dataLancamento;
+    private Date dataLancamento;
     private String tipoProduto;
     private MeioCaptura meioCaptura;
-    private String valorBruto;
-    private String valorDesconto;
-    private String valorLiquido;
+    private String valorBrutoString;
+    private String valorDescontoString;
+    private String valorLiquidoString;
+    private Double valorBruto;
+    private Double valorDesconto;
+    private Double valorLiquido;
     private String numeroCartao;
     private String banco;
     private String agencia;
@@ -27,6 +33,14 @@ public class ComprovanteVenda {
     private Produto produto;
     private String codigoEC;
     private String NSEQ;
+    private Empresa empresa;
+    private Estabelecimento estabelecimento;
+    private String agenciaFormatado;
+    private String contaFormatada;
+    private String autorizacaoFormatada;
+    private String nsuFormatada;
+    private String tidFormatada;
+    private Double taxaPercentual;
 
     public String getCodigoRegistro() {
         return codigoRegistro;
@@ -84,19 +98,19 @@ public class ComprovanteVenda {
         this.adquirente = adquirente;
     }
 
-    public String getDataTransacao() {
+    public Date getDataTransacao() {
         return dataTransacao;
     }
 
-    public void setDataTransacao(String dataTransacao) {
+    public void setDataTransacao(Date dataTransacao) {
         this.dataTransacao = dataTransacao;
     }
 
-    public String getHoraTransacao() {
+    public Time getHoraTransacao() {
         return horaTransacao;
     }
 
-    public void setHoraTransacao(String horaTransacao) {
+    public void setHoraTransacao(Time horaTransacao) {
         this.horaTransacao = horaTransacao;
     }
 
@@ -108,11 +122,11 @@ public class ComprovanteVenda {
         this.tipoLancamento = tipoLancamento;
     }
 
-    public String getDataLancamento() {
+    public Date getDataLancamento() {
         return dataLancamento;
     }
 
-    public void setDataLancamento(String dataLancamento) {
+    public void setDataLancamento(Date dataLancamento) {
         this.dataLancamento = dataLancamento;
     }
 
@@ -132,27 +146,51 @@ public class ComprovanteVenda {
         this.meioCaptura = meioCaptura;
     }
 
-    public String getValorBruto() {
+    public String getValorBrutoString() {
+        return valorBrutoString;
+    }
+
+    public void setValorBrutoString(String valorBrutoString) {
+        this.valorBrutoString = valorBrutoString;
+    }
+
+    public String getValorDescontoString() {
+        return valorDescontoString;
+    }
+
+    public void setValorDescontoString(String valorDescontoString) {
+        this.valorDescontoString = valorDescontoString;
+    }
+
+    public String getValorLiquidoString() {
+        return valorLiquidoString;
+    }
+
+    public void setValorLiquidoString(String valorLiquidoString) {
+        this.valorLiquidoString = valorLiquidoString;
+    }
+
+    public Double getValorBruto() {
         return valorBruto;
     }
 
-    public void setValorBruto(String valorBruto) {
+    public void setValorBruto(Double valorBruto) {
         this.valorBruto = valorBruto;
     }
 
-    public String getValorDesconto() {
+    public Double getValorDesconto() {
         return valorDesconto;
     }
 
-    public void setValorDesconto(String valorDesconto) {
+    public void setValorDesconto(Double valorDesconto) {
         this.valorDesconto = valorDesconto;
     }
 
-    public String getValorLiquido() {
+    public Double getValorLiquido() {
         return valorLiquido;
     }
 
-    public void setValorLiquido(String valorLiquido) {
+    public void setValorLiquido(Double valorLiquido) {
         this.valorLiquido = valorLiquido;
     }
 
@@ -234,5 +272,69 @@ public class ComprovanteVenda {
 
     public void setNSEQ(String NSEQ) {
         this.NSEQ = NSEQ;
+    }
+
+    public Empresa getEmpresa() {
+        return empresa;
+    }
+
+    public void setEmpresa(Empresa empresa) {
+        this.empresa = empresa;
+    }
+
+    public Estabelecimento getEstabelecimento() {
+        return estabelecimento;
+    }
+
+    public void setEstabelecimento(Estabelecimento estabelecimento) {
+        this.estabelecimento = estabelecimento;
+    }
+
+    public String getAgenciaFormatado() {
+        return agenciaFormatado;
+    }
+
+    public void setAgenciaFormatado(String agenciaFormatado) {
+        this.agenciaFormatado = agenciaFormatado;
+    }
+
+    public String getContaFormatada() {
+        return contaFormatada;
+    }
+
+    public void setContaFormatada(String contaFormatada) {
+        this.contaFormatada = contaFormatada;
+    }
+
+    public String getAutorizacaoFormatada() {
+        return autorizacaoFormatada;
+    }
+
+    public void setAutorizacaoFormatada(String autorizacaoFormatada) {
+        this.autorizacaoFormatada = autorizacaoFormatada;
+    }
+
+    public String getNsuFormatada() {
+        return nsuFormatada;
+    }
+
+    public void setNsuFormatada(String nsuFormatada) {
+        this.nsuFormatada = nsuFormatada;
+    }
+
+    public String getTidFormatada() {
+        return tidFormatada;
+    }
+
+    public void setTidFormatada(String tidFormatada) {
+        this.tidFormatada = tidFormatada;
+    }
+
+    public Double getTaxaPercentual() {
+        return taxaPercentual;
+    }
+
+    public void setTaxaPercentual(Double taxaPercentual) {
+        this.taxaPercentual = taxaPercentual;
     }
 }

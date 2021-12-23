@@ -21,9 +21,9 @@ public class JDBCEstabelecimentoDAO implements EstabelecimentoDAO {
 
     private Estabelecimento carregaEstabelecimento(ResultSet resultSet) throws SQLException {
         int id = resultSet.getInt("CODIGO");
-        String CNPJ = resultSet.getString("CNPJ");
-        String nomeEmpresa = resultSet.getString("NOME_EMPRESA");
         int idCliente = resultSet.getInt("COD_CLIENTE");
+        String codigoEstabelecimento = resultSet.getString("CODIGO_ESTABELECIMENTO");
+        String cnpj = resultSet.getString("CNPJ_ESTABELECIMENTO");
 
         Estabelecimento estabelecimento = new Estabelecimento();
         Cliente cliente = null;
@@ -37,9 +37,9 @@ public class JDBCEstabelecimentoDAO implements EstabelecimentoDAO {
         }
 
         estabelecimento.setId(id);
-        estabelecimento.setCNPJ(CNPJ);
-        estabelecimento.setNomeEmpresa(nomeEmpresa);
         estabelecimento.setCliente(cliente);
+        estabelecimento.setCodigoEstabelecimento(codigoEstabelecimento);
+        estabelecimento.setCnpj(cnpj);
 
         return estabelecimento;
     }
@@ -49,15 +49,17 @@ public class JDBCEstabelecimentoDAO implements EstabelecimentoDAO {
         Connection connection = ConnectionFactory.getConnection();
         PreparedStatement preparedStatement;
 
-        String sql = "select CODIGO, CNPJ, NOME_EMPRESA, COD_CLIENTE from grupos_clientes where CNPJ = ?";
+        String sql = "select * from cliente_operadora where CODIGO_ESTABELECIMENTO LIKE ?";
 
         preparedStatement = connection.prepareStatement(sql);
         preparedStatement.setString(1, CNPJ);
 
         ResultSet resultSet = preparedStatement.executeQuery();
-        resultSet.next();
+        Estabelecimento estabelecimento = null;
 
-        Estabelecimento estabelecimento = carregaEstabelecimento(resultSet);
+        if(resultSet.next()) {
+            estabelecimento = carregaEstabelecimento(resultSet);
+        }
 
         resultSet.close();
         preparedStatement.close();

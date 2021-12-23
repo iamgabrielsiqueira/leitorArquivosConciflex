@@ -1,16 +1,12 @@
 package com.example.conciflex.model.jdbc;
 
 import com.example.conciflex.model.ConnectionFactory;
-import com.example.conciflex.model.classes.ResumoVenda;
 import com.example.conciflex.model.classes.TrailerLoteTransacao;
 import com.example.conciflex.model.dao.TrailerLoteTransacoesDAO;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 public class JDBCTrailerLoteTransacoesDAO implements TrailerLoteTransacoesDAO {
     private static JDBCTrailerLoteTransacoesDAO instance;
@@ -47,4 +43,6 @@ public class JDBCTrailerLoteTransacoesDAO implements TrailerLoteTransacoesDAO {
         preparedStatement.close();
         connection.close();
     }
+
+
 }

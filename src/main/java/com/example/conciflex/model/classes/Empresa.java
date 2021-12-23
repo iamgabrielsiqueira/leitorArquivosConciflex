@@ -1,9 +1,9 @@
 package com.example.conciflex.model.classes;
 
-public class Estabelecimento {
+public class Empresa {
     private int id;
     private Cliente cliente;
-    private String codigoEstabelecimento;
+    private String nomeEmpresa;
     private String cnpj;
 
     public int getId() {
@@ -22,12 +22,12 @@ public class Estabelecimento {
         this.cliente = cliente;
     }
 
-    public String getCodigoEstabelecimento() {
-        return codigoEstabelecimento;
+    public String getNomeEmpresa() {
+        return nomeEmpresa;
     }
 
-    public void setCodigoEstabelecimento(String codigoEstabelecimento) {
-        this.codigoEstabelecimento = codigoEstabelecimento;
+    public void setNomeEmpresa(String nomeEmpresa) {
+        this.nomeEmpresa = nomeEmpresa;
     }
 
     public String getCnpj() {
