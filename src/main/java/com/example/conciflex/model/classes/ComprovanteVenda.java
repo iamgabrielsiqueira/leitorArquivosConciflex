@@ -42,6 +42,7 @@ public class ComprovanteVenda {
     private String tidFormatada;
     private Double taxaPercentual;
     private String cartaoFormatado;
+    private String chavePagamento;
 
     public String getCodigoRegistro() {
         return codigoRegistro;
@@ -345,5 +346,13 @@ public class ComprovanteVenda {
 
     public void setCartaoFormatado(String cartaoFormatado) {
         this.cartaoFormatado = cartaoFormatado;
+    }
+
+    public String getChavePagamento() {
+        return chavePagamento;
+    }
+
+    public void setChavePagamento(String chavePagamento) {
+        this.chavePagamento = chavePagamento;
     }
 }

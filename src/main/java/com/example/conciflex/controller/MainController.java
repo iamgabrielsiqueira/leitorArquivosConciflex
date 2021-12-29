@@ -283,20 +283,14 @@ public class MainController {
                     comprovanteVenda = processarComprovanteVenda(line.toCharArray());
                     //mostrarComprovanteVenda(comprovanteVenda);
 
-                    /*if(comprovanteVenda.getTipoLancamento().getId() == 0) {
-                        try {
-                            JDBCPagamentoDAO.getInstance().create(comprovanteVenda);
-                        } catch (Exception e) {
-                            System.out.println(e);
-                        }
-                    }*/
+                    java.util.Date data = new java.util.Date();
 
-                    if(comprovanteVenda.getTipoLancamento().getId() == 1) {
-                        java.util.Date data = new java.util.Date();
+                    Date dataImportacao = new java.sql.Date(Calendar.getInstance().getTime().getTime());
+                    Time horaImportacao = java.sql.Time.valueOf(new SimpleDateFormat("HH:mm:ss").format(data));
 
-                        Date dataImportacao = new java.sql.Date(Calendar.getInstance().getTime().getTime());
-                        Time horaImportacao = java.sql.Time.valueOf(new SimpleDateFormat("HH:mm:ss").format(data));
-
+                    if(comprovanteVenda.getTipoLancamento().getId() == 0) {
+                        /*VENDA*/
+                        mostrarComprovanteVenda(comprovanteVenda);
                         try {
                             System.out.println("Inserindo..." + comprovanteVenda.getDataTransacao());
                             JDBCVendaDAO.getInstance().create(comprovanteVenda, dataImportacao, horaImportacao, arquivo);
@@ -304,6 +298,14 @@ public class MainController {
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
+                    } else {
+                        /*PAGAMENTO*/
+                        //mostrarComprovanteVenda(comprovanteVenda);
+                        /*try {
+                            JDBCPagamentoDAO.getInstance().create(comprovanteVenda, dataImportacao, horaImportacao, arquivo);
+                        } catch (Exception e) {
+                            System.out.println(e);
+                        }*/
                     }
 
                 } else if(identificador.equals("AJ")) {
@@ -693,6 +695,8 @@ public class MainController {
 
         horaTransacaoSQL = new Time(horaTransacaoDate.getTime());
 
+        String chavePagamento = cliente.getId()+"-268-"+dataLancamentoSQL+"-1-1-"+nsuFormatada+autorizacaoFormatada+"-238-3";
+
         comprovanteVenda.setCodigoRegistro(codigoRegistro);
         comprovanteVenda.setIdentificacaoLoja(identificacaoLoja);
         comprovanteVenda.setNSUHostTransacao(nsuHost);
@@ -728,6 +732,7 @@ public class MainController {
         comprovanteVenda.setTidFormatada(tidFormatada);
         comprovanteVenda.setTaxaPercentual(taxaPercentual);
         comprovanteVenda.setCartaoFormatado(cartaoFormatada);
+        comprovanteVenda.setChavePagamento(chavePagamento);
 
         return comprovanteVenda;
     }

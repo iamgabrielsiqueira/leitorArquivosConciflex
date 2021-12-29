@@ -38,7 +38,7 @@ public class JDBCVendaDAO implements VendaDAO {
                 "BANCO, AGENCIA, CONTA, AUTORIZACAO, COD_BANDEIRA," +
                 "BANDEIRA, COD_PRODUTO, CODIGO_PRODUTO, PRODUTO, ESTABELECIMENTO," +
                 "COD_STATUS_FINANCEIRO, COD_STATUS_CONCILIACAO, NOME_ARQUIVO, PARCELA, TOTAL_PARCELAS," +
-                "OBSERVACOES, PERCENTUAL_TAXA, HORA_TRANSACAO" +
+                "OBSERVACOES, PERCENTUAL_TAXA, HORA_TRANSACAO, CHAVE_VENDA" +
                 ") values(" +
                 "?, ?, ?, ?, ?," +
                 "?, ?, ?, ?, ?," +
@@ -47,7 +47,7 @@ public class JDBCVendaDAO implements VendaDAO {
                 "?, ?, ?, ?, ?," +
                 "?, ?, ?, ?, ?," +
                 "?, ?, ?, ?, ?," +
-                "?, ?, ?" +
+                "?, ?, ?, ?" +
                 ")";
 
         PreparedStatement preparedStatement = connection.prepareStatement(sql);
@@ -90,6 +90,7 @@ public class JDBCVendaDAO implements VendaDAO {
         preparedStatement.setString(36, "A coluna Taxa % foi calculada pelo valor bruto e líquido");
         preparedStatement.setDouble(37, comprovanteVenda.getTaxaPercentual());
         preparedStatement.setTime(38, comprovanteVenda.getHoraTransacao());
+        preparedStatement.setString(39, comprovanteVenda.getChavePagamento());
 
         preparedStatement.execute();
         preparedStatement.close();
