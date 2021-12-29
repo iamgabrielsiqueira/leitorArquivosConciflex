@@ -6,10 +6,8 @@ import com.example.conciflex.model.classes.Venda;
 import com.example.conciflex.model.dao.VendaDAO;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import java.sql.Connection;
-import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.Time;
+
+import java.sql.*;
 
 public class JDBCVendaDAO implements VendaDAO {
     private static JDBCVendaDAO instance;
@@ -101,4 +99,30 @@ public class JDBCVendaDAO implements VendaDAO {
     public Venda search(ComprovanteVenda comprovanteVenda) throws Exception {
         return null;
     }
+
+    @Override
+    public Boolean verificarDuplicidade(String chaveVenda) throws Exception {
+        Connection connection = ConnectionFactory.getConnection();
+
+        PreparedStatement preparedStatement;
+        String sql = "select * from vendas where CHAVE_VENDA LIKE ?";
+        preparedStatement = connection.prepareStatement(sql);
+
+        preparedStatement.setString(1, chaveVenda);
+
+        ResultSet resultSet = preparedStatement.executeQuery();
+
+        Boolean verificar = false;
+
+        if(resultSet.next()) {
+            verificar = true;
+        }
+
+        resultSet.close();
+        preparedStatement.close();
+        connection.close();
+
+        return verificar;
+    }
+
 }

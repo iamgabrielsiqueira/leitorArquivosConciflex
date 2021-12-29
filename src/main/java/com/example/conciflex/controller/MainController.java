@@ -281,31 +281,49 @@ public class MainController {
                     }*/
                 } else if(identificador.equals("CV")) {
                     comprovanteVenda = processarComprovanteVenda(line.toCharArray());
-                    //mostrarComprovanteVenda(comprovanteVenda);
 
                     java.util.Date data = new java.util.Date();
-
                     Date dataImportacao = new java.sql.Date(Calendar.getInstance().getTime().getTime());
                     Time horaImportacao = java.sql.Time.valueOf(new SimpleDateFormat("HH:mm:ss").format(data));
 
+                    Boolean verificar = false;
+
                     if(comprovanteVenda.getTipoLancamento().getId() == 0) {
                         /*VENDA*/
-                        mostrarComprovanteVenda(comprovanteVenda);
+
                         try {
-                            System.out.println("Inserindo..." + comprovanteVenda.getDataTransacao());
-                            JDBCVendaDAO.getInstance().create(comprovanteVenda, dataImportacao, horaImportacao, arquivo);
-                            System.out.println("Inseriu!");
+                            verificar = JDBCVendaDAO.getInstance().verificarDuplicidade(comprovanteVenda.getChavePagamento());
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
+
+                        if(verificar == false) {
+                            try {
+                                JDBCVendaDAO.getInstance().create(comprovanteVenda, dataImportacao, horaImportacao, arquivo);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        } else {
+                            System.out.println("Essa venda já existe!");
+                        }
                     } else {
                         /*PAGAMENTO*/
-                        //mostrarComprovanteVenda(comprovanteVenda);
-                        /*try {
-                            JDBCPagamentoDAO.getInstance().create(comprovanteVenda, dataImportacao, horaImportacao, arquivo);
+
+                        try {
+                            verificar = JDBCPagamentoDAO.getInstance().verificarDuplicidade(comprovanteVenda.getChavePagamento());
                         } catch (Exception e) {
-                            System.out.println(e);
-                        }*/
+                            e.printStackTrace();
+                        }
+
+                        if(verificar == false) {
+                            try {
+                                JDBCPagamentoDAO.getInstance().create(comprovanteVenda, dataImportacao, horaImportacao, arquivo);
+                            } catch (Exception e) {
+                                System.out.println(e);
+                            }
+                        } else {
+                            System.out.println("Esse pagamento já existe!");
+                        }
                     }
 
                 } else if(identificador.equals("AJ")) {
