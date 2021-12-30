@@ -2,6 +2,7 @@ package com.example.conciflex.model.jdbc;
 
 import com.example.conciflex.model.ConnectionFactory;
 import com.example.conciflex.model.classes.ComprovanteVenda;
+import com.example.conciflex.model.classes.Empresa;
 import com.example.conciflex.model.classes.Venda;
 import com.example.conciflex.model.dao.VendaDAO;
 import javafx.collections.FXCollections;
@@ -96,8 +97,32 @@ public class JDBCVendaDAO implements VendaDAO {
     }
 
     @Override
-    public Venda search(ComprovanteVenda comprovanteVenda) throws Exception {
-        return null;
+    public Boolean search(ComprovanteVenda comprovanteVenda) throws Exception {
+        Connection connection = ConnectionFactory.getConnection();
+
+        PreparedStatement preparedStatement;
+
+        String sql = "select * from vendas where ADQID = 268 and cod_cliente = ? " +
+                "and DATA_VENDA = ? and VALOR_BRUTO = ? and COD_STATUS_FINANCEIRO = 1";
+
+        preparedStatement = connection.prepareStatement(sql);
+        preparedStatement.setInt(1, comprovanteVenda.getEmpresa().getCliente().getId());
+        preparedStatement.setDate(2, comprovanteVenda.getDataTransacao());
+        preparedStatement.setDouble(3, comprovanteVenda.getValorBruto());
+
+        ResultSet resultSet = preparedStatement.executeQuery();
+
+        Boolean verificar = false;
+
+        if(resultSet.next()) {
+            verificar = true;
+        }
+
+        resultSet.close();
+        preparedStatement.close();
+        connection.close();
+
+        return verificar;
     }
 
     @Override
@@ -123,6 +148,27 @@ public class JDBCVendaDAO implements VendaDAO {
         connection.close();
 
         return verificar;
+    }
+
+    @Override
+    public void updateVendaPaga(ComprovanteVenda comprovanteVenda, long id) throws Exception {
+        String sql = "update vendas set COD_STATUS_FINANCEIRO = ?, CHAVE_PAGAMENTO = ?, COD_PAGAMENTO = ? " +
+                "where ADQID = 268 and cod_cliente = ? and DATA_VENDA = ? " +
+                "and VALOR_BRUTO = ? and COD_STATUS_FINANCEIRO = 1";
+
+        Connection connection = ConnectionFactory.getConnection();
+        PreparedStatement preparedStatement = connection.prepareStatement(sql);
+
+        preparedStatement.setInt(1, 2);
+        preparedStatement.setString(2, comprovanteVenda.getChavePagamento());
+        preparedStatement.setLong(3, id);
+        preparedStatement.setInt(4, comprovanteVenda.getEmpresa().getCliente().getId());
+        preparedStatement.setDate(5, comprovanteVenda.getDataTransacao());
+        preparedStatement.setDouble(6, comprovanteVenda.getValorBruto());
+
+        preparedStatement.execute();
+        preparedStatement.close();
+        connection.close();
     }
 
 }

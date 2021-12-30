@@ -25,8 +25,10 @@ public class JDBCPagamentoDAO implements PagamentoDAO {
     }
 
     @Override
-    public void create(ComprovanteVenda comprovanteVenda, Date dataImportacao, Time horaImportacao, String arquivo) throws Exception {
+    public long create(ComprovanteVenda comprovanteVenda, Date dataImportacao, Time horaImportacao, String arquivo) throws Exception {
         Connection connection = ConnectionFactory.getConnection();
+
+        String generatedColumns[] = { "CODIGO" };
 
         String sql = "insert into pagamentos_operadoras(" +
                 "COD_CLIENTE, CNPJ, EMPRESA, COD_GRUPO_CLIENTE, DATA_PROCESSAMENTO," +
@@ -48,7 +50,7 @@ public class JDBCPagamentoDAO implements PagamentoDAO {
                 "?, ?, ?" +
                 ")";
 
-        PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        PreparedStatement preparedStatement = connection.prepareStatement(sql, generatedColumns);
 
         preparedStatement.setInt(1, comprovanteVenda.getEmpresa().getCliente().getId());
         preparedStatement.setString(2, comprovanteVenda.getIdentificacaoLoja());
@@ -97,8 +99,20 @@ public class JDBCPagamentoDAO implements PagamentoDAO {
         preparedStatement.setString(38, comprovanteVenda.getChavePagamento());
 
         preparedStatement.execute();
+
+        ResultSet resultSet = preparedStatement.getGeneratedKeys();
+
+        long id = 0;
+
+        if(resultSet.next()) {
+            id = resultSet.getLong(1);
+        }
+
+        resultSet.close();
         preparedStatement.close();
         connection.close();
+
+        return id;
     }
 
     @Override

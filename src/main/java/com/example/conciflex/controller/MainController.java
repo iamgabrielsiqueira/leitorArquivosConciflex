@@ -117,10 +117,10 @@ public class MainController {
                 }
 
                 if(estabelecimento != null) {
-                    System.out.println("Estabelecimento: " + estabelecimento.getCodigoEstabelecimento());
+                    /*System.out.println("Estabelecimento: " + estabelecimento.getCodigoEstabelecimento());*/
                     cliente = estabelecimento.getCliente();
                     if(cliente != null) {
-                        System.out.println("Cliente: " + cliente.getNome());
+                        /*System.out.println("Cliente: " + cliente.getNome());*/
                         flag = false;
                     }
                 }
@@ -214,14 +214,13 @@ public class MainController {
                             e.printStackTrace();
                         }
 
+                        // VERIFICA SE A VENDA JÁ EXISTE
                         if(verificar == false) {
                             try {
                                 JDBCVendaDAO.getInstance().create(comprovanteVenda, dataImportacao, horaImportacao, arquivo);
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
-                        } else {
-                            System.out.println("Essa venda já existe!");
                         }
                     } else {
                         /*PAGAMENTO*/
@@ -232,14 +231,34 @@ public class MainController {
                             e.printStackTrace();
                         }
 
+                        // VERIFICA SE O PAGAMENTO JÁ EXISTE
                         if(verificar == false) {
                             try {
-                                JDBCPagamentoDAO.getInstance().create(comprovanteVenda, dataImportacao, horaImportacao, arquivo);
+                                long id = 0;
+                                id = JDBCPagamentoDAO.getInstance().create(comprovanteVenda, dataImportacao, horaImportacao, arquivo);
+
+                                if(id != 0) {
+                                    Boolean verificarVenda = null;
+
+                                    try {
+                                        // VERIFICA SE EXISTE VENDA COM O PAGAMENTO
+                                        verificarVenda = JDBCVendaDAO.getInstance().search(comprovanteVenda);
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
+
+                                    if(verificarVenda == true) {
+                                        try {
+                                            // ATUALIZA A VENDA COMO PAGA
+                                            JDBCVendaDAO.getInstance().updateVendaPaga(comprovanteVenda, id);
+                                        } catch (Exception e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                }
                             } catch (Exception e) {
                                 System.out.println(e);
                             }
-                        } else {
-                            System.out.println("Esse pagamento já existe!");
                         }
                     }
 
