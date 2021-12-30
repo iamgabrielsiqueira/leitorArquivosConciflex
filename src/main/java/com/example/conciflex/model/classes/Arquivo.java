@@ -18,6 +18,7 @@ public class Arquivo {
     private Date dataMaiorPagamento;
     private String estabelecimentoCNPJ;
     private String arquivoFalha;
+    private String dataArquivoString;
 
     public int getId() {
         return id;
@@ -129,5 +130,13 @@ public class Arquivo {
 
     public void setArquivoFalha(String arquivoFalha) {
         this.arquivoFalha = arquivoFalha;
+    }
+
+    public String getDataArquivoString() {
+        return dataArquivoString;
+    }
+
+    public void setDataArquivoString(String dataArquivoString) {
+        this.dataArquivoString = dataArquivoString;
     }
 }

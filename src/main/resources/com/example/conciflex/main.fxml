@@ -8,13 +8,14 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
-<BorderPane xmlns:fx="http://javafx.com/fxml"
+<?import javafx.scene.control.Label?>
+<BorderPane fx:id="mainWindow" xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.example.conciflex.controller.MainController"
             style="-fx-background-color: #EDEDED;"
             prefHeight="780.0" prefWidth="590.0">
     <top>
         <HBox alignment="CENTER_RIGHT" minHeight="86.0">
-            <HBox alignment="CENTER_RIGHT">
+            <HBox alignment="CENTER_RIGHT" onMouseClicked="#mostrarArquivos">
                 <ImageView>
                     <image>
                         <Image url="@images/pasta.png"/>
@@ -22,14 +23,14 @@
                 </ImageView>
             </HBox>
             <HBox alignment="CENTER_RIGHT" minWidth="30"></HBox>
-            <HBox alignment="CENTER_RIGHT">
+            <!--<HBox alignment="CENTER_RIGHT">
                 <ImageView>
                     <image>
                         <Image url="@images/config.png"/>
                     </image>
                 </ImageView>
             </HBox>
-            <HBox alignment="CENTER_RIGHT" minWidth="30"></HBox>
+            <HBox alignment="CENTER_RIGHT" minWidth="30"></HBox>-->
         </HBox>
     </top>
     <center>
@@ -58,21 +59,26 @@
                 </VBox>
                 <VBox.margin>
                     <Insets>
-                        <bottom>60</bottom>
+                        <bottom>30</bottom>
                     </Insets>
                 </VBox.margin>
             </HBox>
             <HBox alignment="CENTER">
                 <VBox>
-                    <ImageView>
-                        <image>
-                            <Image url="@images/subtitulo.png"/>
-                        </image>
-                    </ImageView>
+                    <Label fx:id="lbMensagem" minWidth="224.0" maxWidth="615.0" wrapText="true"
+                           textAlignment="CENTER" style="-fx-font-size: 15.0;
+                                -fx-background-color: #d4edda;
+                                -fx-padding: 10.0;
+                                -fx-alignment: CENTER;
+                                -fx-border-radius: 5.0;
+                                -fx-background-radius: 5.0;
+                                -fx-border-color: #c3e6cb;
+                                -fx-text-fill: #155724;"
+                    />
                 </VBox>
                 <VBox.margin>
                     <Insets>
-                        <bottom>60</bottom>
+                        <bottom>30</bottom>
                     </Insets>
                 </VBox.margin>
             </HBox>

@@ -6,9 +6,8 @@ import com.example.conciflex.model.dao.ArquivoDAO;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import java.sql.*;
+import java.text.SimpleDateFormat;
 
 public class JDBCArquivoDAO implements ArquivoDAO {
     private static JDBCArquivoDAO instance;
@@ -96,5 +95,41 @@ public class JDBCArquivoDAO implements ArquivoDAO {
         connection.close();
 
         return arquivo;
+    }
+
+    @Override
+    public ObservableList<Arquivo> listarArquivos() throws Exception {
+        arquivoObservableList.clear();
+
+        try {
+            Connection connection = ConnectionFactory.getConnection();
+            PreparedStatement preparedStatement;
+
+            String sql = "SELECT NOME_ARQUIVO, DATA_GERACAO FROM edi_ben_header_arquivo GROUP BY NOME_ARQUIVO ORDER BY DATA_GERACAO";
+            preparedStatement = connection.prepareStatement(sql);
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            while (resultSet.next()){
+                String nomeArquivo = resultSet.getString("NOME_ARQUIVO");
+                Date dataGeracao = resultSet.getDate("DATA_GERACAO");
+                String dataString = new SimpleDateFormat("dd/MM/yyyy").format(dataGeracao);
+
+                Arquivo arquivo = new Arquivo();
+
+                arquivo.setArquivo(nomeArquivo);
+                arquivo.setDataArquivo(dataGeracao);
+                arquivo.setDataArquivoString(dataString);
+
+                arquivoObservableList.add(arquivo);
+            }
+
+            resultSet.close();
+            preparedStatement.close();
+            connection.close();
+        } catch (SQLException e){
+            e.printStackTrace();
+        }
+        return arquivoObservableList;
     }
 }

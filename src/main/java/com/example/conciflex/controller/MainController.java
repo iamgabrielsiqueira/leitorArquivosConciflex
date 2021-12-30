@@ -1,10 +1,19 @@
 package com.example.conciflex.controller;
 
+import com.example.conciflex.MainApplication;
 import com.example.conciflex.model.classes.*;
 import com.example.conciflex.model.jdbc.*;
+import javafx.animation.FadeTransition;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.Label;
+import javafx.stage.Stage;
+import javafx.util.Duration;
 import java.io.*;
 import java.sql.Date;
 import java.sql.Time;
@@ -15,6 +24,12 @@ import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 
 public class MainController {
+
+    @FXML
+    public Parent mainWindow;
+
+    @FXML
+    private Label lbMensagem;
 
     private ObservableList<TipoLancamento> listaTiposLancamento = FXCollections.observableArrayList();
     private ObservableList<MoedaCorrente> listaMoedasCorrente = FXCollections.observableArrayList();
@@ -32,111 +47,8 @@ public class MainController {
         listarProdutos();
         listarAdquirentes();
         listarAjustes();
-    }
 
-    public void listarTiposLancamento() {
-        TipoLancamento previsao = new TipoLancamento(0, "Previsão");
-        TipoLancamento liquidaçãoNormal = new TipoLancamento(1, "Liquidação Normal");
-        TipoLancamento liquidaçãoAntecipada = new TipoLancamento(2, "Liquidação Antecipada");
-
-        listaTiposLancamento.add(previsao);
-        listaTiposLancamento.add(liquidaçãoNormal);
-        listaTiposLancamento.add(liquidaçãoAntecipada);
-    }
-
-    public void listarMoedasCorrentes() {
-        MoedaCorrente real = new MoedaCorrente("RE", "Real");
-        MoedaCorrente dolar = new MoedaCorrente("DO", "Dólar");
-        MoedaCorrente peso = new MoedaCorrente("PE", "Peso");
-
-        listaMoedasCorrente.add(real);
-        listaMoedasCorrente.add(dolar);
-        listaMoedasCorrente.add(peso);
-    }
-
-    public void listarTiposProcessamento() {
-        TipoProcessamento normal = new TipoProcessamento("N", "Normal");
-        TipoProcessamento reprocessamento = new TipoProcessamento("R", "Reprocessamento");
-
-        listaTiposProcessamento.add(normal);
-        listaTiposProcessamento.add(reprocessamento);
-    }
-
-    public void listarMeioCaptura() {
-        MeioCaptura manual = new MeioCaptura(1, "Manual", 12);
-        MeioCaptura pos = new MeioCaptura(2, "POS", 1);
-        MeioCaptura tef = new MeioCaptura(3, "TEF", 2);
-        MeioCaptura trn = new MeioCaptura(4, "TRN Off", 0);
-        MeioCaptura internet = new MeioCaptura(5, "Internet", 0);
-        MeioCaptura ura = new MeioCaptura(6, "URA", 11);
-        MeioCaptura indefinido = new MeioCaptura(8, "Indefinido", 13);
-        MeioCaptura outros = new MeioCaptura(9, "Outros", 13);
-
-        listaMeioCaptura.add(manual);
-        listaMeioCaptura.add(pos);
-        listaMeioCaptura.add(tef);
-        listaMeioCaptura.add(trn);
-        listaMeioCaptura.add(internet);
-        listaMeioCaptura.add(ura);
-        listaMeioCaptura.add(indefinido);
-        listaMeioCaptura.add(outros);
-    }
-
-    public void listarProdutos() {
-        Produto alimentacao = new Produto(1, "PAT - Alimentação", 2, "Alimentação");
-        Produto refeicao = new Produto(2, "PAT - Refeição", 3, "Refeição");
-
-        listaProdutos.add(alimentacao);
-        listaProdutos.add(refeicao);
-    }
-
-    public void listarAdquirentes() {
-        Adquirente getnet = new Adquirente(1, "GETNET");
-        Adquirente stone = new Adquirente(2, "STONE");
-        Adquirente safra = new Adquirente(3, "SAFRA");
-        Adquirente pagseguro = new Adquirente(4, "PAGSEGURO");
-        Adquirente cielo = new Adquirente(5, "CIELO");
-
-        Adquirente rede = new Adquirente(6, "REDE");
-        Adquirente onyo = new Adquirente(100, "ONYO");
-        Adquirente ifood = new Adquirente(101, "IFOOD");
-
-        listaAdquirentes.add(getnet);
-        listaAdquirentes.add(stone);
-        listaAdquirentes.add(safra);
-        listaAdquirentes.add(pagseguro);
-        listaAdquirentes.add(cielo);
-        listaAdquirentes.add(rede);
-        listaAdquirentes.add(onyo);
-        listaAdquirentes.add(ifood);
-    }
-
-    public void listarAjustes() {
-        Ajuste ajusteCreditoAgenda = new Ajuste(22, "Ajuste Crédito Agenda");
-        Ajuste ajusteDebitoAgenda = new Ajuste(23, "Ajuste Débito Agenda");
-        Ajuste compensacaoSaldoDevedor = new Ajuste(32, " Compensação saldo devedor remanescente");
-        Ajuste compensacaoSaldoCredor = new Ajuste(115, "Compensação saldo credor remanescente");
-        Ajuste operacoesPagar = new Ajuste(116, "Operações a pagar Lojista");
-        Ajuste chargeback = new Ajuste(303, "Charge Back Venda a Vista Pré-Pago BEN Visa Vale");
-        Ajuste estornoComissao = new Ajuste(304, "Estorno Comissão Venda a Vista Pré-Pago BEN Visa Vale");
-        Ajuste estornoTarifas = new Ajuste(430, "Estorno de Tarifas");
-        Ajuste comissaoAntecipada = new Ajuste(369, "Comissão Antecipação de Vendas");
-        Ajuste rav = new Ajuste(370, "RAV (Recebimento Antecipado de Vendas) a ser Pago");
-        Ajuste tarifaRav = new Ajuste(371, "Tarifa RAV (Recebimento Antecipado de Vendas)");
-        Ajuste estornoVenda = new Ajuste(962, "Estorno de Venda a Vista");
-
-        listaAjustes.add(ajusteCreditoAgenda);
-        listaAjustes.add(ajusteDebitoAgenda);
-        listaAjustes.add(compensacaoSaldoDevedor);
-        listaAjustes.add(compensacaoSaldoCredor);
-        listaAjustes.add(operacoesPagar);
-        listaAjustes.add(chargeback);
-        listaAjustes.add(estornoComissao);
-        listaAjustes.add(estornoTarifas);
-        listaAjustes.add(comissaoAntecipada);
-        listaAjustes.add(rav);
-        listaAjustes.add(tarifaRav);
-        listaAjustes.add(estornoVenda);
+        lbMensagem.setVisible(false);
     }
 
     @FXML
@@ -160,6 +72,7 @@ public class MainController {
 
                 if(estabelecimento != null) {
                     cliente = estabelecimento.getCliente();
+
                     if(cliente != null) {
                         try {
                             arquivoBuscar = JDBCArquivoDAO.getInstance().search(arquivo, 268, cliente.getCnpj());
@@ -168,6 +81,8 @@ public class MainController {
                         }
 
                         if(arquivoBuscar == null) {
+                            System.out.println("Lendo arquivo... " + arquivo);
+                            mostrarMensagem("Lendo arquivo... " + arquivo);
                             lerArquivo(pasta, arquivo, estabelecimento);
                         }
                     }
@@ -202,8 +117,10 @@ public class MainController {
                 }
 
                 if(estabelecimento != null) {
+                    System.out.println("Estabelecimento: " + estabelecimento.getCodigoEstabelecimento());
                     cliente = estabelecimento.getCliente();
                     if(cliente != null) {
+                        System.out.println("Cliente: " + cliente.getNome());
                         flag = false;
                     }
                 }
@@ -1231,5 +1148,144 @@ public class MainController {
         taxaPercentual = (valorDesconto * 100) / valorBruto;
 
         return taxaPercentual;
+    }
+
+    public void listarTiposLancamento() {
+        TipoLancamento previsao = new TipoLancamento(0, "Previsão");
+        TipoLancamento liquidaçãoNormal = new TipoLancamento(1, "Liquidação Normal");
+        TipoLancamento liquidaçãoAntecipada = new TipoLancamento(2, "Liquidação Antecipada");
+
+        listaTiposLancamento.add(previsao);
+        listaTiposLancamento.add(liquidaçãoNormal);
+        listaTiposLancamento.add(liquidaçãoAntecipada);
+    }
+
+    public void listarMoedasCorrentes() {
+        MoedaCorrente real = new MoedaCorrente("RE", "Real");
+        MoedaCorrente dolar = new MoedaCorrente("DO", "Dólar");
+        MoedaCorrente peso = new MoedaCorrente("PE", "Peso");
+
+        listaMoedasCorrente.add(real);
+        listaMoedasCorrente.add(dolar);
+        listaMoedasCorrente.add(peso);
+    }
+
+    public void listarTiposProcessamento() {
+        TipoProcessamento normal = new TipoProcessamento("N", "Normal");
+        TipoProcessamento reprocessamento = new TipoProcessamento("R", "Reprocessamento");
+
+        listaTiposProcessamento.add(normal);
+        listaTiposProcessamento.add(reprocessamento);
+    }
+
+    public void listarMeioCaptura() {
+        MeioCaptura manual = new MeioCaptura(1, "Manual", 12);
+        MeioCaptura pos = new MeioCaptura(2, "POS", 1);
+        MeioCaptura tef = new MeioCaptura(3, "TEF", 2);
+        MeioCaptura trn = new MeioCaptura(4, "TRN Off", 0);
+        MeioCaptura internet = new MeioCaptura(5, "Internet", 0);
+        MeioCaptura ura = new MeioCaptura(6, "URA", 11);
+        MeioCaptura indefinido = new MeioCaptura(8, "Indefinido", 13);
+        MeioCaptura outros = new MeioCaptura(9, "Outros", 13);
+
+        listaMeioCaptura.add(manual);
+        listaMeioCaptura.add(pos);
+        listaMeioCaptura.add(tef);
+        listaMeioCaptura.add(trn);
+        listaMeioCaptura.add(internet);
+        listaMeioCaptura.add(ura);
+        listaMeioCaptura.add(indefinido);
+        listaMeioCaptura.add(outros);
+    }
+
+    public void listarProdutos() {
+        Produto alimentacao = new Produto(1, "PAT - Alimentação", 2, "Alimentação");
+        Produto refeicao = new Produto(2, "PAT - Refeição", 3, "Refeição");
+
+        listaProdutos.add(alimentacao);
+        listaProdutos.add(refeicao);
+    }
+
+    public void listarAdquirentes() {
+        Adquirente getnet = new Adquirente(1, "GETNET");
+        Adquirente stone = new Adquirente(2, "STONE");
+        Adquirente safra = new Adquirente(3, "SAFRA");
+        Adquirente pagseguro = new Adquirente(4, "PAGSEGURO");
+        Adquirente cielo = new Adquirente(5, "CIELO");
+
+        Adquirente rede = new Adquirente(6, "REDE");
+        Adquirente onyo = new Adquirente(100, "ONYO");
+        Adquirente ifood = new Adquirente(101, "IFOOD");
+
+        listaAdquirentes.add(getnet);
+        listaAdquirentes.add(stone);
+        listaAdquirentes.add(safra);
+        listaAdquirentes.add(pagseguro);
+        listaAdquirentes.add(cielo);
+        listaAdquirentes.add(rede);
+        listaAdquirentes.add(onyo);
+        listaAdquirentes.add(ifood);
+    }
+
+    public void listarAjustes() {
+        Ajuste ajusteCreditoAgenda = new Ajuste(22, "Ajuste Crédito Agenda");
+        Ajuste ajusteDebitoAgenda = new Ajuste(23, "Ajuste Débito Agenda");
+        Ajuste compensacaoSaldoDevedor = new Ajuste(32, " Compensação saldo devedor remanescente");
+        Ajuste compensacaoSaldoCredor = new Ajuste(115, "Compensação saldo credor remanescente");
+        Ajuste operacoesPagar = new Ajuste(116, "Operações a pagar Lojista");
+        Ajuste chargeback = new Ajuste(303, "Charge Back Venda a Vista Pré-Pago BEN Visa Vale");
+        Ajuste estornoComissao = new Ajuste(304, "Estorno Comissão Venda a Vista Pré-Pago BEN Visa Vale");
+        Ajuste estornoTarifas = new Ajuste(430, "Estorno de Tarifas");
+        Ajuste comissaoAntecipada = new Ajuste(369, "Comissão Antecipação de Vendas");
+        Ajuste rav = new Ajuste(370, "RAV (Recebimento Antecipado de Vendas) a ser Pago");
+        Ajuste tarifaRav = new Ajuste(371, "Tarifa RAV (Recebimento Antecipado de Vendas)");
+        Ajuste estornoVenda = new Ajuste(962, "Estorno de Venda a Vista");
+
+        listaAjustes.add(ajusteCreditoAgenda);
+        listaAjustes.add(ajusteDebitoAgenda);
+        listaAjustes.add(compensacaoSaldoDevedor);
+        listaAjustes.add(compensacaoSaldoCredor);
+        listaAjustes.add(operacoesPagar);
+        listaAjustes.add(chargeback);
+        listaAjustes.add(estornoComissao);
+        listaAjustes.add(estornoTarifas);
+        listaAjustes.add(comissaoAntecipada);
+        listaAjustes.add(rav);
+        listaAjustes.add(tarifaRav);
+        listaAjustes.add(estornoVenda);
+    }
+
+    @FXML
+    public void mostrarArquivos() {
+        trocarJanela("view/janelaArquivos.fxml");
+    }
+
+    public void trocarJanela(String address){
+        Platform.runLater(() -> {
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(MainApplication.class.getResource(address));
+
+            try {
+                Parent layoutWindow = loader.load();
+
+                FadeTransition fadeTransition = new FadeTransition(Duration.millis(500), layoutWindow);
+                fadeTransition.setFromValue(0.5);
+                fadeTransition.setToValue(1.0);
+                fadeTransition.play();
+
+                Stage stage = (Stage)mainWindow.getScene().getWindow();
+                stage.setScene(new Scene(layoutWindow,780, 590));
+                stage.setResizable(false);
+            } catch (IOException e){
+                e.printStackTrace();
+            }
+        });
+    }
+
+    private void mostrarMensagem(String mensagem) {
+        Platform.runLater(() -> {
+            lbMensagem.setVisible(true);
+            lbMensagem.setText(mensagem);
+        });
     }
 }

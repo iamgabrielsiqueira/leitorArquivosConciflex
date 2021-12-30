@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.Label?>
+
+<?import javafx.scene.text.Text?>
+<BorderPane fx:id="mainWindow" prefHeight="780.0" prefWidth="590.0"
+            style="-fx-background-color: white;"
+            xmlns="http://javafx.com/javafx/8.0.60"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.example.conciflex.controller.ArquivosController">
+    <top>
+        <VBox>
+            <HBox prefHeight="40.0" alignment="CENTER_RIGHT">
+                <VBox.margin>
+                    <Insets>
+                        <top>30</top>
+                    </Insets>
+                </VBox.margin>
+                <VBox onMouseClicked="#voltar">
+                    <ImageView>
+                        <image>
+                            <Image url="@../images/voltar.png"/>
+                        </image>
+                    </ImageView>
+                </VBox>
+                <VBox>
+                    <HBox.margin>
+                        <Insets>
+                            <left>30</left>
+                        </Insets>
+                    </HBox.margin>
+                </VBox>
+            </HBox>
+        </VBox>
+    </top>
+
+    <center>
+        <VBox prefWidth="400">
+            <HBox prefHeight="520" alignment="CENTER">
+                <VBox.margin>
+                    <Insets>
+                        <top>10</top>
+                    </Insets>
+                </VBox.margin>
+                <VBox>
+                    <HBox alignment="CENTER_LEFT">
+                        <ImageView>
+                            <image>
+                                <Image url="@../images/arquivos-titulo.png"/>
+                            </image>
+                        </ImageView>
+                        <VBox.margin>
+                            <Insets>
+                                <bottom>15</bottom>
+                            </Insets>
+                        </VBox.margin>
+                    </HBox>
+                    <HBox>
+                        <VBox style="-fx-background-color: #DDDADA; -fx-background-radius: 5px;">
+                            <TableView fx:id="tbArquivos"
+                                       prefWidth="700.0"
+                                       prefHeight="390.0">
+                                <columnResizePolicy>
+                                    <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                                </columnResizePolicy>
+                                <columns>
+                                    <TableColumn fx:id="tcArquivo" text="Arquivo"/>
+                                    <TableColumn fx:id="tcData" text="Data de Processamento"/>
+                                </columns>
+                            </TableView>
+                        </VBox>
+                        <VBox.margin>
+                            <Insets>
+                                <bottom>15</bottom>
+                            </Insets>
+                        </VBox.margin>
+                    </HBox>
+                    <HBox alignment="BASELINE_RIGHT">
+                        <VBox alignment="BASELINE_RIGHT">
+                            <Label textAlignment="RIGHT" fx:id="lbTotalArquivos">Total de Arquivos: 0</Label>
+                        </VBox>
+                    </HBox>
+                </VBox>
+            </HBox>
+        </VBox>
+    </center>
+</BorderPane>

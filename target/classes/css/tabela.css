@@ -1,0 +1,62 @@
+.table-view .column-header .label {
+  -fx-alignment: CENTER_LEFT;
+  -fx-padding: 0 10 0 10;
+}
+
+.table-view {
+    -fx-background-color: transparent;
+}
+
+.table-view .column-header-background .filler {
+    -fx-background-color: transparent;
+}
+
+.table-view .corner {
+    -fx-background-color: transparent;
+}
+
+.table-view .column-header-background{
+    -fx-background-color: transparent;
+    -fx-background-radius: 7px 7px 0px 0px;
+    -fx-padding: 5px 0 5px 0px;
+}
+
+.table-view .column-header {
+    -fx-background-color: transparent;
+}
+
+.table-view .table-cell{
+    -fx-border-color: transparent;
+    -fx-padding: 2 0 2 10px;
+}
+.table-row-cell: hover{
+    -fx-background-color: red;
+    -fx-text-background-color: black;
+}
+.table-row-cell: odd{
+    -fx-background-color: transparent;
+    -fx-background-insets: 0, 0 0 1 0;
+    -fx-padding: 0.0em;
+}
+.table-view:row-selection .table-row-cell:filled:hover {
+    -fx-color: black;
+    -fx-background-color: #C4C4C4;
+    -fx-background-insets: 0, 0 0 1 0;
+    -fx-text-fill: black;
+}
+
+.table-row-cell: even{
+    -fx-background-color: transparent;
+    -fx-background-insets: 0, 0 0 1 0;
+    -fx-padding: 0.0em;
+}
+
+.table-view .virtual-flow .scroll-bar .increment-button,
+.table-view .virtual-flow .scroll-bar .decrement-button {
+    -fx-opacity: 0;
+    -fx-padding: 2;
+}
+
+#lbTotalArquivos {
+    -fx-font-size: 14px;
+}
