@@ -39,6 +39,8 @@ public class MainController {
     private ObservableList<Adquirente> listaAdquirentes = FXCollections.observableArrayList();
     private ObservableList<Ajuste> listaAjustes = FXCollections.observableArrayList();
 
+    private File folder = new File("C:\\Users\\Gabriel\\Desktop\\teste");
+
     public void initialize() {
         listarTiposLancamento();
         listarMoedasCorrentes();
@@ -52,45 +54,102 @@ public class MainController {
     }
 
     @FXML
-    public void processar() throws IOException, ParseException {
+    public void processar() {
 
-        File folder = new File("C:\\Users\\Gabriel\\Desktop\\teste");
-        File[] listOfFiles = folder.listFiles();
+        Thread threadProcesso = new Thread(() -> {
+            while (true) {
+                mostrarMensagem("Aguardando...");
 
-        String pasta = "";
-        String arquivo = "";
+                /*File folder = new File("C:\\Skyline\\inbox");*/
+                File[] listOfFiles = folder.listFiles();
 
-        Estabelecimento estabelecimento = null;
-        Cliente cliente = null;
-        Arquivo arquivoBuscar = null;
+                for (int i = 0; i < listOfFiles.length; i++) {
+                    String pasta = "";
+                    String arquivo = "";
 
-        for (int i = 0; i < listOfFiles.length; i++) {
-            if (listOfFiles[i].isFile()) {
-                pasta = folder.getAbsolutePath();
-                arquivo = listOfFiles[i].getName();
-                estabelecimento = getFileEstabelecimento(pasta, arquivo);
+                    Estabelecimento estabelecimento = null;
+                    Cliente cliente = null;
+                    Arquivo arquivoBuscar = null;
 
-                if(estabelecimento != null) {
-                    cliente = estabelecimento.getCliente();
+                    if (listOfFiles[i].isFile() && !listOfFiles[i].getName().contains("desktop.ini")) {
+                        pasta = folder.getAbsolutePath();
+                        arquivo = listOfFiles[i].getName();
 
-                    if(cliente != null) {
                         try {
-                            arquivoBuscar = JDBCArquivoDAO.getInstance().search(arquivo, 268, cliente.getCnpj());
-                        } catch (Exception e) {
-                            e.printStackTrace();
+                            estabelecimento = getFileEstabelecimento(pasta, arquivo);
+                        } catch (IOException e) {
+                            mostrarMensagem("Erro #1" + e);
                         }
 
-                        if(arquivoBuscar == null) {
-                            System.out.println("Lendo arquivo... " + arquivo);
-                            mostrarMensagem("Lendo arquivo... " + arquivo);
-                            lerArquivo(pasta, arquivo, estabelecimento);
+                        if(estabelecimento != null) {
+                            cliente = estabelecimento.getCliente();
+
+                            if(cliente != null) {
+                                try {
+                                    arquivoBuscar = JDBCArquivoDAO.getInstance().search(arquivo, 268, cliente.getCnpj());
+                                } catch (Exception e) {
+                                    mostrarMensagem("Erro #2" + e);
+                                }
+
+                                if(arquivoBuscar == null) {
+                                    mostrarMensagem("Lendo arquivo..." + arquivo);
+
+                                    try {
+                                        lerArquivo(pasta, arquivo, estabelecimento);
+                                    } catch (IOException e) {
+                                        mostrarMensagem("Erro #3" + e);
+                                    } catch (ParseException e) {
+                                        mostrarMensagem("Erro #4" + e);
+                                    }
+
+                                    mostrarMensagem("Arquivo " + arquivo + " processado!");
+
+                                    try {
+                                        Thread.sleep(10000);
+                                    } catch (InterruptedException interruptedException) {
+                                        mostrarMensagem("Erro #8" + interruptedException);
+                                    }
+
+                                }
+                            }
+                        } else {
+                            try {
+                                arquivoBuscar = JDBCArquivoDAO.getInstance().search(arquivo, 268, "22162885000168");
+                            } catch (Exception e) {
+                                mostrarMensagem("Erro #5" + e);
+                            }
+
+                            if(arquivoBuscar == null) {
+                                try {
+                                    lerArquivo(pasta, arquivo, null);
+                                } catch (IOException e) {
+                                    mostrarMensagem("Erro #6" + e);
+                                } catch (ParseException e) {
+                                    mostrarMensagem("Erro #7" + e);
+                                }
+
+                                mostrarMensagem("Arquivo " + arquivo + " processado!");
+
+                                try {
+                                    Thread.sleep(10000);
+                                } catch (InterruptedException interruptedException) {
+                                    mostrarMensagem("Erro #8" + interruptedException);
+                                }
+                            }
                         }
                     }
                 }
-            }
-        }
 
-        System.out.println("Fim");
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException interruptedException) {
+                    mostrarMensagem("Erro #8" + interruptedException);
+                }
+            }
+        });
+
+        threadProcesso.setDaemon(true);
+        threadProcesso.start();
     }
 
     public Estabelecimento getFileEstabelecimento(String pasta, String arquivo) throws IOException {
@@ -113,14 +172,12 @@ public class MainController {
                 try {
                     estabelecimento = JDBCEstabelecimentoDAO.getInstance().search(CNPJ);
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    mostrarMensagem("Erro #9" + e);
                 }
 
                 if(estabelecimento != null) {
-                    /*System.out.println("Estabelecimento: " + estabelecimento.getCodigoEstabelecimento());*/
                     cliente = estabelecimento.getCliente();
                     if(cliente != null) {
-                        /*System.out.println("Cliente: " + cliente.getNome());*/
                         flag = false;
                     }
                 }
@@ -152,6 +209,7 @@ public class MainController {
         TrailerLoteTransacao trailerLoteTransacao = new TrailerLoteTransacao();
         TrailerArquivo trailerArquivo = new TrailerArquivo();
         Boolean flag = true;
+        int verificarProcesso = 0;
 
         while(line != null) {
             currentLine++;
@@ -159,6 +217,7 @@ public class MainController {
 
             if(flag == true) {
                 if(identificador.equals("A0")) {
+                    verificarProcesso++;
                     headerArquivo = processarHeaderArquivo(line.toCharArray());
 
                     if(headerArquivo != null) {
@@ -168,35 +227,38 @@ public class MainController {
                             HeaderArquivo headerBuscar = JDBCHeaderArquivoDAO.getInstance().search(dataGeracao, idMovimento);
 
                             if(headerBuscar == null) {
-                                /*try {
+                                try {
                                     JDBCHeaderArquivoDAO.getInstance().create(headerArquivo, arquivo);
                                 } catch (Exception e) {
-                                    System.out.println(e);
-                                }*/
+                                    mostrarMensagem("Erro #10" + e);
+                                }
                             } else {
                                 flag = false;
                             }
                         } catch (Exception e) {
-                            e.printStackTrace();
+                            mostrarMensagem("Erro #11" + e);
                         }
                     }
                 } else if(identificador.equals("L0")) {
+                    verificarProcesso++;
                     headerLoteTransacao = processarHeaderLote(line.toCharArray());
 
-                    /*try {
+                    try {
                         JDBCHeaderLoteTransacoesDAO.getInstance().create(headerLoteTransacao, arquivo);
                     } catch (Exception e) {
-                        System.out.println(e);
-                    }*/
+                        mostrarMensagem("Erro #12" + e);
+                    }
                 } else if(identificador.equals("RV")) {
+                    verificarProcesso++;
                     resumoVenda = processarResumoVenda(line.toCharArray());
 
-                    /*try {
+                    try {
                         JDBCResumoVendasDAO.getInstance().create(resumoVenda, arquivo);
                     } catch (Exception e) {
-                        System.out.println(e);
-                    }*/
+                        mostrarMensagem("Erro #13" + e);
+                    }
                 } else if(identificador.equals("CV")) {
+                    verificarProcesso++;
                     comprovanteVenda = processarComprovanteVenda(line.toCharArray());
 
                     java.util.Date data = new java.util.Date();
@@ -205,13 +267,19 @@ public class MainController {
 
                     Boolean verificar = false;
 
+                    try {
+                        JDBCComprovanteVendaDAO.getInstance().create(comprovanteVenda, arquivo);
+                    } catch (Exception e) {
+                        mostrarMensagem("Erro #14" + e);
+                    }
+
                     if(comprovanteVenda.getTipoLancamento().getId() == 0) {
                         /*VENDA*/
 
                         try {
                             verificar = JDBCVendaDAO.getInstance().verificarDuplicidade(comprovanteVenda.getChavePagamento());
                         } catch (Exception e) {
-                            e.printStackTrace();
+                            mostrarMensagem("Erro #15" + e);
                         }
 
                         // VERIFICA SE A VENDA JÁ EXISTE
@@ -219,7 +287,7 @@ public class MainController {
                             try {
                                 JDBCVendaDAO.getInstance().create(comprovanteVenda, dataImportacao, horaImportacao, arquivo);
                             } catch (Exception e) {
-                                e.printStackTrace();
+                                mostrarMensagem("Erro #16" + e);
                             }
                         }
                     } else {
@@ -228,7 +296,7 @@ public class MainController {
                         try {
                             verificar = JDBCPagamentoDAO.getInstance().verificarDuplicidade(comprovanteVenda.getChavePagamento());
                         } catch (Exception e) {
-                            e.printStackTrace();
+                            mostrarMensagem("Erro #17" + e);
                         }
 
                         // VERIFICA SE O PAGAMENTO JÁ EXISTE
@@ -244,7 +312,7 @@ public class MainController {
                                         // VERIFICA SE EXISTE VENDA COM O PAGAMENTO
                                         verificarVenda = JDBCVendaDAO.getInstance().search(comprovanteVenda);
                                     } catch (Exception e) {
-                                        e.printStackTrace();
+                                        mostrarMensagem("Erro #18" + e);
                                     }
 
                                     if(verificarVenda == true) {
@@ -252,38 +320,33 @@ public class MainController {
                                             // ATUALIZA A VENDA COMO PAGA
                                             JDBCVendaDAO.getInstance().updateVendaPaga(comprovanteVenda, id);
                                         } catch (Exception e) {
-                                            e.printStackTrace();
+                                            mostrarMensagem("Erro #19" + e);
                                         }
                                     }
                                 }
                             } catch (Exception e) {
-                                System.out.println(e);
+                                mostrarMensagem("Erro #20" + e);
                             }
                         }
                     }
-
-                } else if(identificador.equals("AJ")) {
-                    //ajusteCreditoDebito = processarAjusteCreditoDebito(line.toCharArray());
-                    //mostrarAjusteCreditoDebito(ajusteCreditoDebito);
-                } else if(identificador.equals("CC")) {
-                    //cancelamento = processarCancelamento(line.toCharArray());
-                    //mostrarCancelamento(cancelamento);
                 } else if(identificador.equals("L9")) {
+                    verificarProcesso++;
                     trailerLoteTransacao = processarTrailerLoteTransacoes(line.toCharArray());
 
-                    /*try {
+                    try {
                         JDBCTrailerLoteTransacoesDAO.getInstance().create(trailerLoteTransacao, arquivo);
                     } catch (Exception e) {
-                        System.out.println(e);
-                    }*/
+                        mostrarMensagem("Erro #21" + e);
+                    }
                 } else if(identificador.equals("A9")) {
+                    verificarProcesso++;
                     trailerArquivo = processarTrailerArquivo(line.toCharArray());
 
-                    /*try {
+                    try {
                         JDBCTrailerArquivoDAO.getInstance().create(trailerArquivo, arquivo);
                     } catch (Exception e) {
-                        System.out.println(e);
-                    }*/
+                        mostrarMensagem("Erro #22" + e);
+                    }
                 }
             }
 
@@ -294,13 +357,14 @@ public class MainController {
         reader.close();
         stream.close();
 
-        /*if(flag == true) {
+        if(flag == true && verificarProcesso > 0) {
             try {
+                mostrarMensagem("Salvando arquivo processado!");
                 salvarArquivoProcessado(arquivo, pasta, estabelecimento);
             } catch (Exception e) {
-                System.out.println(e);
+                mostrarMensagem("Erro #23" + e);
             }
-        }*/
+        }
     }
 
     public void salvarArquivoProcessado(String arquivo, String pasta, Estabelecimento estabelecimento) {
@@ -317,18 +381,24 @@ public class MainController {
         arquivoProcessado.setDataProcessamento(dataAgoraSQL);
         arquivoProcessado.setHoraProcessamento(horaAgora);
         arquivoProcessado.setIdAdquirente(268);
-        arquivoProcessado.setCNPJ(estabelecimento.getCliente().getCnpj());
         arquivoProcessado.setDataArquivo(null);
         arquivoProcessado.setDataMenorVenda(null);
         arquivoProcessado.setDataMaiorVenda(null);
         arquivoProcessado.setDataMenorPagamento(null);
         arquivoProcessado.setDataMaiorPagamento(null);
-        arquivoProcessado.setEstabelecimentoCNPJ(estabelecimento.getCnpj());
+
+        if(estabelecimento == null) {
+            arquivoProcessado.setCNPJ("22162885000168");
+            arquivoProcessado.setEstabelecimentoCNPJ("");
+        } else {
+            arquivoProcessado.setCNPJ(estabelecimento.getCliente().getCnpj());
+            arquivoProcessado.setEstabelecimentoCNPJ(estabelecimento.getCnpj());
+        }
 
         try {
             JDBCArquivoDAO.getInstance().create(arquivoProcessado);
         } catch (Exception e) {
-            e.printStackTrace();
+            mostrarMensagem("Erro #24" + e);
         }
     }
 
@@ -604,7 +674,15 @@ public class MainController {
         try {
             empresa = JDBCEmpresaDAO.getInstance().search(identificacaoLoja);
         } catch (Exception e) {
-            e.printStackTrace();
+            mostrarMensagem("Erro #25" + e);
+        }
+
+        if(empresa == null) {
+            try {
+                empresa = JDBCEmpresaDAO.getInstance().search("22162885000168");
+            } catch (Exception e) {
+                mostrarMensagem("Erro #26" + e);
+            }
         }
 
         if(empresa != null) {
@@ -624,7 +702,7 @@ public class MainController {
         try {
             estabelecimento = JDBCEstabelecimentoDAO.getInstance().search(codigoEC);
         } catch (Exception e) {
-            e.printStackTrace();
+            mostrarMensagem("Erro #27" + e);
         }
 
         String agenciaFormatada = agencia.replaceFirst("^0+(?!$)", "");
@@ -643,7 +721,7 @@ public class MainController {
             try {
                 horaTransacaoDate = new SimpleDateFormat("HHmmss").parse(horaTransacao);
             } catch (ParseException e) {
-                e.printStackTrace();
+                mostrarMensagem("Erro #28" + e);
             }
         }
 
@@ -687,6 +765,9 @@ public class MainController {
         comprovanteVenda.setTaxaPercentual(taxaPercentual);
         comprovanteVenda.setCartaoFormatado(cartaoFormatada);
         comprovanteVenda.setChavePagamento(chavePagamento);
+        comprovanteVenda.setValorBrutoString(valorBrutoString);
+        comprovanteVenda.setValorDescontoString(valorDescontoString);
+        comprovanteVenda.setValorLiquidoString(valorLiquidoString);
 
         return comprovanteVenda;
     }
@@ -922,205 +1003,6 @@ public class MainController {
         return trailerArquivo;
     }
 
-    public void mostrarHeaderArquivo(HeaderArquivo headerArquivo) {
-        System.out.println("Código de registro: " + headerArquivo.getCodigoRegistro());
-        System.out.println("Versão do layout: " + headerArquivo.getVersaoLayout());
-        System.out.println("Data de geração: " + headerArquivo.getDataGeracao());
-        System.out.println("Id do Movimento: " + headerArquivo.getIdMovimento());
-        System.out.println("Nome da Administradora: " + headerArquivo.getNomeAdministradora());
-        System.out.println("Identificação Remetente: " + headerArquivo.getIdentificacaoRemetente());
-        System.out.println("Identificação Destinatário: " + headerArquivo.getIdentificacaoDestinatario());
-
-        if(headerArquivo.getTipoProcessamento() != null) {
-            System.out.println("Tipo de Processamento: " + headerArquivo.getTipoProcessamento().getDescricao());
-        }
-
-        System.out.println("NSEQ: " + headerArquivo.getNSEQ());
-    }
-
-    public void mostrarHeaderLoteTransacao(HeaderLoteTransacao headerLoteTransacao) {
-        System.out.println("Código de registro: " + headerLoteTransacao.getCodigoRegistro());
-        System.out.println("Data do movimento: " + headerLoteTransacao.getDataMovimento());
-
-        if(headerLoteTransacao.getMoedaCorrente() != null) {
-            System.out.println("Identificação da moeda: " + headerLoteTransacao.getMoedaCorrente().getDescricao());
-        }
-
-        System.out.println("NSEQ: " + headerLoteTransacao.getNSEQ());
-    }
-
-    public void mostrarResumoVendas(ResumoVenda resumoVenda) {
-        System.out.println("Código de registro: " + resumoVenda.getCodigoRegistro());
-        System.out.println("Identificação da Loja: " + resumoVenda.getIdentificacaoLoja());
-        System.out.println("Número do RV: " + resumoVenda.getNumeroResumoVenda());
-        System.out.println("Data do RV: " + resumoVenda.getDataResumoVenda());
-
-        if(resumoVenda.getTipoLancamento() != null) {
-            System.out.println("Tipo de lançamento: " + resumoVenda.getTipoLancamento().getDescricao());
-        }
-
-        System.out.println("Data de pagamento: " + resumoVenda.getDataPagamento());
-        System.out.println("CV´s Aprovados: " + resumoVenda.getCVsAprovados());
-        System.out.println("CV´s Rejeitados: " + resumoVenda.getCVsRejeitados());
-        System.out.println("Tipo do Produto: " + resumoVenda.getTipoProduto());
-        System.out.println("Código do Produto: " + resumoVenda.getCodigoProduto());
-        System.out.println("Banco: " + resumoVenda.getBanco());
-        System.out.println("Agência: " + resumoVenda.getAgencia());
-        System.out.println("Conta corrente: " + resumoVenda.getContaCorrente());
-        System.out.println("Valor Bruto: " + resumoVenda.getValorBruto());
-        System.out.println("Sinal do Valor Bruto: " + resumoVenda.getSinalValorBruto());
-        System.out.println("Valor Líquido: " + resumoVenda.getValorLiquido());
-        System.out.println("Sinal do Valor Líquido: " + resumoVenda.getSinalValorLiquido());
-        System.out.println("Valor Crédito: " + resumoVenda.getValorCredito());
-        System.out.println("Sinal do Valor de Crédito: " + resumoVenda.getSinalValorCredito());
-        System.out.println("Valor Comissão: " + resumoVenda.getValorComissao());
-        System.out.println("Sinal do Valor Comissão: " + resumoVenda.getSinalValorComissao());
-        System.out.println("Identificador de Ajuste de RV: " + resumoVenda.getIdentificadorAjusteRV());
-        System.out.println("Código de Ajustes: " + resumoVenda.getCodigoAjustes());
-        System.out.println("Código do EC: " + resumoVenda.getCodigoEC());
-        System.out.println("Código da adquirente: " + resumoVenda.getCodigoAdquirente());
-        System.out.println("NSEQ: " + resumoVenda.getNSEQ());
-
-        if(resumoVenda.getProduto() != null) {
-            System.out.println("Produto: " + resumoVenda.getProduto().getDescricao());
-        }
-
-        if(resumoVenda.getAjuste() != null) {
-            System.out.println("Ajuste: " + resumoVenda.getAjuste().getDescricao());
-        }
-    }
-
-    public void mostrarComprovanteVenda(ComprovanteVenda comprovanteVenda) {
-        System.out.println("Código do registro: " + comprovanteVenda.getCodigoRegistro());
-        System.out.println("Identificação da Loja: " + comprovanteVenda.getIdentificacaoLoja());
-        System.out.println("NSU Host da transação: " + comprovanteVenda.getNSUHostTransacao());
-        System.out.println("NSU TEF: " + comprovanteVenda.getNSUTEF());
-        System.out.println("NSU Terminal: " + comprovanteVenda.getNSUTerminal());
-        System.out.println("Código do Adquirente: " + comprovanteVenda.getCodigoAdquirente());
-        System.out.println("Data da transação: " + comprovanteVenda.getDataTransacao());
-
-        if(comprovanteVenda.getTipoLancamento() != null) {
-            System.out.println("Tipo de lançamento: " + comprovanteVenda.getTipoLancamento().getDescricao());
-        }
-
-        System.out.println("Data de lançamento: " + comprovanteVenda.getDataLancamento());
-        System.out.println("Tipo do Produto: " + comprovanteVenda.getTipoProduto());
-
-        if(comprovanteVenda.getMeioCaptura() != null) {
-            System.out.println("Meio de Captura: " + comprovanteVenda.getMeioCaptura().getDescricao());
-        }
-
-        System.out.println("Valor Bruto da Venda: " + comprovanteVenda.getValorBruto());
-        System.out.println("Valor do Desconto: " + comprovanteVenda.getValorDesconto());
-        System.out.println("Valor Líq da Venda: " + comprovanteVenda.getValorLiquido());
-        System.out.println("Número do Cartão: " + comprovanteVenda.getNumeroCartao());
-        System.out.println("Banco: " + comprovanteVenda.getBanco());
-        System.out.println("Agência: " + comprovanteVenda.getAgencia());
-        System.out.println("Conta: " + comprovanteVenda.getConta());
-        System.out.println("Código de Autorização: " + comprovanteVenda.getCodigoAutorizacao());
-        System.out.println("Código da Bandeira: " + comprovanteVenda.getCodigoBandeira());
-        System.out.println("Código do Produto: " + comprovanteVenda.getCodigoProduto());
-        System.out.println("Código do EC: " + comprovanteVenda.getCodigoEC());
-        System.out.println("NSEQ: " + comprovanteVenda.getNSEQ());
-
-        if(comprovanteVenda.getAdquirente() != null) {
-            System.out.println("Adquirente: " + comprovanteVenda.getAdquirente().getDescricao());
-        }
-
-        if(comprovanteVenda.getProduto() != null) {
-            System.out.println("Produto: " + comprovanteVenda.getProduto().getDescricao());
-        }
-    }
-
-    public void mostrarAjusteCreditoDebito(AjusteCreditoDebito ajusteCreditoDebito) {
-        System.out.println("Código do registro: " + ajusteCreditoDebito.getCodigoRegistro());
-        System.out.println("Identificação da Loja: " + ajusteCreditoDebito.getIdentificacaoLoja());
-        System.out.println("NSU Host da transação original: " + ajusteCreditoDebito.getNSUHostTransacaoOriginal());
-        System.out.println("NSU TEF: " + ajusteCreditoDebito.getNSUTEF());
-        System.out.println("NSU Terminal: " + ajusteCreditoDebito.getNSUTerminal());
-        System.out.println("Código do Adquirente: " + ajusteCreditoDebito.getCodigoAdquirente());
-        System.out.println("Data da transação original: " + ajusteCreditoDebito.getDataTransacaoOriginal());
-        System.out.println("NSU Host da transação: " + ajusteCreditoDebito.getNSUHostTransacao());
-        System.out.println("Data da transação AJ: " + ajusteCreditoDebito.getDataTransacaoAJ());
-        System.out.println("Horário da transação: " + ajusteCreditoDebito.getHoraTransacaoAJ());
-
-        if(ajusteCreditoDebito.getTipoLancamento() != null) {
-            System.out.println("Tipo de lançamento: " + ajusteCreditoDebito.getTipoLancamento().getDescricao());
-        }
-
-        System.out.println("Data de lançamento: " + ajusteCreditoDebito.getDataLancamento());
-
-        if(ajusteCreditoDebito.getMeioCaptura() != null) {
-            System.out.println("Meio de Captura do Ajuste: " + ajusteCreditoDebito.getMeioCaptura().getDescricao());
-        }
-
-        System.out.println("Tipo de Ajuste: " + ajusteCreditoDebito.getTipoAjuste());
-        System.out.println("Código do Ajuste: " + ajusteCreditoDebito.getCodigoAjuste());
-        System.out.println("Descrição do Motivo do Ajuste: " + ajusteCreditoDebito.getDescricaoMotivoAjuste());
-        System.out.println("Valor Bruto: " + ajusteCreditoDebito.getValorBruto());
-        System.out.println("Valor do Desconto ou Comissão: " + ajusteCreditoDebito.getValorDesconto());
-        System.out.println("Valor Líquido: " + ajusteCreditoDebito.getValorLiquido());
-        System.out.println("Banco: " + ajusteCreditoDebito.getBanco());
-        System.out.println("Agência: " + ajusteCreditoDebito.getAgencia());
-        System.out.println("Conta: " + ajusteCreditoDebito.getConta());
-        System.out.println("Número do Cartão da transação original: " + ajusteCreditoDebito.getNumeroCartaoTransacaoOriginal());
-        System.out.println("Código da Bandeira: " + ajusteCreditoDebito.getCodigoBandeira());
-        System.out.println("Código do Produto: " + ajusteCreditoDebito.getCodigoProduto());
-        System.out.println("Código do EC: " + ajusteCreditoDebito.getCodigoEC());
-        System.out.println("Código de autorização: " + ajusteCreditoDebito.getCodigoAutorizacao());
-        System.out.println("NSEQ: " + ajusteCreditoDebito.getNSEQ());
-
-        if(ajusteCreditoDebito.getAdquirente() != null) {
-            System.out.println("Adquirente: " + ajusteCreditoDebito.getAdquirente().getDescricao());
-        }
-
-        if(ajusteCreditoDebito.getAjuste() != null) {
-            System.out.println("Ajuste: " + ajusteCreditoDebito.getAjuste().getDescricao());
-        }
-
-        if(ajusteCreditoDebito.getProduto() != null) {
-            System.out.println("Produto: " + ajusteCreditoDebito.getProduto().getDescricao());
-        }
-    }
-
-    public void mostrarCancelamento(Cancelamento cancelamento) {
-        System.out.println("Código do registro: " + cancelamento.getCodigoRegistro());
-        System.out.println("Identificação da Loja: " + cancelamento.getIdentificacaoLoja());
-        System.out.println("NSU Host da transação original: " + cancelamento.getNSUHostTransacaoOriginal());
-        System.out.println("NSU TEF: " + cancelamento.getNSUTEF());
-        System.out.println("NSU Terminal: " + cancelamento.getNSUTerminal());
-        System.out.println("Código do Adquirente: " + cancelamento.getCodigoAdquirente());
-        System.out.println("Data da transação original: " + cancelamento.getDataTransacaoOriginal());
-        System.out.println("NSU Host da transação: " + cancelamento.getNSUHostTransacao());
-        System.out.println("Data da transação: " + cancelamento.getDataTransacao());
-        System.out.println("Horário da transação: " + cancelamento.getHoraTransacao());
-
-        if(cancelamento.getMeioCaptura() != null) {
-            System.out.println("Meio de Captura: " + cancelamento.getMeioCaptura().getDescricao());
-        }
-
-        System.out.println("Código do EC: " + cancelamento.getCodigoEC());
-        System.out.println("Código de autorização: " + cancelamento.getCodigoAutorizacao());
-        System.out.println("NSEQ: " + cancelamento.getNSEQ());
-
-        if(cancelamento.getAdquirente() != null) {
-            System.out.println("Adquirente: " + cancelamento.getAdquirente().getDescricao());
-        }
-    }
-
-    public void mostrarTrailerLoteTransacao(TrailerLoteTransacao trailerLoteTransacao) {
-        System.out.println("Código do registro: " + trailerLoteTransacao.getCodigoRegistro());
-        System.out.println("Total de registros de transação: " + trailerLoteTransacao.getTotalRegistros());
-        System.out.println("Total de valores de créditos: " + trailerLoteTransacao.getTotalValoresCredito());
-        System.out.println("NSEQ: " + trailerLoteTransacao.getNSEQ());
-    }
-
-    public void mostrarTrailerArquivo(TrailerArquivo trailerArquivo) {
-        System.out.println("Código do registro: " + trailerArquivo.getCodigoRegistro());
-        System.out.println("Data do Movimento: " + trailerArquivo.getDataMovimento());
-        System.out.println("NSEQ: " + trailerArquivo.getNSEQ());
-    }
-
     public Date converterDataSQL(String dataString) {
         java.util.Date dataUtilFormat = null;
 
@@ -1128,7 +1010,7 @@ public class MainController {
             try {
                 dataUtilFormat = new SimpleDateFormat("yyyyMMdd").parse(dataString);
             } catch (ParseException e) {
-                e.printStackTrace();
+                mostrarMensagem("Erro #29" + e);
             }
         }
 
@@ -1296,7 +1178,7 @@ public class MainController {
                 stage.setScene(new Scene(layoutWindow,780, 590));
                 stage.setResizable(false);
             } catch (IOException e){
-                e.printStackTrace();
+                mostrarMensagem("Erro #30" + e);
             }
         });
     }

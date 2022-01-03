@@ -74,7 +74,7 @@
                                 </columnResizePolicy>
                                 <columns>
                                     <TableColumn fx:id="tcArquivo" text="Arquivo"/>
-                                    <TableColumn fx:id="tcData" text="Data de Processamento"/>
+                                    <TableColumn fx:id="tcData" text="Data de Geração"/>
                                 </columns>
                             </TableView>
                         </VBox>
