@@ -39,9 +39,10 @@ public class MainController {
     private ObservableList<Adquirente> listaAdquirentes = FXCollections.observableArrayList();
     private ObservableList<Ajuste> listaAjustes = FXCollections.observableArrayList();
 
-    private File folder = new File("C:\\Users\\Gabriel\\Desktop\\teste");
+    private File folder = new File("C:\\Skyline\\inbox");
 
     public void initialize() {
+
         listarTiposLancamento();
         listarMoedasCorrentes();
         listarTiposProcessamento();
@@ -55,12 +56,9 @@ public class MainController {
 
     @FXML
     public void processar() {
-
         Thread threadProcesso = new Thread(() -> {
             while (true) {
                 mostrarMensagem("Aguardando...");
-
-                /*File folder = new File("C:\\Skyline\\inbox");*/
                 File[] listOfFiles = folder.listFiles();
 
                 for (int i = 0; i < listOfFiles.length; i++) {
@@ -68,82 +66,70 @@ public class MainController {
                     String arquivo = "";
 
                     Estabelecimento estabelecimento = null;
-                    Cliente cliente = null;
-                    Arquivo arquivoBuscar = null;
+                    Boolean arquivoBuscar = false;
 
                     if (listOfFiles[i].isFile() && !listOfFiles[i].getName().contains("desktop.ini")) {
                         pasta = folder.getAbsolutePath();
                         arquivo = listOfFiles[i].getName();
 
+                        Boolean verificarOperadora = false;
+
                         try {
-                            estabelecimento = getFileEstabelecimento(pasta, arquivo);
+                            //VERIFICA SE O ARQUIVO É BEN VISA VALE
+                            verificarOperadora = verificarBenVisaVale(pasta, arquivo);
                         } catch (IOException e) {
-                            mostrarMensagem("Erro #1" + e);
+                            e.printStackTrace();
                         }
 
-                        if(estabelecimento != null) {
-                            cliente = estabelecimento.getCliente();
-
-                            if(cliente != null) {
-                                try {
-                                    arquivoBuscar = JDBCArquivoDAO.getInstance().search(arquivo, 268, cliente.getCnpj());
-                                } catch (Exception e) {
-                                    mostrarMensagem("Erro #2" + e);
-                                }
-
-                                if(arquivoBuscar == null) {
-                                    mostrarMensagem("Lendo arquivo..." + arquivo);
-
-                                    try {
-                                        lerArquivo(pasta, arquivo, estabelecimento);
-                                    } catch (IOException e) {
-                                        mostrarMensagem("Erro #3" + e);
-                                    } catch (ParseException e) {
-                                        mostrarMensagem("Erro #4" + e);
-                                    }
-
-                                    mostrarMensagem("Arquivo " + arquivo + " processado!");
-
-                                    try {
-                                        Thread.sleep(10000);
-                                    } catch (InterruptedException interruptedException) {
-                                        mostrarMensagem("Erro #8" + interruptedException);
-                                    }
-
-                                }
-                            }
-                        } else {
+                        if(verificarOperadora == true) {
                             try {
-                                arquivoBuscar = JDBCArquivoDAO.getInstance().search(arquivo, 268, "22162885000168");
+                                arquivoBuscar = JDBCArquivoDAO.getInstance().search(arquivo);
                             } catch (Exception e) {
-                                mostrarMensagem("Erro #5" + e);
+                                gravarLog("Erro #2: " + e);
+                                mostrarMensagem("Erro #2" + e);
                             }
 
-                            if(arquivoBuscar == null) {
+                            if(arquivoBuscar == false) {
                                 try {
-                                    lerArquivo(pasta, arquivo, null);
+                                    estabelecimento = getFileEstabelecimento(pasta, arquivo);
                                 } catch (IOException e) {
-                                    mostrarMensagem("Erro #6" + e);
-                                } catch (ParseException e) {
-                                    mostrarMensagem("Erro #7" + e);
+                                    gravarLog("Erro #1: " + e);
+                                    mostrarMensagem("Erro #1" + e);
                                 }
 
+                                gravarLog("Lendo arquivo: " + arquivo);
+                                mostrarMensagem("Lendo arquivo..." + arquivo);
+
+                                try {
+                                    lerArquivo(pasta, arquivo, estabelecimento);
+                                } catch (IOException e) {
+                                    gravarLog("Erro #3: " + e);
+                                    mostrarMensagem("Erro #3" + e);
+                                } catch (ParseException e) {
+                                    gravarLog("Erro #4: " + e);
+                                    mostrarMensagem("Erro #4" + e);
+                                }
+
+                                gravarLog("Arquivo lido: " + arquivo);
                                 mostrarMensagem("Arquivo " + arquivo + " processado!");
 
                                 try {
-                                    Thread.sleep(10000);
+                                    Thread.sleep(2000);
                                 } catch (InterruptedException interruptedException) {
-                                    mostrarMensagem("Erro #8" + interruptedException);
+                                    gravarLog("Erro #5: " + interruptedException);
+                                    mostrarMensagem("Erro #5" + interruptedException);
                                 }
                             }
                         }
+
                     }
                 }
 
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException interruptedException) {
-                    mostrarMensagem("Erro #8" + interruptedException);
+                    gravarLog("Erro #6: " + interruptedException);
+                    mostrarMensagem("Erro #6" + interruptedException);
                 }
             }
         });
@@ -193,6 +179,44 @@ public class MainController {
         return estabelecimento;
     }
 
+    public Boolean verificarBenVisaVale(String pasta, String arquivo) throws IOException {
+        Boolean verificar = false;
+
+        FileInputStream stream = new FileInputStream(pasta + "\\" + arquivo);
+        InputStreamReader reader = new InputStreamReader(stream);
+        BufferedReader br = new BufferedReader(reader);
+
+        String line = br.readLine();
+        Integer currentLine = 0;
+
+        while(line != null) {
+            currentLine++;
+            String identificador = line.toCharArray()[0] + "" + line.toCharArray()[1];
+
+            if(identificador.equals("A0")) {
+                String nomeAdministradora = "";
+
+                try {
+                    for (int i = 28; i < 88; i++) { nomeAdministradora += "" + line.toCharArray()[i]; }
+                } catch (ArrayIndexOutOfBoundsException e) {
+                    //gravarLog("");
+                }
+
+                if(nomeAdministradora.contains("BEN VISA VALE")) {
+                    verificar = true;
+                }
+            }
+
+            line = br.readLine();
+        }
+
+        br.close();
+        reader.close();
+        stream.close();
+
+        return verificar;
+    }
+
     public void lerArquivo(String pasta, String arquivo, Estabelecimento estabelecimento) throws IOException, ParseException {
         FileInputStream stream = new FileInputStream(pasta + "\\" + arquivo);
         InputStreamReader reader = new InputStreamReader(stream);
@@ -217,49 +241,82 @@ public class MainController {
 
             if(flag == true) {
                 if(identificador.equals("A0")) {
+                    gravarLog("Lendo Header Arquivo: " + arquivo);
+
                     verificarProcesso++;
-                    headerArquivo = processarHeaderArquivo(line.toCharArray());
+
+                    try {
+                        headerArquivo = processarHeaderArquivo(line.toCharArray());
+                    } catch (ArrayIndexOutOfBoundsException arrayIndexOutOfBoundsException) {
+                        gravarLog("1 - Erro de array");
+                    }
 
                     if(headerArquivo != null) {
                         String dataGeracao = headerArquivo.getDataGeracao();
                         String idMovimento = headerArquivo.getIdMovimento();
-                        try {
-                            HeaderArquivo headerBuscar = JDBCHeaderArquivoDAO.getInstance().search(dataGeracao, idMovimento);
 
-                            if(headerBuscar == null) {
-                                try {
-                                    JDBCHeaderArquivoDAO.getInstance().create(headerArquivo, arquivo);
-                                } catch (Exception e) {
-                                    mostrarMensagem("Erro #10" + e);
-                                }
-                            } else {
-                                flag = false;
-                            }
+                        Boolean headerBuscar = false;
+
+                        try {
+                            headerBuscar = JDBCHeaderArquivoDAO.getInstance().search(dataGeracao, idMovimento);
                         } catch (Exception e) {
+                            gravarLog("Erro #11: " + e);
                             mostrarMensagem("Erro #11" + e);
+                        }
+
+                        if(headerBuscar == false) {
+                            try {
+                                JDBCHeaderArquivoDAO.getInstance().create(headerArquivo, arquivo);
+                            } catch (Exception e) {
+                                gravarLog("Erro #10: " + e);
+                                mostrarMensagem("Erro #10" + e);
+                            }
+                        } else {
+                            flag = false;
                         }
                     }
                 } else if(identificador.equals("L0")) {
+                    gravarLog("Lendo Lote Transacao: " + arquivo);
+
                     verificarProcesso++;
-                    headerLoteTransacao = processarHeaderLote(line.toCharArray());
 
                     try {
-                        JDBCHeaderLoteTransacoesDAO.getInstance().create(headerLoteTransacao, arquivo);
+                        headerLoteTransacao = processarHeaderLote(line.toCharArray());
+                    } catch (ArrayIndexOutOfBoundsException arrayIndexOutOfBoundsException) {
+                        gravarLog("2 - Erro de array");
+                    }
+
+                    try {
+                        /*JDBCHeaderLoteTransacoesDAO.getInstance().create(headerLoteTransacao, arquivo);*/
                     } catch (Exception e) {
                         mostrarMensagem("Erro #12" + e);
                     }
                 } else if(identificador.equals("RV")) {
+                    gravarLog("Lendo Resumo de Vendas: " + arquivo);
+
                     verificarProcesso++;
-                    resumoVenda = processarResumoVenda(line.toCharArray());
 
                     try {
-                        JDBCResumoVendasDAO.getInstance().create(resumoVenda, arquivo);
+                        resumoVenda = processarResumoVenda(line.toCharArray());
+                    } catch (ArrayIndexOutOfBoundsException arrayIndexOutOfBoundsException) {
+                        gravarLog("3 - Erro de array");
+                    }
+
+                    try {
+                        /*JDBCResumoVendasDAO.getInstance().create(resumoVenda, arquivo);*/
                     } catch (Exception e) {
                         mostrarMensagem("Erro #13" + e);
                     }
                 } else if(identificador.equals("CV")) {
+                    gravarLog("Lendo Comprovante Venda: " + arquivo);
+
                     verificarProcesso++;
-                    comprovanteVenda = processarComprovanteVenda(line.toCharArray());
+
+                    try {
+                        comprovanteVenda = processarComprovanteVenda(line.toCharArray());
+                    } catch (ArrayIndexOutOfBoundsException arrayIndexOutOfBoundsException) {
+                        gravarLog("4 - Erro de array");
+                    }
 
                     java.util.Date data = new java.util.Date();
                     Date dataImportacao = new java.sql.Date(Calendar.getInstance().getTime().getTime());
@@ -268,85 +325,108 @@ public class MainController {
                     Boolean verificar = false;
 
                     try {
+                        gravarLog("Criando Comprovante Venda: " + arquivo);
                         JDBCComprovanteVendaDAO.getInstance().create(comprovanteVenda, arquivo);
                     } catch (Exception e) {
                         mostrarMensagem("Erro #14" + e);
                     }
 
-                    if(comprovanteVenda.getTipoLancamento().getId() == 0) {
-                        /*VENDA*/
+                    if(comprovanteVenda.getTipoLancamento() != null) {
+                        if(comprovanteVenda.getTipoLancamento().getId() == 0) {
+                            /*VENDA*/
 
-                        try {
-                            verificar = JDBCVendaDAO.getInstance().verificarDuplicidade(comprovanteVenda.getChavePagamento());
-                        } catch (Exception e) {
-                            mostrarMensagem("Erro #15" + e);
-                        }
+                            gravarLog("Lendo Vendas: " + arquivo);
 
-                        // VERIFICA SE A VENDA JÁ EXISTE
-                        if(verificar == false) {
                             try {
-                                JDBCVendaDAO.getInstance().create(comprovanteVenda, dataImportacao, horaImportacao, arquivo);
+                                verificar = JDBCVendaDAO.getInstance().verificarDuplicidade(comprovanteVenda.getChavePagamento());
                             } catch (Exception e) {
-                                mostrarMensagem("Erro #16" + e);
+                                mostrarMensagem("Erro #15" + e);
                             }
-                        }
-                    } else {
-                        /*PAGAMENTO*/
 
-                        try {
-                            verificar = JDBCPagamentoDAO.getInstance().verificarDuplicidade(comprovanteVenda.getChavePagamento());
-                        } catch (Exception e) {
-                            mostrarMensagem("Erro #17" + e);
-                        }
+                            // VERIFICA SE A VENDA JÁ EXISTE
+                            if(verificar == false) {
+                                try {
+                                    JDBCVendaDAO.getInstance().create(comprovanteVenda, dataImportacao, horaImportacao, arquivo);
+                                } catch (Exception e) {
+                                    mostrarMensagem("Erro #16" + e);
+                                }
+                            }
+                        } else {
+                            /*PAGAMENTO*/
 
-                        // VERIFICA SE O PAGAMENTO JÁ EXISTE
-                        if(verificar == false) {
+                            gravarLog("Lendo Pagamentos: " + arquivo);
+
                             try {
-                                long id = 0;
-                                id = JDBCPagamentoDAO.getInstance().create(comprovanteVenda, dataImportacao, horaImportacao, arquivo);
+                                verificar = JDBCPagamentoDAO.getInstance().verificarDuplicidade(comprovanteVenda.getChavePagamento());
+                            } catch (Exception e) {
+                                mostrarMensagem("Erro #17" + e);
+                            }
 
-                                if(id != 0) {
-                                    Boolean verificarVenda = null;
+                            // VERIFICA SE O PAGAMENTO JÁ EXISTE
+                            if(verificar == false) {
+                                try {
+                                    long id = 0;
+                                    id = JDBCPagamentoDAO.getInstance().create(comprovanteVenda, dataImportacao, horaImportacao, arquivo);
 
-                                    try {
-                                        // VERIFICA SE EXISTE VENDA COM O PAGAMENTO
-                                        verificarVenda = JDBCVendaDAO.getInstance().search(comprovanteVenda);
-                                    } catch (Exception e) {
-                                        mostrarMensagem("Erro #18" + e);
-                                    }
+                                    if(id != 0) {
+                                        Boolean verificarVenda = null;
 
-                                    if(verificarVenda == true) {
                                         try {
-                                            // ATUALIZA A VENDA COMO PAGA
-                                            JDBCVendaDAO.getInstance().updateVendaPaga(comprovanteVenda, id);
+                                            // VERIFICA SE EXISTE VENDA COM O PAGAMENTO
+                                            verificarVenda = JDBCVendaDAO.getInstance().search(comprovanteVenda);
                                         } catch (Exception e) {
-                                            mostrarMensagem("Erro #19" + e);
+                                            mostrarMensagem("Erro #18" + e);
+                                        }
+
+                                        if(verificarVenda == true) {
+                                            try {
+                                                // ATUALIZA A VENDA COMO PAGA
+                                                JDBCVendaDAO.getInstance().updateVendaPaga(comprovanteVenda, id);
+                                            } catch (Exception e) {
+                                                mostrarMensagem("Erro #19" + e);
+                                            }
                                         }
                                     }
+                                } catch (Exception e) {
+                                    mostrarMensagem("Erro #20" + e);
                                 }
-                            } catch (Exception e) {
-                                mostrarMensagem("Erro #20" + e);
                             }
                         }
                     }
                 } else if(identificador.equals("L9")) {
+                    gravarLog("Lendo Trailer Lote Transacoes: " + arquivo);
+
                     verificarProcesso++;
-                    trailerLoteTransacao = processarTrailerLoteTransacoes(line.toCharArray());
 
                     try {
-                        JDBCTrailerLoteTransacoesDAO.getInstance().create(trailerLoteTransacao, arquivo);
+                        trailerLoteTransacao = processarTrailerLoteTransacoes(line.toCharArray());
+                    } catch (ArrayIndexOutOfBoundsException arrayIndexOutOfBoundsException) {
+                        gravarLog("6 - Erro de array");
+                    }
+
+                    try {
+                        /*JDBCTrailerLoteTransacoesDAO.getInstance().create(trailerLoteTransacao, arquivo);*/
                     } catch (Exception e) {
                         mostrarMensagem("Erro #21" + e);
                     }
                 } else if(identificador.equals("A9")) {
+                    gravarLog("Lendo Trailer Arquivo: " + arquivo);
+
                     verificarProcesso++;
-                    trailerArquivo = processarTrailerArquivo(line.toCharArray());
 
                     try {
-                        JDBCTrailerArquivoDAO.getInstance().create(trailerArquivo, arquivo);
+                        trailerArquivo = processarTrailerArquivo(line.toCharArray());
+                    } catch (ArrayIndexOutOfBoundsException arrayIndexOutOfBoundsException) {
+                        gravarLog("7 - Erro de array");
+                    }
+
+                    try {
+                        /*JDBCTrailerArquivoDAO.getInstance().create(trailerArquivo, arquivo);*/
                     } catch (Exception e) {
                         mostrarMensagem("Erro #22" + e);
                     }
+                } else {
+                    flag = false;
                 }
             }
 
@@ -358,6 +438,7 @@ public class MainController {
         stream.close();
 
         if(flag == true && verificarProcesso > 0) {
+            gravarLog("Salvando arquivo processado!  " + arquivo);
             try {
                 mostrarMensagem("Salvando arquivo processado!");
                 salvarArquivoProcessado(arquivo, pasta, estabelecimento);
@@ -403,6 +484,9 @@ public class MainController {
     }
 
     public HeaderArquivo processarHeaderArquivo(char[] line) {
+
+        gravarLog("Processando header");
+
         HeaderArquivo headerArquivo = new HeaderArquivo();
 
         String codigoRegistro = line[0] + "" + line[1];
@@ -442,6 +526,8 @@ public class MainController {
         headerArquivo.setIdentificacaoDestinatario(identificacaoDestinatario);
         headerArquivo.setTipoProcessamento(tipoProcessamento);
         headerArquivo.setNSEQ(nseq);
+
+        gravarLog("Processou header ");
 
         return headerArquivo;
     }
@@ -524,9 +610,24 @@ public class MainController {
         for (int i = 128; i < 143; i++) { valorCredito += "" + line[i]; }
         for (int i = 144; i < 159; i++) { valorComissao += "" + line[i]; }
         for (int i = 161; i < 165; i++) { codigoAjustes += "" + line[i]; }
-        for (int i = 165; i < 180; i++) { codigoEC += "" + line[i]; }
-        for (int i = 180; i < 186; i++) { codigoAdquirente += "" + line[i]; }
-        for (int i = 186; i < 192; i++) { NSEQ += "" + line[i]; }
+
+        try {
+            for (int i = 165; i < 180; i++) { codigoEC += "" + line[i]; }
+        } catch (ArrayIndexOutOfBoundsException e) {
+
+        }
+
+        try {
+            for (int i = 180; i < 186; i++) { codigoAdquirente += "" + line[i]; }
+        } catch (ArrayIndexOutOfBoundsException e) {
+
+        }
+
+        try {
+            for (int i = 186; i < 192; i++) { NSEQ += "" + line[i]; }
+        } catch (ArrayIndexOutOfBoundsException e) {
+
+        }
 
         for (TipoLancamento tipo:listaTiposLancamento) {
             if(tipo.getId() == codigoTipoLancamento) {
@@ -546,9 +647,11 @@ public class MainController {
             }
         }
 
-        for (Adquirente adquirente1:listaAdquirentes) {
-            if(adquirente1.getId() == Integer.parseInt(codigoAdquirente)) {
-                adquirente = adquirente1;
+        if(!codigoAdquirente.isEmpty()) {
+            for (Adquirente adquirente1:listaAdquirentes) {
+                if(adquirente1.getId() == Integer.parseInt(codigoAdquirente)) {
+                    adquirente = adquirente1;
+                }
             }
         }
 
@@ -638,8 +741,18 @@ public class MainController {
         for (int i = 156; i < 168; i++) { codigoAutorizacao += "" + line[i]; }
         for (int i = 168; i < 171; i++) { codigoBandeira += "" + line[i]; }
         for (int i = 171; i < 174; i++) { codigoProduto += "" + line[i]; }
-        for (int i = 174; i < 189; i++) { codigoEC += "" + line[i]; }
-        for (int i = 189; i < 195; i++) { nseq += "" + line[i]; }
+
+        try {
+            for (int i = 174; i < 189; i++) { codigoEC += "" + line[i]; }
+        } catch (ArrayIndexOutOfBoundsException e) {
+
+        }
+
+        try {
+            for (int i = 189; i < 195; i++) { nseq += "" + line[i]; }
+        } catch (ArrayIndexOutOfBoundsException e) {
+
+        }
 
         for (TipoLancamento tipo:listaTiposLancamento) {
             if(tipo.getId() == codigoTipoLancamento) {
@@ -727,7 +840,11 @@ public class MainController {
 
         horaTransacaoSQL = new Time(horaTransacaoDate.getTime());
 
-        String chavePagamento = cliente.getId()+"-268-"+dataLancamentoSQL+"-1-1-"+nsuFormatada+autorizacaoFormatada+"-238-3";
+        String chavePagamento = "";
+
+        if(cliente != null) {
+            chavePagamento = cliente.getId()+"-268-"+dataLancamentoSQL+"-1-1-"+nsuFormatada+autorizacaoFormatada+"-238-3";
+        }
 
         comprovanteVenda.setCodigoRegistro(codigoRegistro);
         comprovanteVenda.setIdentificacaoLoja(identificacaoLoja);
@@ -1188,5 +1305,22 @@ public class MainController {
             lbMensagem.setVisible(true);
             lbMensagem.setText(mensagem);
         });
+    }
+
+    public void gravarLog(String log) {
+        PrintWriter printer = null;
+        FileWriter fw = null;
+
+        try {
+            fw = new FileWriter("C:\\Users\\sallesrocha_bruno\\Documents\\LeitorArquivo\\leitor-log.txt", true);
+            //fw = new FileWriter("C:\\Users\\Gabriel\\IdeaProjects\\LeituraArquivosConciflex\\out\\artifacts\\LeituraArquivosConciflex_jar\\leitor-log.txt", true);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        printer = new PrintWriter(fw);
+
+        printer.println(log);
+        printer.close();
     }
 }

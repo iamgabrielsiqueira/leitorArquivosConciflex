@@ -71,30 +71,27 @@ public class JDBCArquivoDAO implements ArquivoDAO {
     }
 
     @Override
-    public Arquivo search(String nomeArquivo, int idAdquirente, String CNPJ) throws Exception {
+    public Boolean search(String nomeArquivo) throws Exception {
         Connection connection = ConnectionFactory.getConnection();
 
         PreparedStatement preparedStatement;
-        String sql = "select * from controle_arquivos_processados " +
-                "where NOME_ARQUIVO = ? and COD_ADIQUIRENTE = ? and CNPJ_CLIENTE = ?";
+        String sql = "select * from controle_arquivos_processados where NOME_ARQUIVO = ?";
         preparedStatement = connection.prepareStatement(sql);
 
         preparedStatement.setString(1, nomeArquivo);
-        preparedStatement.setInt(2, idAdquirente);
-        preparedStatement.setString(3, CNPJ);
 
         ResultSet resultSet = preparedStatement.executeQuery();
-        Arquivo arquivo = null;
+        Boolean verificar = false;
 
         if(resultSet.next()) {
-            arquivo = carregarArquivo(resultSet);
+            verificar = true;
         }
 
         resultSet.close();
         preparedStatement.close();
         connection.close();
 
-        return arquivo;
+        return verificar;
     }
 
     @Override

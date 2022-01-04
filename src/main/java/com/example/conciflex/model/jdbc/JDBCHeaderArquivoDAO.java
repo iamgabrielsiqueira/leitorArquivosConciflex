@@ -83,7 +83,7 @@ public class JDBCHeaderArquivoDAO implements HeaderArquivoDAO {
     }
 
     @Override
-    public HeaderArquivo search(String dataGeracao, String idMovimento) throws Exception {
+    public Boolean search(String dataGeracao, String idMovimento) throws Exception {
         Connection connection = ConnectionFactory.getConnection();
 
         PreparedStatement preparedStatement;
@@ -98,17 +98,17 @@ public class JDBCHeaderArquivoDAO implements HeaderArquivoDAO {
         preparedStatement.setString(2, idMovimento);
 
         ResultSet resultSet = preparedStatement.executeQuery();
-        HeaderArquivo headerArquivo = null;
+        Boolean verificar = false;
 
         if(resultSet.next()) {
-            headerArquivo = carregarHeaderArquivo(resultSet);
+            verificar = true;
         }
 
         resultSet.close();
         preparedStatement.close();
         connection.close();
 
-        return headerArquivo;
+        return verificar;
     }
 
 }
