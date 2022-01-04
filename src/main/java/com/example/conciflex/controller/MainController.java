@@ -241,7 +241,7 @@ public class MainController {
 
             if(flag == true) {
                 if(identificador.equals("A0")) {
-                    /*verificarProcesso++;
+                    verificarProcesso++;
 
                     try {
                         headerArquivo = processarHeaderArquivo(line.toCharArray());
@@ -272,9 +272,9 @@ public class MainController {
                         } else {
                             flag = false;
                         }
-                    }*/
+                    }
                 } else if(identificador.equals("L0")) {
-                    /*verificarProcesso++;
+                    verificarProcesso++;
 
                     try {
                         headerLoteTransacao = processarHeaderLote(line.toCharArray());
@@ -286,7 +286,7 @@ public class MainController {
                         JDBCHeaderLoteTransacoesDAO.getInstance().create(headerLoteTransacao, arquivo);
                     } catch (Exception e) {
                         mostrarMensagem("Erro #12" + e);
-                    }*/
+                    }
                 } else if(identificador.equals("RV")) {
                     verificarProcesso++;
 
@@ -304,7 +304,7 @@ public class MainController {
                         mostrarMensagem("Erro #13" + e);
                     }
                 } else if(identificador.equals("CV")) {
-                    /*verificarProcesso++;
+                    verificarProcesso++;
 
                     try {
                         comprovanteVenda = processarComprovanteVenda(line.toCharArray());
@@ -325,10 +325,10 @@ public class MainController {
                     }
 
                     if(comprovanteVenda.getTipoLancamento() != null) {
-                        if(comprovanteVenda.getTipoLancamento().getId() == 0) {*/
+                        if(comprovanteVenda.getTipoLancamento().getId() == 0) {
                             /*VENDA*/
 
-                            /*try {
+                            try {
                                 verificar = JDBCVendaDAO.getInstance().verificarDuplicidade(comprovanteVenda.getChavePagamento());
                             } catch (Exception e) {
                                 mostrarMensagem("Erro #15" + e);
@@ -342,17 +342,17 @@ public class MainController {
                                     mostrarMensagem("Erro #16" + e);
                                 }
                             }
-                        } else {*/
+                        } else {
                             /*PAGAMENTO*/
 
-                            /*try {
+                            try {
                                 verificar = JDBCPagamentoDAO.getInstance().verificarDuplicidade(comprovanteVenda.getChavePagamento());
                             } catch (Exception e) {
                                 mostrarMensagem("Erro #17" + e);
-                            }*/
+                            }
 
                             // VERIFICA SE O PAGAMENTO JÁ EXISTE
-                            /*if(verificar == false) {
+                            if(verificar == false) {
                                 try {
                                     long id = 0;
                                     id = JDBCPagamentoDAO.getInstance().create(comprovanteVenda, dataImportacao, horaImportacao, arquivo);
@@ -360,17 +360,17 @@ public class MainController {
                                     if(id != 0) {
                                         Boolean verificarVenda = null;
 
-                                        try {*/
+                                        try {
                                             // VERIFICA SE EXISTE VENDA COM O PAGAMENTO
-                                            /*verificarVenda = JDBCVendaDAO.getInstance().search(comprovanteVenda);
+                                            verificarVenda = JDBCVendaDAO.getInstance().search(comprovanteVenda);
                                         } catch (Exception e) {
                                             mostrarMensagem("Erro #18" + e);
                                         }
 
                                         if(verificarVenda == true) {
-                                            try {*/
+                                            try {
                                                 // ATUALIZA A VENDA COMO PAGA
-                                                /*JDBCVendaDAO.getInstance().updateVendaPaga(comprovanteVenda, id);
+                                                JDBCVendaDAO.getInstance().updateVendaPaga(comprovanteVenda, id);
                                             } catch (Exception e) {
                                                 mostrarMensagem("Erro #19" + e);
                                             }
@@ -381,9 +381,9 @@ public class MainController {
                                 }
                             }
                         }
-                    }*/
+                    }
                 } else if(identificador.equals("L9")) {
-                    /*verificarProcesso++;
+                    verificarProcesso++;
 
                     try {
                         trailerLoteTransacao = processarTrailerLoteTransacoes(line.toCharArray());
@@ -395,9 +395,9 @@ public class MainController {
                         JDBCTrailerLoteTransacoesDAO.getInstance().create(trailerLoteTransacao, arquivo);
                     } catch (Exception e) {
                         mostrarMensagem("Erro #21" + e);
-                    }*/
+                    }
                 } else if(identificador.equals("A9")) {
-                    /*verificarProcesso++;
+                    verificarProcesso++;
 
                     try {
                         trailerArquivo = processarTrailerArquivo(line.toCharArray());
@@ -409,7 +409,7 @@ public class MainController {
                         JDBCTrailerArquivoDAO.getInstance().create(trailerArquivo, arquivo);
                     } catch (Exception e) {
                         mostrarMensagem("Erro #22" + e);
-                    }*/
+                    }
                 } else {
                     flag = false;
                 }
@@ -422,14 +422,14 @@ public class MainController {
         reader.close();
         stream.close();
 
-        /*if(flag == true && verificarProcesso > 0) {
+        if(flag == true && verificarProcesso > 0) {
             try {
                 mostrarMensagem("Salvando arquivo processado!");
                 salvarArquivoProcessado(arquivo, pasta, estabelecimento);
             } catch (Exception e) {
                 mostrarMensagem("Erro #23" + e);
             }
-        }*/
+        }
     }
 
     public void salvarArquivoProcessado(String arquivo, String pasta, Estabelecimento estabelecimento) {
