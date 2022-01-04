@@ -29,14 +29,22 @@ public class JDBCResumoVendasDAO implements ResumoVendasDAO {
     public void create(ResumoVenda resumoVenda, String arquivo) throws Exception {
         Connection connection = ConnectionFactory.getConnection();
 
-        String sql = "insert into edi_ben_resumo_vendas(" +
-                "COD_REGISTRO, IDENTIFICACAO_LOJA, NUMERO_RV, DATA_RV, COD_TIPO_LANCAMENTO, TIPO_LANCAMENTO," +
-                "DATA_PAGAMENTO, CVS_APROVADOS, CVS_REJEITADOS, TIPO_PRODUTO, CODIGO_PRODUTO, DESCRICAO_PRODUTO," +
-                "BANCO, AGENCIA, CONTA_CORRENTE, VALOR_BRUTO, SINAL_VALOR_BRUTO, VALOR_LIQUIDO," +
-                "SINAL_VALOR_LIQUIDO, VALOR_CREDITO, SINAL_VALOR_CREDITO, VALOR_COMISSAO," +
-                "SINAL_VALOR_COMISSAO, IDENTIFICADOR_AJUSTE_RV, CODIGO_AJUSTES, DESCRICAO_AJUSTE," +
-                "CODIGO_EC, CODIGO_ADQUIRENTE, DESCRICAO_ADQUIRENTE, NSEQ, NOME_ARQUIVO" +
-                ") values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "insert into edi_ben_resumo_vendas_teste(" +
+                "COD_REGISTRO, IDENTIFICACAO_LOJA, NUMERO_RV, DATA_RV, COD_TIPO_LANCAMENTO," +
+                "TIPO_LANCAMENTO, DATA_PAGAMENTO, CVS_APROVADOS, CVS_REJEITADOS, TIPO_PRODUTO," +
+                "CODIGO_PRODUTO, DESCRICAO_PRODUTO, BANCO, AGENCIA, CONTA_CORRENTE," +
+                "VALOR_BRUTO, SINAL_VALOR_BRUTO, VALOR_LIQUIDO, SINAL_VALOR_LIQUIDO, VALOR_CREDITO," +
+                "SINAL_VALOR_CREDITO, VALOR_COMISSAO, SINAL_VALOR_COMISSAO, IDENTIFICADOR_AJUSTE_RV, CODIGO_AJUSTES," +
+                "DESCRICAO_AJUSTE, CODIGO_EC, CODIGO_ADQUIRENTE, DESCRICAO_ADQUIRENTE, NSEQ," +
+                "NOME_ARQUIVO" +
+                ") values(" +
+                "?, ?, ?, ?, ?," +
+                "?, ?, ?, ?, ?," +
+                "?, ?, ?, ?, ?," +
+                "?, ?, ?, ?, ?," +
+                "?, ?, ?, ?, ?," +
+                "?, ?, ?, ?, ?," +
+                "?)";
 
         PreparedStatement preparedStatement = connection.prepareStatement(sql);
 
@@ -96,7 +104,13 @@ public class JDBCResumoVendasDAO implements ResumoVendasDAO {
 
         preparedStatement.setString(27, resumoVenda.getCodigoEC());
         preparedStatement.setString(28, resumoVenda.getCodigoAdquirente());
-        preparedStatement.setString(29, resumoVenda.getAdquirente().getDescricao());
+
+        if(resumoVenda.getAdquirente() != null) {
+            preparedStatement.setString(29, resumoVenda.getAdquirente().getDescricao());
+        } else {
+            preparedStatement.setString(29, String.valueOf(java.sql.Types.NULL));
+        }
+
         preparedStatement.setString(30, resumoVenda.getNSEQ());
         preparedStatement.setString(31, arquivo);
 

@@ -30,7 +30,7 @@ public class JDBCComprovanteVendaDAO implements ComprovanteVendaDAO {
     public void create(ComprovanteVenda comprovanteVenda, String arquivo) throws Exception {
         Connection connection = ConnectionFactory.getConnection();
 
-        String sql = "insert into edi_ben_comprovante_venda(" +
+        String sql = "insert into edi_ben_comprovante_venda_teste(" +
                 "COD_REGISTRO, IDENTIFICACAO_LOJA, NSU_HOST_TRANSACAO, NSU_TEF, NSU_TERMINAL, COD_ADQUIRENTE," +
                 "DESCRICAO_ADQUIRENTE, DATA_TRANSACAO, HORARIO_TRANSACAO, COD_TIPO_LANCAMENTO, DESCRICAO_TIPO_LANCAMENTO," +
                 "DATA_LANCAMENTO, TIPO_PRODUTO, COD_MEIO_CAPTURA, DESCRICAO_MEIO_CAPTURA, VALOR_BRUTO, VALOR_DESCONTO," +

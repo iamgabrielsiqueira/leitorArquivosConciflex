@@ -39,7 +39,7 @@ public class MainController {
     private ObservableList<Adquirente> listaAdquirentes = FXCollections.observableArrayList();
     private ObservableList<Ajuste> listaAjustes = FXCollections.observableArrayList();
 
-    private File folder = new File("C:\\Skyline\\inbox");
+    private File folder = new File("Z:\\SKYLINE");
 
     public void initialize() {
 
@@ -241,9 +241,7 @@ public class MainController {
 
             if(flag == true) {
                 if(identificador.equals("A0")) {
-                    gravarLog("Lendo Header Arquivo: " + arquivo);
-
-                    verificarProcesso++;
+                    /*verificarProcesso++;
 
                     try {
                         headerArquivo = processarHeaderArquivo(line.toCharArray());
@@ -274,11 +272,9 @@ public class MainController {
                         } else {
                             flag = false;
                         }
-                    }
+                    }*/
                 } else if(identificador.equals("L0")) {
-                    gravarLog("Lendo Lote Transacao: " + arquivo);
-
-                    verificarProcesso++;
+                    /*verificarProcesso++;
 
                     try {
                         headerLoteTransacao = processarHeaderLote(line.toCharArray());
@@ -287,13 +283,11 @@ public class MainController {
                     }
 
                     try {
-                        /*JDBCHeaderLoteTransacoesDAO.getInstance().create(headerLoteTransacao, arquivo);*/
+                        JDBCHeaderLoteTransacoesDAO.getInstance().create(headerLoteTransacao, arquivo);
                     } catch (Exception e) {
                         mostrarMensagem("Erro #12" + e);
-                    }
+                    }*/
                 } else if(identificador.equals("RV")) {
-                    gravarLog("Lendo Resumo de Vendas: " + arquivo);
-
                     verificarProcesso++;
 
                     try {
@@ -303,14 +297,14 @@ public class MainController {
                     }
 
                     try {
-                        /*JDBCResumoVendasDAO.getInstance().create(resumoVenda, arquivo);*/
+                        JDBCResumoVendasDAO.getInstance().create(resumoVenda, arquivo);
                     } catch (Exception e) {
+                        gravarLog("#321" + e);
+                        gravarLog("#323" + e.getCause());
                         mostrarMensagem("Erro #13" + e);
                     }
                 } else if(identificador.equals("CV")) {
-                    gravarLog("Lendo Comprovante Venda: " + arquivo);
-
-                    verificarProcesso++;
+                    /*verificarProcesso++;
 
                     try {
                         comprovanteVenda = processarComprovanteVenda(line.toCharArray());
@@ -325,19 +319,16 @@ public class MainController {
                     Boolean verificar = false;
 
                     try {
-                        gravarLog("Criando Comprovante Venda: " + arquivo);
                         JDBCComprovanteVendaDAO.getInstance().create(comprovanteVenda, arquivo);
                     } catch (Exception e) {
                         mostrarMensagem("Erro #14" + e);
                     }
 
                     if(comprovanteVenda.getTipoLancamento() != null) {
-                        if(comprovanteVenda.getTipoLancamento().getId() == 0) {
+                        if(comprovanteVenda.getTipoLancamento().getId() == 0) {*/
                             /*VENDA*/
 
-                            gravarLog("Lendo Vendas: " + arquivo);
-
-                            try {
+                            /*try {
                                 verificar = JDBCVendaDAO.getInstance().verificarDuplicidade(comprovanteVenda.getChavePagamento());
                             } catch (Exception e) {
                                 mostrarMensagem("Erro #15" + e);
@@ -351,19 +342,17 @@ public class MainController {
                                     mostrarMensagem("Erro #16" + e);
                                 }
                             }
-                        } else {
+                        } else {*/
                             /*PAGAMENTO*/
 
-                            gravarLog("Lendo Pagamentos: " + arquivo);
-
-                            try {
+                            /*try {
                                 verificar = JDBCPagamentoDAO.getInstance().verificarDuplicidade(comprovanteVenda.getChavePagamento());
                             } catch (Exception e) {
                                 mostrarMensagem("Erro #17" + e);
-                            }
+                            }*/
 
                             // VERIFICA SE O PAGAMENTO JÁ EXISTE
-                            if(verificar == false) {
+                            /*if(verificar == false) {
                                 try {
                                     long id = 0;
                                     id = JDBCPagamentoDAO.getInstance().create(comprovanteVenda, dataImportacao, horaImportacao, arquivo);
@@ -371,17 +360,17 @@ public class MainController {
                                     if(id != 0) {
                                         Boolean verificarVenda = null;
 
-                                        try {
+                                        try {*/
                                             // VERIFICA SE EXISTE VENDA COM O PAGAMENTO
-                                            verificarVenda = JDBCVendaDAO.getInstance().search(comprovanteVenda);
+                                            /*verificarVenda = JDBCVendaDAO.getInstance().search(comprovanteVenda);
                                         } catch (Exception e) {
                                             mostrarMensagem("Erro #18" + e);
                                         }
 
                                         if(verificarVenda == true) {
-                                            try {
+                                            try {*/
                                                 // ATUALIZA A VENDA COMO PAGA
-                                                JDBCVendaDAO.getInstance().updateVendaPaga(comprovanteVenda, id);
+                                                /*JDBCVendaDAO.getInstance().updateVendaPaga(comprovanteVenda, id);
                                             } catch (Exception e) {
                                                 mostrarMensagem("Erro #19" + e);
                                             }
@@ -392,11 +381,9 @@ public class MainController {
                                 }
                             }
                         }
-                    }
+                    }*/
                 } else if(identificador.equals("L9")) {
-                    gravarLog("Lendo Trailer Lote Transacoes: " + arquivo);
-
-                    verificarProcesso++;
+                    /*verificarProcesso++;
 
                     try {
                         trailerLoteTransacao = processarTrailerLoteTransacoes(line.toCharArray());
@@ -405,14 +392,12 @@ public class MainController {
                     }
 
                     try {
-                        /*JDBCTrailerLoteTransacoesDAO.getInstance().create(trailerLoteTransacao, arquivo);*/
+                        JDBCTrailerLoteTransacoesDAO.getInstance().create(trailerLoteTransacao, arquivo);
                     } catch (Exception e) {
                         mostrarMensagem("Erro #21" + e);
-                    }
+                    }*/
                 } else if(identificador.equals("A9")) {
-                    gravarLog("Lendo Trailer Arquivo: " + arquivo);
-
-                    verificarProcesso++;
+                    /*verificarProcesso++;
 
                     try {
                         trailerArquivo = processarTrailerArquivo(line.toCharArray());
@@ -421,10 +406,10 @@ public class MainController {
                     }
 
                     try {
-                        /*JDBCTrailerArquivoDAO.getInstance().create(trailerArquivo, arquivo);*/
+                        JDBCTrailerArquivoDAO.getInstance().create(trailerArquivo, arquivo);
                     } catch (Exception e) {
                         mostrarMensagem("Erro #22" + e);
-                    }
+                    }*/
                 } else {
                     flag = false;
                 }
@@ -437,15 +422,14 @@ public class MainController {
         reader.close();
         stream.close();
 
-        if(flag == true && verificarProcesso > 0) {
-            gravarLog("Salvando arquivo processado!  " + arquivo);
+        /*if(flag == true && verificarProcesso > 0) {
             try {
                 mostrarMensagem("Salvando arquivo processado!");
                 salvarArquivoProcessado(arquivo, pasta, estabelecimento);
             } catch (Exception e) {
                 mostrarMensagem("Erro #23" + e);
             }
-        }
+        }*/
     }
 
     public void salvarArquivoProcessado(String arquivo, String pasta, Estabelecimento estabelecimento) {
@@ -484,9 +468,6 @@ public class MainController {
     }
 
     public HeaderArquivo processarHeaderArquivo(char[] line) {
-
-        gravarLog("Processando header");
-
         HeaderArquivo headerArquivo = new HeaderArquivo();
 
         String codigoRegistro = line[0] + "" + line[1];
@@ -526,8 +507,6 @@ public class MainController {
         headerArquivo.setIdentificacaoDestinatario(identificacaoDestinatario);
         headerArquivo.setTipoProcessamento(tipoProcessamento);
         headerArquivo.setNSEQ(nseq);
-
-        gravarLog("Processou header ");
 
         return headerArquivo;
     }
@@ -1312,7 +1291,7 @@ public class MainController {
         FileWriter fw = null;
 
         try {
-            fw = new FileWriter("C:\\Users\\sallesrocha_bruno\\Documents\\LeitorArquivo\\leitor-log.txt", true);
+            fw = new FileWriter("C:\\Users\\opc\\Documents\\LeitorArquivos\\leitor-log.txt", true);
             //fw = new FileWriter("C:\\Users\\Gabriel\\IdeaProjects\\LeituraArquivosConciflex\\out\\artifacts\\LeituraArquivosConciflex_jar\\leitor-log.txt", true);
         } catch (IOException e) {
             e.printStackTrace();

@@ -27,7 +27,7 @@ public class JDBCTrailerLoteTransacoesDAO implements TrailerLoteTransacoesDAO {
     public void create(TrailerLoteTransacao trailerLoteTransacao, String arquivo) throws Exception {
         Connection connection = ConnectionFactory.getConnection();
 
-        String sql = "insert into edi_ben_trailer_lote_transacoes(" +
+        String sql = "insert into edi_ben_trailer_lote_transacoes_teste(" +
                 "COD_REGISTRO, TOTAL_REGISTROS, TOTAL_VALORES_CREDITO, NSEQ, NOME_ARQUIVO" +
                 ") values(?, ?, ?, ?, ?)";
 

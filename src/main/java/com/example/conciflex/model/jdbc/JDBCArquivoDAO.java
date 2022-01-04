@@ -43,7 +43,7 @@ public class JDBCArquivoDAO implements ArquivoDAO {
     public void create(Arquivo arquivo) throws Exception {
         Connection connection = ConnectionFactory.getConnection();
 
-        String sql = "insert into controle_arquivos_processados(" +
+        String sql = "insert into controle_arquivos_processados_teste(" +
                 "NOME_ARQUIVO, LOCALIZACAO, DATA_PROCESSAMENTO, HORA_PROCESSAMENTO, COD_ADIQUIRENTE," +
                 "CNPJ_CLIENTE, DATA_ARQUIVO, DATA_MENOR_VENDA, DATA_MAIOR_VENDA, DATA_MENOR_PAGAMENTO," +
                 "DATA_MAIOR_PAGAMENTO, ESTABELECIMENTO, ARQUIVO_COM_FALHA" +
@@ -75,7 +75,7 @@ public class JDBCArquivoDAO implements ArquivoDAO {
         Connection connection = ConnectionFactory.getConnection();
 
         PreparedStatement preparedStatement;
-        String sql = "select * from controle_arquivos_processados where NOME_ARQUIVO = ?";
+        String sql = "select * from controle_arquivos_processados_teste where NOME_ARQUIVO = ?";
         preparedStatement = connection.prepareStatement(sql);
 
         preparedStatement.setString(1, nomeArquivo);
@@ -102,7 +102,7 @@ public class JDBCArquivoDAO implements ArquivoDAO {
             Connection connection = ConnectionFactory.getConnection();
             PreparedStatement preparedStatement;
 
-            String sql = "SELECT NOME_ARQUIVO, DATA_GERACAO FROM edi_ben_header_arquivo GROUP BY NOME_ARQUIVO ORDER BY DATA_GERACAO";
+            String sql = "SELECT NOME_ARQUIVO, DATA_GERACAO FROM edi_ben_header_arquivo_teste GROUP BY NOME_ARQUIVO ORDER BY DATA_GERACAO";
             preparedStatement = connection.prepareStatement(sql);
 
             ResultSet resultSet = preparedStatement.executeQuery();

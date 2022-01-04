@@ -30,7 +30,7 @@ public class JDBCPagamentoDAO implements PagamentoDAO {
 
         String generatedColumns[] = { "CODIGO" };
 
-        String sql = "insert into pagamentos_operadoras(" +
+        String sql = "insert into pagamentos_operadoras_teste(" +
                 "COD_CLIENTE, CNPJ, EMPRESA, COD_GRUPO_CLIENTE, DATA_PROCESSAMENTO," +
                 "HORA_PROCESSAMENTO, NSU, NUMERO_TERMINAL, TID, COD_ADQUIRENTE," +
                 "DATA_VENDA, DATA_PREV_PAG_ORIGINAL, DATA_PAGAMENTO, AUTORIZADOR, COD_FORMA_PAGAMENTO," +
@@ -125,7 +125,7 @@ public class JDBCPagamentoDAO implements PagamentoDAO {
         Connection connection = ConnectionFactory.getConnection();
 
         PreparedStatement preparedStatement;
-        String sql = "select * from pagamentos_operadoras where CHAVE_PAGAMENTO LIKE ?";
+        String sql = "select * from pagamentos_operadoras_teste where CHAVE_PAGAMENTO LIKE ?";
         preparedStatement = connection.prepareStatement(sql);
 
         preparedStatement.setString(1, chavePagamento);
