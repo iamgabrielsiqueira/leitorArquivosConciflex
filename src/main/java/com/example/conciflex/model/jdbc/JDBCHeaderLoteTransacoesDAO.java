@@ -29,7 +29,7 @@ public class JDBCHeaderLoteTransacoesDAO implements HeaderLoteTransacoesDAO {
     public void create(HeaderLoteTransacao headerLoteTransacao, String arquivo) throws Exception {
         Connection connection = ConnectionFactory.getConnection();
 
-        String sql = "insert into edi_ben_header_lote_transacoes_teste(" +
+        String sql = "insert into edi_ben_header_lote_transacoes(" +
                 "COD_REGISTRO, DATA_MOVIMENTO, IDENTIFICACAO_MOEDA, NSEQ, NOME_ARQUIVO" +
                 ") values(?, ?, ?, ?, ?)";
 

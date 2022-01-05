@@ -27,7 +27,7 @@ public class JDBCTrailerArquivoDAO implements TrailerArquivoDAO {
     public void create(TrailerArquivo trailerArquivo, String arquivo) throws Exception {
         Connection connection = ConnectionFactory.getConnection();
 
-        String sql = "insert into edi_ben_trailer_arquivo_teste(" +
+        String sql = "insert into edi_ben_trailer_arquivo(" +
                 "COD_REGISTRO, DATA_MOVIMENTO, NSEQ, NOME_ARQUIVO" +
                 ") values(?, ?, ?, ?)";
 

@@ -28,7 +28,7 @@ public class JDBCHeaderArquivoDAO implements HeaderArquivoDAO {
     public void create(HeaderArquivo headerArquivo, String arquivo) throws Exception {
         Connection connection = ConnectionFactory.getConnection();
 
-        String sql = "insert into edi_ben_header_arquivo_teste(" +
+        String sql = "insert into edi_ben_header_arquivo(" +
                 "COD_REGISTRO, VERSAO_LAYOUT, DATA_GERACAO, HORA_GERACAO, ID_MOVIMENTO," +
                 "NOME_ADMINISTRADORA, IDENTIFICACAO_REMETENTE, IDENTIFICACAO_DESTINATARIO," +
                 "TIPO_PROCESSAMENTO, NSEQ, NOME_ARQUIVO" +
@@ -83,11 +83,12 @@ public class JDBCHeaderArquivoDAO implements HeaderArquivoDAO {
     }
 
     @Override
-    public Boolean search(String dataGeracao, String idMovimento) throws Exception {
+    public Boolean search(String dataGeracao, String idMovimento, String idDestinatario) throws Exception {
         Connection connection = ConnectionFactory.getConnection();
 
         PreparedStatement preparedStatement;
-        String sql = "select * from edi_ben_header_arquivo_teste where DATA_GERACAO = ? and ID_MOVIMENTO = ?";
+        String sql = "select * from edi_ben_header_arquivo where DATA_GERACAO = ? and ID_MOVIMENTO = ? " +
+                "and IDENTIFICACAO_DESTINATARIO = ?";
         preparedStatement = connection.prepareStatement(sql);
 
         Date data = new SimpleDateFormat("yyyyMMdd").parse(dataGeracao);
@@ -96,6 +97,7 @@ public class JDBCHeaderArquivoDAO implements HeaderArquivoDAO {
 
         preparedStatement.setDate(1, dataSQL);
         preparedStatement.setString(2, idMovimento);
+        preparedStatement.setString(3, idDestinatario);
 
         ResultSet resultSet = preparedStatement.executeQuery();
         Boolean verificar = false;

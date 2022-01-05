@@ -40,6 +40,7 @@ public class MainController {
     private ObservableList<Ajuste> listaAjustes = FXCollections.observableArrayList();
 
     private File folder = new File("Z:\\SKYLINE");
+    //private File folder = new File("C:\\Users\\Gabriel\\Desktop\\teste");
 
     public void initialize() {
 
@@ -97,7 +98,6 @@ public class MainController {
                                     mostrarMensagem("Erro #1" + e);
                                 }
 
-                                gravarLog("Lendo arquivo: " + arquivo);
                                 mostrarMensagem("Lendo arquivo..." + arquivo);
 
                                 try {
@@ -110,7 +110,6 @@ public class MainController {
                                     mostrarMensagem("Erro #4" + e);
                                 }
 
-                                gravarLog("Arquivo lido: " + arquivo);
                                 mostrarMensagem("Arquivo " + arquivo + " processado!");
 
                                 try {
@@ -252,11 +251,12 @@ public class MainController {
                     if(headerArquivo != null) {
                         String dataGeracao = headerArquivo.getDataGeracao();
                         String idMovimento = headerArquivo.getIdMovimento();
+                        String idDestinatario = headerArquivo.getIdentificacaoDestinatario();
 
                         Boolean headerBuscar = false;
 
                         try {
-                            headerBuscar = JDBCHeaderArquivoDAO.getInstance().search(dataGeracao, idMovimento);
+                            headerBuscar = JDBCHeaderArquivoDAO.getInstance().search(dataGeracao, idMovimento, idDestinatario);
                         } catch (Exception e) {
                             gravarLog("Erro #11: " + e);
                             mostrarMensagem("Erro #11" + e);
@@ -424,7 +424,6 @@ public class MainController {
 
         if(flag == true && verificarProcesso > 0) {
             try {
-                mostrarMensagem("Salvando arquivo processado!");
                 salvarArquivoProcessado(arquivo, pasta, estabelecimento);
             } catch (Exception e) {
                 mostrarMensagem("Erro #23" + e);

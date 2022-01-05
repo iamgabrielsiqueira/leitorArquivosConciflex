@@ -4,7 +4,6 @@ import com.example.conciflex.model.ConnectionFactory;
 import com.example.conciflex.model.classes.Cliente;
 import com.example.conciflex.model.classes.Empresa;
 import com.example.conciflex.model.dao.EmpresaDAO;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

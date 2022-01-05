@@ -2,9 +2,7 @@ package com.example.conciflex.model.jdbc;
 
 import com.example.conciflex.model.ConnectionFactory;
 import com.example.conciflex.model.classes.Cliente;
-import com.example.conciflex.model.classes.Estabelecimento;
 import com.example.conciflex.model.dao.ClienteDAO;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

@@ -6,7 +6,6 @@ import com.example.conciflex.model.classes.Pagamento;
 import com.example.conciflex.model.dao.PagamentoDAO;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
 import java.sql.*;
 
 public class JDBCPagamentoDAO implements PagamentoDAO {
@@ -30,7 +29,7 @@ public class JDBCPagamentoDAO implements PagamentoDAO {
 
         String generatedColumns[] = { "CODIGO" };
 
-        String sql = "insert into pagamentos_operadoras_teste(" +
+        String sql = "insert into pagamentos_operadoras(" +
                 "COD_CLIENTE, CNPJ, EMPRESA, COD_GRUPO_CLIENTE, DATA_PROCESSAMENTO," +
                 "HORA_PROCESSAMENTO, NSU, NUMERO_TERMINAL, TID, COD_ADQUIRENTE," +
                 "DATA_VENDA, DATA_PREV_PAG_ORIGINAL, DATA_PAGAMENTO, AUTORIZADOR, COD_FORMA_PAGAMENTO," +
@@ -125,7 +124,7 @@ public class JDBCPagamentoDAO implements PagamentoDAO {
         Connection connection = ConnectionFactory.getConnection();
 
         PreparedStatement preparedStatement;
-        String sql = "select * from pagamentos_operadoras_teste where CHAVE_PAGAMENTO LIKE ?";
+        String sql = "select * from pagamentos_operadoras where CHAVE_PAGAMENTO LIKE ?";
         preparedStatement = connection.prepareStatement(sql);
 
         preparedStatement.setString(1, chavePagamento);

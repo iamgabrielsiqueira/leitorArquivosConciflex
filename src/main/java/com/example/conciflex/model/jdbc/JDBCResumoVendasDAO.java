@@ -29,7 +29,7 @@ public class JDBCResumoVendasDAO implements ResumoVendasDAO {
     public void create(ResumoVenda resumoVenda, String arquivo) throws Exception {
         Connection connection = ConnectionFactory.getConnection();
 
-        String sql = "insert into edi_ben_resumo_vendas_teste(" +
+        String sql = "insert into edi_ben_resumo_vendas(" +
                 "COD_REGISTRO, IDENTIFICACAO_LOJA, NUMERO_RV, DATA_RV, COD_TIPO_LANCAMENTO," +
                 "TIPO_LANCAMENTO, DATA_PAGAMENTO, CVS_APROVADOS, CVS_REJEITADOS, TIPO_PRODUTO," +
                 "CODIGO_PRODUTO, DESCRICAO_PRODUTO, BANCO, AGENCIA, CONTA_CORRENTE," +

@@ -7,9 +7,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.Time;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 public class JDBCComprovanteVendaDAO implements ComprovanteVendaDAO {
     private static JDBCComprovanteVendaDAO instance;
@@ -30,7 +27,7 @@ public class JDBCComprovanteVendaDAO implements ComprovanteVendaDAO {
     public void create(ComprovanteVenda comprovanteVenda, String arquivo) throws Exception {
         Connection connection = ConnectionFactory.getConnection();
 
-        String sql = "insert into edi_ben_comprovante_venda_teste(" +
+        String sql = "insert into edi_ben_comprovante_venda(" +
                 "COD_REGISTRO, IDENTIFICACAO_LOJA, NSU_HOST_TRANSACAO, NSU_TEF, NSU_TERMINAL, COD_ADQUIRENTE," +
                 "DESCRICAO_ADQUIRENTE, DATA_TRANSACAO, HORARIO_TRANSACAO, COD_TIPO_LANCAMENTO, DESCRICAO_TIPO_LANCAMENTO," +
                 "DATA_LANCAMENTO, TIPO_PRODUTO, COD_MEIO_CAPTURA, DESCRICAO_MEIO_CAPTURA, VALOR_BRUTO, VALOR_DESCONTO," +

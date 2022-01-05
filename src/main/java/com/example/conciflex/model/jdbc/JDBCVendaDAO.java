@@ -29,7 +29,7 @@ public class JDBCVendaDAO implements VendaDAO {
     public void create(ComprovanteVenda comprovanteVenda, Date dataImportacao, Time horaImportacao, String arquivo) throws Exception {
         Connection connection = ConnectionFactory.getConnection();
 
-        String sql = "insert into vendas_teste(" +
+        String sql = "insert into vendas(" +
                 "COD_CLIENTE, CNPJ, EMPRESA, COD_GRUPO_CLIENTE, DATA_PROCESSAMENTO," +
                 "HORA_PROCESSAMENTO, NSU, TERMINAL, TID, ADQID," +
                 "ADQUIRENTE, DATA_VENDA, AUTORIZADOR, DATA_PREVISTA_PAGTO, CODIGO_MODALIDADE," +
@@ -102,7 +102,7 @@ public class JDBCVendaDAO implements VendaDAO {
 
         PreparedStatement preparedStatement;
 
-        String sql = "select * from vendas_teste where ADQID = 268 and cod_cliente = ? " +
+        String sql = "select * from vendas where ADQID = 268 and cod_cliente = ? " +
                 "and DATA_VENDA = ? and VALOR_BRUTO = ? and COD_STATUS_FINANCEIRO = 1";
 
         preparedStatement = connection.prepareStatement(sql);
@@ -130,7 +130,7 @@ public class JDBCVendaDAO implements VendaDAO {
         Connection connection = ConnectionFactory.getConnection();
 
         PreparedStatement preparedStatement;
-        String sql = "select * from vendas_teste where CHAVE_VENDA LIKE ?";
+        String sql = "select * from vendas where CHAVE_VENDA LIKE ?";
         preparedStatement = connection.prepareStatement(sql);
 
         preparedStatement.setString(1, chaveVenda);
@@ -152,7 +152,7 @@ public class JDBCVendaDAO implements VendaDAO {
 
     @Override
     public void updateVendaPaga(ComprovanteVenda comprovanteVenda, long id) throws Exception {
-        String sql = "update vendas_teste set COD_STATUS_FINANCEIRO = ?, CHAVE_PAGAMENTO = ?, COD_PAGAMENTO = ? " +
+        String sql = "update vendas set COD_STATUS_FINANCEIRO = ?, CHAVE_PAGAMENTO = ?, COD_PAGAMENTO = ? " +
                 "where ADQID = 268 and cod_cliente = ? and DATA_VENDA = ? " +
                 "and VALOR_BRUTO = ? and COD_STATUS_FINANCEIRO = 1";
 
