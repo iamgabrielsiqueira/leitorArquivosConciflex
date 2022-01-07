@@ -9,4 +9,5 @@ public interface VendaDAO {
     Boolean search(ComprovanteVenda comprovanteVenda) throws Exception;
     Boolean verificarDuplicidade(String chaveVenda) throws Exception;
     void updateVendaPaga(ComprovanteVenda comprovanteVenda, long id) throws Exception;
+    void deletarVendas(String arquivo) throws Exception;
 }

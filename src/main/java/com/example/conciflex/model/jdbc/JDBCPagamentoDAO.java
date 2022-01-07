@@ -143,4 +143,18 @@ public class JDBCPagamentoDAO implements PagamentoDAO {
 
         return verificar;
     }
+
+    @Override
+    public void deletarPagamentos(String arquivo) throws Exception {
+        String sql = "delete from pagamentos_operadoras where nome_arquivo like ?";
+
+        Connection connection = ConnectionFactory.getConnection();
+        PreparedStatement preparedStatement = connection.prepareStatement(sql);
+
+        preparedStatement.setString(1, arquivo);
+
+        preparedStatement.execute();
+        preparedStatement.close();
+        connection.close();
+    }
 }

@@ -9,4 +9,5 @@ public interface PagamentoDAO {
     long create(ComprovanteVenda comprovanteVenda, Date dataImportacao, Time horaImportacao, String arquivo) throws Exception;
     Pagamento search(ComprovanteVenda comprovanteVenda) throws Exception;
     Boolean verificarDuplicidade(String chavePagamento) throws Exception;
+    void deletarPagamentos(String arquivo) throws Exception;
 }

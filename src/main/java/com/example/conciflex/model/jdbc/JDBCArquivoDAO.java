@@ -128,4 +128,18 @@ public class JDBCArquivoDAO implements ArquivoDAO {
         }
         return arquivoObservableList;
     }
+
+    @Override
+    public void deletarControleArquivos(String arquivo) throws Exception {
+        String sql = "delete from controle_arquivos_processados where nome_arquivo like ?";
+
+        Connection connection = ConnectionFactory.getConnection();
+        PreparedStatement preparedStatement = connection.prepareStatement(sql);
+
+        preparedStatement.setString(1, arquivo);
+
+        preparedStatement.execute();
+        preparedStatement.close();
+        connection.close();
+    }
 }

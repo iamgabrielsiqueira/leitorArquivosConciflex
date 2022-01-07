@@ -82,7 +82,7 @@
                     </Insets>
                 </VBox.margin>
             </HBox>
-            <HBox alignment="CENTER">
+            <!--<HBox alignment="CENTER">
                 <Button prefHeight="50.0"
                         prefWidth="287.0"
                         style="-fx-border-radius: 5;
@@ -101,7 +101,7 @@
                         <bottom>60</bottom>
                     </Insets>
                 </VBox.margin>
-            </HBox>
+            </HBox>-->
         </VBox>
     </center>
 </BorderPane>

@@ -171,4 +171,18 @@ public class JDBCVendaDAO implements VendaDAO {
         connection.close();
     }
 
+    @Override
+    public void deletarVendas(String arquivo) throws Exception {
+        String sql = "delete from vendas where nome_arquivo like ?";
+
+        Connection connection = ConnectionFactory.getConnection();
+        PreparedStatement preparedStatement = connection.prepareStatement(sql);
+
+        preparedStatement.setString(1, arquivo);
+
+        preparedStatement.execute();
+        preparedStatement.close();
+        connection.close();
+    }
+
 }

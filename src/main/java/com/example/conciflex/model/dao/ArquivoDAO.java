@@ -7,4 +7,5 @@ public interface ArquivoDAO {
     void create(Arquivo arquivo) throws Exception;
     Boolean search(String nomeArquivo) throws Exception;
     ObservableList<Arquivo> listarArquivos() throws Exception;
+    void deletarControleArquivos(String arquivo) throws Exception;
 }

@@ -42,8 +42,9 @@ public class MainController {
     private File folder = new File("Z:\\SKYLINE");
     //private File folder = new File("C:\\Users\\Gabriel\\Desktop\\teste");
 
-    public void initialize() {
+    private Boolean rodarThread = true;
 
+    public void initialize() {
         listarTiposLancamento();
         listarMoedasCorrentes();
         listarTiposProcessamento();
@@ -53,12 +54,14 @@ public class MainController {
         listarAjustes();
 
         lbMensagem.setVisible(false);
+
+        processar();
     }
 
     @FXML
     public void processar() {
         Thread threadProcesso = new Thread(() -> {
-            while (true) {
+            while (rodarThread) {
                 mostrarMensagem("Aguardando...");
                 File[] listOfFiles = folder.listFiles();
 
@@ -79,6 +82,7 @@ public class MainController {
                             //VERIFICA SE O ARQUIVO É BEN VISA VALE
                             verificarOperadora = verificarBenVisaVale(pasta, arquivo);
                         } catch (IOException e) {
+                            gravarLog("Erro #1: " + e + " " + arquivo);
                             e.printStackTrace();
                         }
 
@@ -86,7 +90,7 @@ public class MainController {
                             try {
                                 arquivoBuscar = JDBCArquivoDAO.getInstance().search(arquivo);
                             } catch (Exception e) {
-                                gravarLog("Erro #2: " + e);
+                                gravarLog("Erro #2: " + e + " " + arquivo);
                                 mostrarMensagem("Erro #2" + e);
                             }
 
@@ -94,8 +98,8 @@ public class MainController {
                                 try {
                                     estabelecimento = getFileEstabelecimento(pasta, arquivo);
                                 } catch (IOException e) {
-                                    gravarLog("Erro #1: " + e);
-                                    mostrarMensagem("Erro #1" + e);
+                                    gravarLog("Erro #3: " + e + " " + arquivo);
+                                    mostrarMensagem("Erro #3" + e);
                                 }
 
                                 mostrarMensagem("Lendo arquivo..." + arquivo);
@@ -103,11 +107,11 @@ public class MainController {
                                 try {
                                     lerArquivo(pasta, arquivo, estabelecimento);
                                 } catch (IOException e) {
-                                    gravarLog("Erro #3: " + e);
-                                    mostrarMensagem("Erro #3" + e);
-                                } catch (ParseException e) {
-                                    gravarLog("Erro #4: " + e);
+                                    gravarLog("Erro #4: " + e + " " + arquivo);
                                     mostrarMensagem("Erro #4" + e);
+                                } catch (ParseException e) {
+                                    gravarLog("Erro #5: " + e + " " + arquivo);
+                                    mostrarMensagem("Erro #5" + e);
                                 }
 
                                 mostrarMensagem("Arquivo " + arquivo + " processado!");
@@ -115,8 +119,8 @@ public class MainController {
                                 try {
                                     Thread.sleep(2000);
                                 } catch (InterruptedException interruptedException) {
-                                    gravarLog("Erro #5: " + interruptedException);
-                                    mostrarMensagem("Erro #5" + interruptedException);
+                                    gravarLog("Erro #6: " + interruptedException + " " + arquivo);
+                                    mostrarMensagem("Erro #6" + interruptedException);
                                 }
                             }
                         }
@@ -127,8 +131,8 @@ public class MainController {
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException interruptedException) {
-                    gravarLog("Erro #6: " + interruptedException);
-                    mostrarMensagem("Erro #6" + interruptedException);
+                    gravarLog("Erro #7: " + interruptedException);
+                    mostrarMensagem("Erro #7" + interruptedException);
                 }
             }
         });
@@ -157,6 +161,7 @@ public class MainController {
                 try {
                     estabelecimento = JDBCEstabelecimentoDAO.getInstance().search(CNPJ);
                 } catch (Exception e) {
+                    gravarLog("Erro #9: " + e + " " + arquivo);
                     mostrarMensagem("Erro #9" + e);
                 }
 
@@ -198,7 +203,7 @@ public class MainController {
                 try {
                     for (int i = 28; i < 88; i++) { nomeAdministradora += "" + line.toCharArray()[i]; }
                 } catch (ArrayIndexOutOfBoundsException e) {
-                    //gravarLog("");
+                    // IGNORAR
                 }
 
                 if(nomeAdministradora.contains("BEN VISA VALE")) {
@@ -258,7 +263,7 @@ public class MainController {
                         try {
                             headerBuscar = JDBCHeaderArquivoDAO.getInstance().search(dataGeracao, idMovimento, idDestinatario);
                         } catch (Exception e) {
-                            gravarLog("Erro #11: " + e);
+                            gravarLog("Erro #11: " + e + " " + arquivo);
                             mostrarMensagem("Erro #11" + e);
                         }
 
@@ -266,8 +271,8 @@ public class MainController {
                             try {
                                 JDBCHeaderArquivoDAO.getInstance().create(headerArquivo, arquivo);
                             } catch (Exception e) {
-                                gravarLog("Erro #10: " + e);
-                                mostrarMensagem("Erro #10" + e);
+                                gravarLog("Erro #12: " + e + " " + arquivo);
+                                mostrarMensagem("Erro #12" + e);
                             }
                         } else {
                             flag = false;
@@ -285,7 +290,8 @@ public class MainController {
                     try {
                         JDBCHeaderLoteTransacoesDAO.getInstance().create(headerLoteTransacao, arquivo);
                     } catch (Exception e) {
-                        mostrarMensagem("Erro #12" + e);
+                        gravarLog("Erro #13: " + e + " " + arquivo);
+                        mostrarMensagem("Erro #13" + e);
                     }
                 } else if(identificador.equals("RV")) {
                     verificarProcesso++;
@@ -299,9 +305,8 @@ public class MainController {
                     try {
                         JDBCResumoVendasDAO.getInstance().create(resumoVenda, arquivo);
                     } catch (Exception e) {
-                        gravarLog("#321" + e);
-                        gravarLog("#323" + e.getCause());
-                        mostrarMensagem("Erro #13" + e);
+                        gravarLog("Erro #14: " + e + " " + arquivo);
+                        mostrarMensagem("Erro #14" + e);
                     }
                 } else if(identificador.equals("CV")) {
                     verificarProcesso++;
@@ -321,7 +326,8 @@ public class MainController {
                     try {
                         JDBCComprovanteVendaDAO.getInstance().create(comprovanteVenda, arquivo);
                     } catch (Exception e) {
-                        mostrarMensagem("Erro #14" + e);
+                        gravarLog("Erro #15: " + e + " " + arquivo);
+                        mostrarMensagem("Erro #15" + e);
                     }
 
                     if(comprovanteVenda.getTipoLancamento() != null) {
@@ -331,7 +337,8 @@ public class MainController {
                             try {
                                 verificar = JDBCVendaDAO.getInstance().verificarDuplicidade(comprovanteVenda.getChavePagamento());
                             } catch (Exception e) {
-                                mostrarMensagem("Erro #15" + e);
+                                gravarLog("Erro #16: " + e + " " + arquivo);
+                                mostrarMensagem("Erro #16" + e);
                             }
 
                             // VERIFICA SE A VENDA JÁ EXISTE
@@ -339,7 +346,8 @@ public class MainController {
                                 try {
                                     JDBCVendaDAO.getInstance().create(comprovanteVenda, dataImportacao, horaImportacao, arquivo);
                                 } catch (Exception e) {
-                                    mostrarMensagem("Erro #16" + e);
+                                    gravarLog("Erro #17: " + e + " " + arquivo);
+                                    mostrarMensagem("Erro #17" + e);
                                 }
                             }
                         } else {
@@ -348,13 +356,15 @@ public class MainController {
                             try {
                                 verificar = JDBCPagamentoDAO.getInstance().verificarDuplicidade(comprovanteVenda.getChavePagamento());
                             } catch (Exception e) {
-                                mostrarMensagem("Erro #17" + e);
+                                gravarLog("Erro #18: " + e + " " + arquivo);
+                                mostrarMensagem("Erro #18" + e);
                             }
 
                             // VERIFICA SE O PAGAMENTO JÁ EXISTE
                             if(verificar == false) {
+                                long id = 0;
+
                                 try {
-                                    long id = 0;
                                     id = JDBCPagamentoDAO.getInstance().create(comprovanteVenda, dataImportacao, horaImportacao, arquivo);
 
                                     if(id != 0) {
@@ -364,7 +374,8 @@ public class MainController {
                                             // VERIFICA SE EXISTE VENDA COM O PAGAMENTO
                                             verificarVenda = JDBCVendaDAO.getInstance().search(comprovanteVenda);
                                         } catch (Exception e) {
-                                            mostrarMensagem("Erro #18" + e);
+                                            gravarLog("Erro #19: " + e + " " + arquivo);
+                                            mostrarMensagem("Erro #19" + e);
                                         }
 
                                         if(verificarVenda == true) {
@@ -372,12 +383,14 @@ public class MainController {
                                                 // ATUALIZA A VENDA COMO PAGA
                                                 JDBCVendaDAO.getInstance().updateVendaPaga(comprovanteVenda, id);
                                             } catch (Exception e) {
-                                                mostrarMensagem("Erro #19" + e);
+                                                gravarLog("Erro #20: " + e + " " + arquivo);
+                                                mostrarMensagem("Erro #20" + e);
                                             }
                                         }
                                     }
                                 } catch (Exception e) {
-                                    mostrarMensagem("Erro #20" + e);
+                                    gravarLog("Erro #21: " + e + " " + arquivo);
+                                    mostrarMensagem("Erro #21" + e);
                                 }
                             }
                         }
@@ -394,7 +407,8 @@ public class MainController {
                     try {
                         JDBCTrailerLoteTransacoesDAO.getInstance().create(trailerLoteTransacao, arquivo);
                     } catch (Exception e) {
-                        mostrarMensagem("Erro #21" + e);
+                        gravarLog("Erro #22: " + e + " " + arquivo);
+                        mostrarMensagem("Erro #22" + e);
                     }
                 } else if(identificador.equals("A9")) {
                     verificarProcesso++;
@@ -408,7 +422,8 @@ public class MainController {
                     try {
                         JDBCTrailerArquivoDAO.getInstance().create(trailerArquivo, arquivo);
                     } catch (Exception e) {
-                        mostrarMensagem("Erro #22" + e);
+                        gravarLog("Erro #23: " + e + " " + arquivo);
+                        mostrarMensagem("Erro #23" + e);
                     }
                 } else {
                     flag = false;
@@ -426,7 +441,8 @@ public class MainController {
             try {
                 salvarArquivoProcessado(arquivo, pasta, estabelecimento);
             } catch (Exception e) {
-                mostrarMensagem("Erro #23" + e);
+                gravarLog("Erro #24: " + e + " " + arquivo);
+                mostrarMensagem("Erro #24" + e);
             }
         }
     }
@@ -462,7 +478,8 @@ public class MainController {
         try {
             JDBCArquivoDAO.getInstance().create(arquivoProcessado);
         } catch (Exception e) {
-            mostrarMensagem("Erro #24" + e);
+            gravarLog("Erro #25: " + e + " " + arquivo);
+            mostrarMensagem("Erro #25" + e);
         }
     }
 
@@ -765,14 +782,16 @@ public class MainController {
         try {
             empresa = JDBCEmpresaDAO.getInstance().search(identificacaoLoja);
         } catch (Exception e) {
-            mostrarMensagem("Erro #25" + e);
+            gravarLog("#26" + e);
+            mostrarMensagem("Erro #26" + e);
         }
 
         if(empresa == null) {
             try {
                 empresa = JDBCEmpresaDAO.getInstance().search("22162885000168");
             } catch (Exception e) {
-                mostrarMensagem("Erro #26" + e);
+                gravarLog("#27" + e);
+                mostrarMensagem("Erro #27" + e);
             }
         }
 
@@ -793,7 +812,8 @@ public class MainController {
         try {
             estabelecimento = JDBCEstabelecimentoDAO.getInstance().search(codigoEC);
         } catch (Exception e) {
-            mostrarMensagem("Erro #27" + e);
+            gravarLog("#28" + e);
+            mostrarMensagem("Erro #28" + e);
         }
 
         String agenciaFormatada = agencia.replaceFirst("^0+(?!$)", "");
@@ -812,7 +832,8 @@ public class MainController {
             try {
                 horaTransacaoDate = new SimpleDateFormat("HHmmss").parse(horaTransacao);
             } catch (ParseException e) {
-                mostrarMensagem("Erro #28" + e);
+                gravarLog("#29" + e);
+                mostrarMensagem("Erro #29" + e);
             }
         }
 
@@ -1105,7 +1126,8 @@ public class MainController {
             try {
                 dataUtilFormat = new SimpleDateFormat("yyyyMMdd").parse(dataString);
             } catch (ParseException e) {
-                mostrarMensagem("Erro #29" + e);
+                gravarLog("#30" + e);
+                mostrarMensagem("Erro #30" + e);
             }
         }
 
@@ -1257,6 +1279,9 @@ public class MainController {
     }
 
     public void trocarJanela(String address){
+
+        rodarThread = false;
+
         Platform.runLater(() -> {
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(MainApplication.class.getResource(address));
@@ -1273,7 +1298,8 @@ public class MainController {
                 stage.setScene(new Scene(layoutWindow,780, 590));
                 stage.setResizable(false);
             } catch (IOException e){
-                mostrarMensagem("Erro #30" + e);
+                gravarLog("#31" + e);
+                mostrarMensagem("Erro #31" + e);
             }
         });
     }
@@ -1286,6 +1312,9 @@ public class MainController {
     }
 
     public void gravarLog(String log) {
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+        LocalDateTime now = LocalDateTime.now();
+
         PrintWriter printer = null;
         FileWriter fw = null;
 
@@ -1297,8 +1326,45 @@ public class MainController {
         }
 
         printer = new PrintWriter(fw);
-
-        printer.println(log);
+        printer.println(dtf.format(now) + " - " +log);
         printer.close();
+    }
+
+    public void limpar() {
+        ObservableList<Arquivo> listaArquivos = FXCollections.observableArrayList();
+
+        try {
+            listaArquivos.addAll(JDBCArquivoDAO.getInstance().listarArquivos());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        int i = 1;
+
+        for (Arquivo arquivo:listaArquivos) {
+            System.out.println("Arquivo #"+i+": " + arquivo.getArquivo());
+
+            try {
+                JDBCVendaDAO.getInstance().deletarVendas(arquivo.getArquivo());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            try {
+                JDBCPagamentoDAO.getInstance().deletarPagamentos(arquivo.getArquivo());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            try {
+                JDBCArquivoDAO.getInstance().deletarControleArquivos(arquivo.getArquivo());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            i++;
+        }
+
+        System.out.println("Fim!");
     }
 }
