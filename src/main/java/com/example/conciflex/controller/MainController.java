@@ -15,6 +15,9 @@ import javafx.scene.control.Label;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.sql.Date;
 import java.sql.Time;
 import java.text.ParseException;
@@ -38,6 +41,9 @@ public class MainController {
     private ObservableList<Produto> listaProdutos = FXCollections.observableArrayList();
     private ObservableList<Adquirente> listaAdquirentes = FXCollections.observableArrayList();
     private ObservableList<Ajuste> listaAjustes = FXCollections.observableArrayList();
+    private ObservableList<Arquivo> listaArquivos = FXCollections.observableArrayList();
+    private ObservableList<ComprovanteVenda> listaVendas = FXCollections.observableArrayList();
+    private ObservableList<ComprovanteVenda> listaPagamentos = FXCollections.observableArrayList();
 
     private File folder = new File("Z:\\SKYLINE");
     //private File folder = new File("C:\\Users\\Gabriel\\Desktop\\teste");
@@ -139,6 +145,82 @@ public class MainController {
 
         threadProcesso.setDaemon(true);
         threadProcesso.start();
+
+        /*Thread threadAtualizar = new Thread(() -> {
+            while (rodarThread) {
+                listaArquivos.clear();
+
+                try {
+                    listaArquivos.addAll(JDBCArquivoDAO.getInstance().listarArquivos());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                for (Arquivo arquivo: listaArquivos) {
+                    System.out.println(arquivo.getArquivo());
+
+                    try {
+                        JDBCVendaDAO.getInstance().deletarVendas(arquivo.getArquivo());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+                    try {
+                        JDBCPagamentoDAO.getInstance().deletarPagamentos(arquivo.getArquivo());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+                    try {
+                        JDBCComprovanteVendaDAO.getInstance().deletar(arquivo.getArquivo());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+                    try {
+                        JDBCHeaderArquivoDAO.getInstance().deletar(arquivo.getArquivo());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+                    try {
+                        JDBCHeaderLoteTransacoesDAO.getInstance().deletar(arquivo.getArquivo());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+                    try {
+                        JDBCResumoVendasDAO.getInstance().deletar(arquivo.getArquivo());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+                    try {
+                        JDBCTrailerArquivoDAO.getInstance().deletar(arquivo.getArquivo());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+                    try {
+                        JDBCTrailerLoteTransacoesDAO.getInstance().deletar(arquivo.getArquivo());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+                    try {
+                        JDBCArquivoDAO.getInstance().deletarControleArquivos(arquivo.getArquivo());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                System.out.println("Fim!");
+                rodarThread = false;
+            }
+        });
+
+        threadAtualizar.setDaemon(true);
+        threadAtualizar.start();*/
     }
 
     public Estabelecimento getFileEstabelecimento(String pasta, String arquivo) throws IOException {
@@ -191,10 +273,8 @@ public class MainController {
         BufferedReader br = new BufferedReader(reader);
 
         String line = br.readLine();
-        Integer currentLine = 0;
 
         while(line != null) {
-            currentLine++;
             String identificador = line.toCharArray()[0] + "" + line.toCharArray()[1];
 
             if(identificador.equals("A0")) {
@@ -222,12 +302,14 @@ public class MainController {
     }
 
     public void lerArquivo(String pasta, String arquivo, Estabelecimento estabelecimento) throws IOException, ParseException {
+        listaVendas.clear();
+        listaPagamentos.clear();
+
         FileInputStream stream = new FileInputStream(pasta + "\\" + arquivo);
         InputStreamReader reader = new InputStreamReader(stream);
         BufferedReader br = new BufferedReader(reader);
 
         String line = br.readLine();
-        Integer currentLine = 0;
         HeaderArquivo headerArquivo = new HeaderArquivo();
         HeaderLoteTransacao headerLoteTransacao = new HeaderLoteTransacao();
         ResumoVenda resumoVenda = new ResumoVenda();
@@ -239,8 +321,11 @@ public class MainController {
         Boolean flag = true;
         int verificarProcesso = 0;
 
+        java.util.Date data = new java.util.Date();
+        Date dataImportacao = new java.sql.Date(Calendar.getInstance().getTime().getTime());
+        Time horaImportacao = java.sql.Time.valueOf(new SimpleDateFormat("HH:mm:ss").format(data));
+
         while(line != null) {
-            currentLine++;
             String identificador = line.toCharArray()[0] + "" + line.toCharArray()[1];
 
             if(flag == true) {
@@ -317,10 +402,6 @@ public class MainController {
                         gravarLog("4 - Erro de array");
                     }
 
-                    java.util.Date data = new java.util.Date();
-                    Date dataImportacao = new java.sql.Date(Calendar.getInstance().getTime().getTime());
-                    Time horaImportacao = java.sql.Time.valueOf(new SimpleDateFormat("HH:mm:ss").format(data));
-
                     Boolean verificar = false;
 
                     try {
@@ -332,7 +413,6 @@ public class MainController {
 
                     if(comprovanteVenda.getTipoLancamento() != null) {
                         if(comprovanteVenda.getTipoLancamento().getId() == 0) {
-                            /*VENDA*/
 
                             try {
                                 verificar = JDBCVendaDAO.getInstance().verificarDuplicidade(comprovanteVenda.getChavePagamento());
@@ -340,58 +420,18 @@ public class MainController {
                                 gravarLog("Erro #16: " + e + " " + arquivo);
                                 mostrarMensagem("Erro #16" + e);
                             }
-
-                            // VERIFICA SE A VENDA JÁ EXISTE
                             if(verificar == false) {
-                                try {
-                                    JDBCVendaDAO.getInstance().create(comprovanteVenda, dataImportacao, horaImportacao, arquivo);
-                                } catch (Exception e) {
-                                    gravarLog("Erro #17: " + e + " " + arquivo);
-                                    mostrarMensagem("Erro #17" + e);
-                                }
+                                listaVendas.add(comprovanteVenda);
                             }
                         } else {
-                            /*PAGAMENTO*/
-
                             try {
                                 verificar = JDBCPagamentoDAO.getInstance().verificarDuplicidade(comprovanteVenda.getChavePagamento());
                             } catch (Exception e) {
                                 gravarLog("Erro #18: " + e + " " + arquivo);
                                 mostrarMensagem("Erro #18" + e);
                             }
-
-                            // VERIFICA SE O PAGAMENTO JÁ EXISTE
                             if(verificar == false) {
-                                long id = 0;
-
-                                try {
-                                    id = JDBCPagamentoDAO.getInstance().create(comprovanteVenda, dataImportacao, horaImportacao, arquivo);
-
-                                    if(id != 0) {
-                                        Boolean verificarVenda = null;
-
-                                        try {
-                                            // VERIFICA SE EXISTE VENDA COM O PAGAMENTO
-                                            verificarVenda = JDBCVendaDAO.getInstance().search(comprovanteVenda);
-                                        } catch (Exception e) {
-                                            gravarLog("Erro #19: " + e + " " + arquivo);
-                                            mostrarMensagem("Erro #19" + e);
-                                        }
-
-                                        if(verificarVenda == true) {
-                                            try {
-                                                // ATUALIZA A VENDA COMO PAGA
-                                                JDBCVendaDAO.getInstance().updateVendaPaga(comprovanteVenda, id);
-                                            } catch (Exception e) {
-                                                gravarLog("Erro #20: " + e + " " + arquivo);
-                                                mostrarMensagem("Erro #20" + e);
-                                            }
-                                        }
-                                    }
-                                } catch (Exception e) {
-                                    gravarLog("Erro #21: " + e + " " + arquivo);
-                                    mostrarMensagem("Erro #21" + e);
-                                }
+                                listaPagamentos.add(comprovanteVenda);
                             }
                         }
                     }
@@ -437,6 +477,46 @@ public class MainController {
         reader.close();
         stream.close();
 
+        for (ComprovanteVenda venda: listaVendas) {
+            try {
+                JDBCVendaDAO.getInstance().create(venda, dataImportacao, horaImportacao, arquivo);
+            } catch (Exception e) {
+                gravarLog("Erro #17: " + e + " " + arquivo);
+                mostrarMensagem("Erro #17" + e);
+            }
+        }
+
+        for (ComprovanteVenda pagamento:listaPagamentos) {
+            long id = 0;
+
+            try {
+                id = JDBCPagamentoDAO.getInstance().create(pagamento, dataImportacao, horaImportacao, arquivo);
+
+                if(id != 0) {
+                    Boolean verificarVenda = false;
+
+                    try {
+                        verificarVenda = JDBCVendaDAO.getInstance().search(pagamento);
+                    } catch (Exception e) {
+                        gravarLog("Erro #19: " + e + " " + arquivo);
+                        mostrarMensagem("Erro #19" + e);
+                    }
+
+                    if(verificarVenda == true) {
+                        try {
+                            JDBCVendaDAO.getInstance().updateVendaPaga(pagamento, id);
+                        } catch (Exception e) {
+                            gravarLog("Erro #20: " + e + " " + arquivo);
+                            mostrarMensagem("Erro #20" + e);
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                gravarLog("Erro #21: " + e + " " + arquivo);
+                mostrarMensagem("Erro #21" + e);
+            }
+        }
+
         if(flag == true && verificarProcesso > 0) {
             try {
                 salvarArquivoProcessado(arquivo, pasta, estabelecimento);
@@ -444,6 +524,9 @@ public class MainController {
                 gravarLog("Erro #24: " + e + " " + arquivo);
                 mostrarMensagem("Erro #24" + e);
             }
+
+            String novaPasta = "Z:\\SKYLINE\\Processados\\" + arquivo;
+            Files.move(Paths.get(pasta + "\\" + arquivo), Paths.get(novaPasta), StandardCopyOption.REPLACE_EXISTING);
         }
     }
 
@@ -783,7 +866,7 @@ public class MainController {
             empresa = JDBCEmpresaDAO.getInstance().search(identificacaoLoja);
         } catch (Exception e) {
             gravarLog("#26" + e);
-            mostrarMensagem("Erro #26" + e);
+            mostrarMensagem("Erro #26: " + e);
         }
 
         if(empresa == null) {
@@ -791,7 +874,7 @@ public class MainController {
                 empresa = JDBCEmpresaDAO.getInstance().search("22162885000168");
             } catch (Exception e) {
                 gravarLog("#27" + e);
-                mostrarMensagem("Erro #27" + e);
+                mostrarMensagem("Erro #27: " + e);
             }
         }
 
@@ -813,7 +896,7 @@ public class MainController {
             estabelecimento = JDBCEstabelecimentoDAO.getInstance().search(codigoEC);
         } catch (Exception e) {
             gravarLog("#28" + e);
-            mostrarMensagem("Erro #28" + e);
+            mostrarMensagem("Erro #28: " + e);
         }
 
         String agenciaFormatada = agencia.replaceFirst("^0+(?!$)", "");
@@ -832,8 +915,8 @@ public class MainController {
             try {
                 horaTransacaoDate = new SimpleDateFormat("HHmmss").parse(horaTransacao);
             } catch (ParseException e) {
-                gravarLog("#29" + e);
-                mostrarMensagem("Erro #29" + e);
+                gravarLog("#29: " + e);
+                mostrarMensagem("Erro #29: " + e);
             }
         }
 
@@ -1126,8 +1209,8 @@ public class MainController {
             try {
                 dataUtilFormat = new SimpleDateFormat("yyyyMMdd").parse(dataString);
             } catch (ParseException e) {
-                gravarLog("#30" + e);
-                mostrarMensagem("Erro #30" + e);
+                gravarLog("#30: " + e);
+                mostrarMensagem("Erro #30: " + e);
             }
         }
 

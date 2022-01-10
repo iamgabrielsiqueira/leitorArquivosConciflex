@@ -118,4 +118,18 @@ public class JDBCResumoVendasDAO implements ResumoVendasDAO {
         preparedStatement.close();
         connection.close();
     }
+
+    @Override
+    public void deletar(String arquivo) throws Exception {
+        String sql = "delete from edi_ben_resumo_vendas where nome_arquivo like ?";
+
+        Connection connection = ConnectionFactory.getConnection();
+        PreparedStatement preparedStatement = connection.prepareStatement(sql);
+
+        preparedStatement.setString(1, arquivo);
+
+        preparedStatement.execute();
+        preparedStatement.close();
+        connection.close();
+    }
 }

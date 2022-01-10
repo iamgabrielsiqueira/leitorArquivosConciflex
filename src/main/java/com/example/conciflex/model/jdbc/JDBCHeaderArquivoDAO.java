@@ -113,4 +113,18 @@ public class JDBCHeaderArquivoDAO implements HeaderArquivoDAO {
         return verificar;
     }
 
+    @Override
+    public void deletar(String arquivo) throws Exception {
+        String sql = "delete from edi_ben_header_arquivo where nome_arquivo like ?";
+
+        Connection connection = ConnectionFactory.getConnection();
+        PreparedStatement preparedStatement = connection.prepareStatement(sql);
+
+        preparedStatement.setString(1, arquivo);
+
+        preparedStatement.execute();
+        preparedStatement.close();
+        connection.close();
+    }
+
 }

@@ -1,12 +1,16 @@
 package com.example.conciflex.model.jdbc;
 
 import com.example.conciflex.model.ConnectionFactory;
+import com.example.conciflex.model.classes.Arquivo;
+import com.example.conciflex.model.classes.Cliente;
 import com.example.conciflex.model.classes.ComprovanteVenda;
+import com.example.conciflex.model.classes.Empresa;
 import com.example.conciflex.model.dao.ComprovanteVendaDAO;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
+
+import java.sql.*;
+import java.text.SimpleDateFormat;
 
 public class JDBCComprovanteVendaDAO implements ComprovanteVendaDAO {
     private static JDBCComprovanteVendaDAO instance;
@@ -80,6 +84,114 @@ public class JDBCComprovanteVendaDAO implements ComprovanteVendaDAO {
         preparedStatement.setString(27, comprovanteVenda.getCodigoEC());
         preparedStatement.setString(28, comprovanteVenda.getNSEQ());
         preparedStatement.setString(29, arquivo);
+
+        preparedStatement.execute();
+        preparedStatement.close();
+        connection.close();
+    }
+
+    @Override
+    public ObservableList<ComprovanteVenda> listarPagamentos() throws Exception {
+        comprovanteVendaObservableList.clear();
+
+        try {
+            Connection connection = ConnectionFactory.getConnection();
+            PreparedStatement preparedStatement;
+
+            String sql = "SELECT * FROM edi_ben_comprovante_venda WHERE COD_TIPO_LANCAMENTO = 1";
+            preparedStatement = connection.prepareStatement(sql);
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            while (resultSet.next()){
+                ComprovanteVenda comprovanteVenda = carregarComprovanteVenda(resultSet);
+                comprovanteVendaObservableList.add(comprovanteVenda);
+            }
+
+            resultSet.close();
+            preparedStatement.close();
+            connection.close();
+        } catch (SQLException e){
+            e.printStackTrace();
+        }
+        return comprovanteVendaObservableList;
+    }
+
+    private ComprovanteVenda carregarComprovanteVenda(ResultSet resultSet) throws Exception {
+        long id = resultSet.getLong("CODIGO");
+        Date dataTransacao = resultSet.getDate("DATA_TRANSACAO");
+        String valorBrutoString = resultSet.getString("VALOR_BRUTO");
+        String identificacaoLoja = resultSet.getString("IDENTIFICACAO_LOJA");
+
+        Double valorBruto = converterValorDouble(valorBrutoString);
+
+        ComprovanteVenda comprovanteVenda = new ComprovanteVenda();
+
+        Empresa empresa = null;
+        Cliente cliente = null;
+
+        try {
+            empresa = JDBCEmpresaDAO.getInstance().search(identificacaoLoja);
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+
+        if(empresa == null) {
+            try {
+                empresa = JDBCEmpresaDAO.getInstance().search("22162885000168");
+            } catch (Exception e) {
+                System.out.println(e);
+            }
+        }
+
+        if(empresa != null) {
+            cliente = empresa.getCliente();
+            if(cliente != null) {
+                empresa.setCliente(cliente);
+            }
+        }
+
+        comprovanteVenda.setId(id);
+        comprovanteVenda.setDataTransacao(dataTransacao);
+        comprovanteVenda.setValorBruto(valorBruto);
+        comprovanteVenda.setValorBrutoString(valorBrutoString);
+        comprovanteVenda.setEmpresa(empresa);
+
+        return comprovanteVenda;
+    }
+
+    public Double converterValorDouble(String valorString) {
+        Double valorFinal = null;
+        String valorFormatado = "";
+
+        for (int i = 0; i < valorString.length(); i++) {
+            valorFormatado += valorString.toCharArray()[i];
+            if(i == (valorString.length() - 3)) {
+                valorFormatado += ".";
+            }
+        }
+
+        valorFormatado = valorFormatado.replaceFirst("^0+(?!$)", "");
+
+        String primeiro = String.valueOf(valorFormatado.toCharArray()[0]);
+
+        if(primeiro.equals(".")) {
+            valorFormatado = "0" + valorFormatado;
+        }
+
+        valorFinal = Double.parseDouble(valorFormatado);
+
+        return valorFinal;
+    }
+
+    @Override
+    public void deletar(String arquivo) throws Exception {
+        String sql = "delete from edi_ben_comprovante_venda where nome_arquivo like ?";
+
+        Connection connection = ConnectionFactory.getConnection();
+        PreparedStatement preparedStatement = connection.prepareStatement(sql);
+
+        preparedStatement.setString(1, arquivo);
 
         preparedStatement.execute();
         preparedStatement.close();

@@ -54,4 +54,18 @@ public class JDBCHeaderLoteTransacoesDAO implements HeaderLoteTransacoesDAO {
         preparedStatement.close();
         connection.close();
     }
+
+    @Override
+    public void deletar(String arquivo) throws Exception {
+        String sql = "delete from edi_ben_header_lote_transacoes where nome_arquivo like ?";
+
+        Connection connection = ConnectionFactory.getConnection();
+        PreparedStatement preparedStatement = connection.prepareStatement(sql);
+
+        preparedStatement.setString(1, arquivo);
+
+        preparedStatement.execute();
+        preparedStatement.close();
+        connection.close();
+    }
 }
