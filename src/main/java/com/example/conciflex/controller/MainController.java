@@ -2,7 +2,9 @@ package com.example.conciflex.controller;
 
 import com.example.conciflex.MainApplication;
 import com.example.conciflex.model.classes.*;
+import com.example.conciflex.model.classes.ben.*;
 import com.example.conciflex.model.jdbc.*;
+import com.example.conciflex.model.jdbc.convcard.*;
 import javafx.animation.FadeTransition;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -42,11 +44,11 @@ public class MainController {
     private ObservableList<Adquirente> listaAdquirentes = FXCollections.observableArrayList();
     private ObservableList<Ajuste> listaAjustes = FXCollections.observableArrayList();
     private ObservableList<Arquivo> listaArquivos = FXCollections.observableArrayList();
-    private ObservableList<ComprovanteVenda> listaVendas = FXCollections.observableArrayList();
-    private ObservableList<ComprovanteVenda> listaPagamentos = FXCollections.observableArrayList();
+    private ObservableList<ComprovanteVenda> listaVendasBen = FXCollections.observableArrayList();
+    private ObservableList<ComprovanteVenda> listaPagamentosBen = FXCollections.observableArrayList();
 
-    private File folder = new File("Z:\\SKYLINE");
-    //private File folder = new File("C:\\Users\\Gabriel\\Desktop\\teste");
+    private File folderBenVisaVale = new File("Z:\\SKYLINE");
+    private File folderConvcard = new File("C:\\Users\\Gabriel\\Desktop\\teste");
 
     private Boolean rodarThread = true;
 
@@ -66,10 +68,11 @@ public class MainController {
 
     @FXML
     public void processar() {
-        Thread threadProcesso = new Thread(() -> {
+
+        Thread threadBenVisaVale = new Thread(() -> {
             while (rodarThread) {
                 mostrarMensagem("Aguardando...");
-                File[] listOfFiles = folder.listFiles();
+                File[] listOfFiles = folderBenVisaVale.listFiles();
 
                 for (int i = 0; i < listOfFiles.length; i++) {
                     String pasta = "";
@@ -79,7 +82,7 @@ public class MainController {
                     Boolean arquivoBuscar = false;
 
                     if (listOfFiles[i].isFile() && !listOfFiles[i].getName().contains("desktop.ini")) {
-                        pasta = folder.getAbsolutePath();
+                        pasta = folderBenVisaVale.getAbsolutePath();
                         arquivo = listOfFiles[i].getName();
 
                         Boolean verificarOperadora = false;
@@ -102,7 +105,7 @@ public class MainController {
 
                             if(arquivoBuscar == false) {
                                 try {
-                                    estabelecimento = getFileEstabelecimento(pasta, arquivo);
+                                    estabelecimento = getFileEstabelecimentoBenVisaVale(pasta, arquivo);
                                 } catch (IOException e) {
                                     gravarLog("Erro #3: " + e + " " + arquivo);
                                     mostrarMensagem("Erro #3" + e);
@@ -111,7 +114,7 @@ public class MainController {
                                 mostrarMensagem("Lendo arquivo..." + arquivo);
 
                                 try {
-                                    lerArquivo(pasta, arquivo, estabelecimento);
+                                    lerArquivoBenVisaVale(pasta, arquivo, estabelecimento);
                                 } catch (IOException e) {
                                     gravarLog("Erro #4: " + e + " " + arquivo);
                                     mostrarMensagem("Erro #4" + e);
@@ -131,6 +134,8 @@ public class MainController {
                             }
                         }
 
+
+
                     }
                 }
 
@@ -143,8 +148,83 @@ public class MainController {
             }
         });
 
-        threadProcesso.setDaemon(true);
-        threadProcesso.start();
+        //threadBenVisaVale.setDaemon(true);
+        //threadBenVisaVale.start();
+
+        Thread threadConvcard = new Thread(() -> {
+            while (rodarThread) {
+                mostrarMensagem("Aguardando...");
+                File[] listOfFiles = folderConvcard.listFiles();
+                ConvcardController convcardController = new ConvcardController();
+                convcardController.setLbMensagem(lbMensagem);
+
+                for (int i = 0; i < listOfFiles.length; i++) {
+                    String pasta = "";
+                    String arquivo = "";
+
+                    Estabelecimento estabelecimento = null;
+                    Boolean arquivoBuscar = false;
+
+                    if (listOfFiles[i].isFile() && !listOfFiles[i].getName().contains("desktop.ini")) {
+                        pasta = folderConvcard.getAbsolutePath();
+                        arquivo = listOfFiles[i].getName();
+
+                        if(arquivo.contains(".txt")) {
+                            System.out.println(arquivo);
+
+                            try {
+                                arquivoBuscar = JDBCArquivoDAO.getInstance().search(arquivo);
+                            } catch (Exception e) {
+                                gravarLog("Erro #2: " + e + " " + arquivo);
+                                mostrarMensagem("Erro #2" + e);
+                            }
+
+                            if(arquivoBuscar  == false) {
+                                try {
+                                    estabelecimento = convcardController.getFileEstabelecimentoConvcard(pasta, arquivo);
+                                } catch (IOException e) {
+                                    gravarLog("Erro #3: " + e + " " + arquivo);
+                                    mostrarMensagem("Erro #3" + e);
+                                }
+
+                                mostrarMensagem("Lendo arquivo..." + arquivo);
+
+                                try {
+                                    convcardController.lerArquivoConvcard(pasta, arquivo, estabelecimento);
+                                } catch (IOException e) {
+                                    gravarLog("Erro #4: " + e + " " + arquivo);
+                                    mostrarMensagem("Erro #4" + e);
+                                } catch (ParseException e) {
+                                    gravarLog("Erro #5: " + e + " " + arquivo);
+                                    mostrarMensagem("Erro #5" + e);
+                                }
+
+                                mostrarMensagem("Arquivo " + arquivo + " processado!");
+
+                                try {
+                                    Thread.sleep(2000);
+                                } catch (InterruptedException interruptedException) {
+                                    gravarLog("Erro #6: " + interruptedException + " " + arquivo);
+                                    mostrarMensagem("Erro #6" + interruptedException);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException interruptedException) {
+                    gravarLog("Erro #7: " + interruptedException);
+                    mostrarMensagem("Erro #7" + interruptedException);
+                }
+
+                rodarThread = false;
+            }
+        });
+
+        threadConvcard.setDaemon(true);
+        threadConvcard.start();
 
         /*Thread threadAtualizar = new Thread(() -> {
             while (rodarThread) {
@@ -223,7 +303,7 @@ public class MainController {
         threadAtualizar.start();*/
     }
 
-    public Estabelecimento getFileEstabelecimento(String pasta, String arquivo) throws IOException {
+    public Estabelecimento getFileEstabelecimentoBenVisaVale(String pasta, String arquivo) throws IOException {
         FileInputStream stream = new FileInputStream(pasta + "\\" + arquivo);
         InputStreamReader reader = new InputStreamReader(stream);
         BufferedReader br = new BufferedReader(reader);
@@ -301,9 +381,9 @@ public class MainController {
         return verificar;
     }
 
-    public void lerArquivo(String pasta, String arquivo, Estabelecimento estabelecimento) throws IOException, ParseException {
-        listaVendas.clear();
-        listaPagamentos.clear();
+    public void lerArquivoBenVisaVale(String pasta, String arquivo, Estabelecimento estabelecimento) throws IOException, ParseException {
+        listaVendasBen.clear();
+        listaPagamentosBen.clear();
 
         FileInputStream stream = new FileInputStream(pasta + "\\" + arquivo);
         InputStreamReader reader = new InputStreamReader(stream);
@@ -421,7 +501,7 @@ public class MainController {
                                 mostrarMensagem("Erro #16" + e);
                             }
                             if(verificar == false) {
-                                listaVendas.add(comprovanteVenda);
+                                listaVendasBen.add(comprovanteVenda);
                             }
                         } else {
                             try {
@@ -431,7 +511,7 @@ public class MainController {
                                 mostrarMensagem("Erro #18" + e);
                             }
                             if(verificar == false) {
-                                listaPagamentos.add(comprovanteVenda);
+                                listaPagamentosBen.add(comprovanteVenda);
                             }
                         }
                     }
@@ -465,6 +545,10 @@ public class MainController {
                         gravarLog("Erro #23: " + e + " " + arquivo);
                         mostrarMensagem("Erro #23" + e);
                     }
+                } else if(identificador.equals("AJ")) {
+                    gravarLog("Tem AJ: " + arquivo);
+                } else if(identificador.equals("CC")) {
+                    gravarLog("Tem CC: " + arquivo);
                 } else {
                     flag = false;
                 }
@@ -477,7 +561,7 @@ public class MainController {
         reader.close();
         stream.close();
 
-        for (ComprovanteVenda venda: listaVendas) {
+        for (ComprovanteVenda venda: listaVendasBen) {
             try {
                 JDBCVendaDAO.getInstance().create(venda, dataImportacao, horaImportacao, arquivo);
             } catch (Exception e) {
@@ -486,7 +570,7 @@ public class MainController {
             }
         }
 
-        for (ComprovanteVenda pagamento:listaPagamentos) {
+        for (ComprovanteVenda pagamento: listaPagamentosBen) {
             long id = 0;
 
             try {
@@ -1402,8 +1486,8 @@ public class MainController {
         FileWriter fw = null;
 
         try {
-            fw = new FileWriter("C:\\Users\\opc\\Documents\\LeitorArquivos\\leitor-log.txt", true);
-            //fw = new FileWriter("C:\\Users\\Gabriel\\IdeaProjects\\LeituraArquivosConciflex\\out\\artifacts\\LeituraArquivosConciflex_jar\\leitor-log.txt", true);
+            //fw = new FileWriter("C:\\Users\\opc\\Documents\\LeitorArquivos\\leitor-log.txt", true);
+            fw = new FileWriter("C:\\Users\\Gabriel\\IdeaProjects\\LeituraArquivosConciflex\\out\\artifacts\\LeituraArquivosConciflex_jar\\leitor-log.txt", true);
         } catch (IOException e) {
             e.printStackTrace();
         }

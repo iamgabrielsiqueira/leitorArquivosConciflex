@@ -9,4 +9,6 @@ module com.example.conciflex {
     opens com.example.conciflex.controller to javafx.fxml;
     exports com.example.conciflex.model.classes;
     opens com.example.conciflex.model.classes to javafx.fxml;
+    exports com.example.conciflex.model.classes.ben;
+    opens com.example.conciflex.model.classes.ben to javafx.fxml;
 }

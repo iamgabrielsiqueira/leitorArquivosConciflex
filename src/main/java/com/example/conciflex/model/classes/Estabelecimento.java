@@ -1,5 +1,7 @@
 package com.example.conciflex.model.classes;
 
+import com.example.conciflex.model.classes.Cliente;
+
 public class Estabelecimento {
     private int id;
     private Cliente cliente;
