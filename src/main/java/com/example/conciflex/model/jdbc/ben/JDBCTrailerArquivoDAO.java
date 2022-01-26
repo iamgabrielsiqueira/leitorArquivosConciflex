@@ -1,4 +1,4 @@
-package com.example.conciflex.model.jdbc.convcard;
+package com.example.conciflex.model.jdbc.ben;
 
 import com.example.conciflex.model.ConnectionFactory;
 import com.example.conciflex.model.classes.ben.TrailerArquivo;

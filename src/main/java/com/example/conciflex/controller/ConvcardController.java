@@ -2,9 +2,9 @@ package com.example.conciflex.controller;
 
 import com.example.conciflex.model.classes.Cliente;
 import com.example.conciflex.model.classes.Estabelecimento;
-import com.example.conciflex.model.classes.ben.Cancelamento;
 import com.example.conciflex.model.classes.convcard.*;
 import com.example.conciflex.model.jdbc.JDBCEstabelecimentoDAO;
+import com.example.conciflex.model.jdbc.convcard.*;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
@@ -55,61 +55,101 @@ public class ConvcardController {
                 if(identificador.equals("A0")) {
                     verificarProcesso++;
 
-                    try {
+                    /*try {
                         headerArquivoConvcard = processarHeaderArquivoConvcard(line.toCharArray());
                     } catch (ArrayIndexOutOfBoundsException arrayIndexOutOfBoundsException) {
                         gravarLog("1 - Erro de array");
                     }
+
+                    try {
+                        JDBCHeaderArquivoConvcardDAO.getInstance().create(headerArquivoConvcard, arquivo);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }*/
                 } else if(identificador.equals("L0")) {
                     verificarProcesso++;
 
-                    try {
+                    /*try {
                         headerLoteTransacoesConvcard = processarHeaderLoteConvcard(line.toCharArray());
                     } catch (ArrayIndexOutOfBoundsException arrayIndexOutOfBoundsException) {
                         gravarLog("2 - Erro de array");
                     }
+
+                    try {
+                        JDBCHeaderLoteTransacoesConvcardDAO.getInstance().create(headerLoteTransacoesConvcard, arquivo);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }*/
                 } else if(identificador.equals("CV")) {
                     verificarProcesso++;
 
-                    try {
+                    /*try {
                         comprovanteVendaConvcard = processarComprovanteVendaConvcard(line.toCharArray());
                     } catch (ArrayIndexOutOfBoundsException arrayIndexOutOfBoundsException) {
                         gravarLog("3 - Erro de array");
                     }
+
+                    try {
+                        JDBCComprovanteVendaConvcardDAO.getInstance().create(comprovanteVendaConvcard, arquivo);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }*/
                 } else if(identificador.equals("CP")) {
                     verificarProcesso++;
 
-                    try {
+                    /*try {
                         comprovantePagamentoConvcard = processarComprovantePagamentoConvcard(line.toCharArray());
                     } catch (ArrayIndexOutOfBoundsException arrayIndexOutOfBoundsException) {
                         gravarLog("4 - Erro de array");
                     }
+
+                    try {
+                        JDBCComprovantePagamentoConvcardDAO.getInstance().create(comprovantePagamentoConvcard, arquivo);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }*/
                 } else if(identificador.equals("CC")) {
                     verificarProcesso++;
 
-                    try {
+                    /*try {
                         cancelamentoConvcard = processarCancelamentoConvcard(line.toCharArray());
                     } catch (ArrayIndexOutOfBoundsException arrayIndexOutOfBoundsException) {
                         gravarLog("5 - Erro de array");
                     }
-                } else if(identificador.equals("TB")) {
-                    gravarLog("Tem TB: " + arquivo);
-
-                    verificarProcesso++;
 
                     try {
+                        JDBCCancelamentoConvcardDAO.getInstance().create(cancelamentoConvcard, arquivo);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }*/
+                } else if(identificador.equals("TB")) {
+                    verificarProcesso++;
+
+                    /*try {
                         tarifaBancariaConvcard = processarTarifaBancariaConvcard(line.toCharArray());
                     } catch (ArrayIndexOutOfBoundsException arrayIndexOutOfBoundsException) {
                         gravarLog("6 - Erro de array");
                     }
+
+                    try {
+                        JDBCTarifaBancariaConvcardDAO.getInstance().create(tarifaBancariaConvcard, arquivo);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }*/
                 } else if(identificador.equals("L9")) {
                     verificarProcesso++;
 
-                    try {
+                    /*try {
                         trailerLoteTransacoesConvcard = processarTrailerLoteTransacoesConvcard(line.toCharArray());
                     } catch (ArrayIndexOutOfBoundsException arrayIndexOutOfBoundsException) {
                         gravarLog("7 - Erro de array");
                     }
+
+                    try {
+                        JDBCTrailerLoteTransacoesConvcardDAO.getInstance().create(trailerLoteTransacoesConvcard, arquivo);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }*/
                 } else if(identificador.equals("A9")) {
                     verificarProcesso++;
 
@@ -117,6 +157,12 @@ public class ConvcardController {
                         trailerArquivoConvcard = processarTrailerArquivoConvcard(line.toCharArray());
                     } catch (ArrayIndexOutOfBoundsException arrayIndexOutOfBoundsException) {
                         gravarLog("8 - Erro de array");
+                    }
+
+                    try {
+                        JDBCTrailerArquivoConvcardDAO.getInstance().create(trailerArquivoConvcard, arquivo);
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
                 } else {
                     flag = false;
@@ -193,14 +239,14 @@ public class ConvcardController {
         for (int i = 42; i < 72; i++) { nomeLoja += "" + line[i]; }
         for (int i = 72; i < 240; i++) { espacoReservado += "" + line[i]; }
 
-        System.out.println("Tipo Registro: " + tipoRegistro);
+        /*System.out.println("Tipo Registro: " + tipoRegistro);
         System.out.println("NSEQ: " + nseq);
         System.out.println("Versão Layout: " + versaoLayout);
         System.out.println("Data Geração: " + dataGeracao);
         System.out.println("Hora Geração: " + horaGeracao);
         System.out.println("CNPJ Loja: " + cnpjLoja);
         System.out.println("Nome Loja: " + nomeLoja);
-        System.out.println("Espaço Reservado: " + espacoReservado);
+        System.out.println("Espaço Reservado: " + espacoReservado);*/
 
         headerArquivoConvcard.setTipoRegistro(tipoRegistro);
         headerArquivoConvcard.setNseqRegistro(nseq);
@@ -232,13 +278,13 @@ public class ConvcardController {
         for (int i = 36; i < 66; i++) { nomeAdm += "" + line[i]; }
         for (int i = 66; i < 240; i++) { espacoReservado += "" + line[i]; }
 
-        System.out.println("Tipo Registro: " + tipoRegistro);
+        /*System.out.println("Tipo Registro: " + tipoRegistro);
         System.out.println("NSEQ Registro: " + nseqRegistro);
         System.out.println("Data Movimento: " + dataMovimento);
         System.out.println("NSEQ Lote: " + nseqLote);
         System.out.println("CNPJ Admin: " + cnpjAdm);
         System.out.println("Nome Admin: " + nomeAdm);
-        System.out.println("Espaço Reservado: " + espacoReservado);
+        System.out.println("Espaço Reservado: " + espacoReservado);*/
 
         headerLoteTransacoesConvcard.setTipoRegistro(tipoRegistro);
         headerLoteTransacoesConvcard.setNseqRegistro(nseqRegistro);
@@ -301,7 +347,7 @@ public class ConvcardController {
         for (int i = 183; i < 189; i++) { nseqLote += "" + line[i]; }
         for (int i = 189; i < 240; i++) { espacoReservado += "" + line[i]; }
 
-        System.out.println("Tipo Registro: " + tipoRegistro);
+        /*System.out.println("Tipo Registro: " + tipoRegistro);
         System.out.println("NSEQ Registro Arquivo: " + nseqRegistroArquivo);
         System.out.println("NSEQ Registro Lote: " + nseqRegistroLote);
         System.out.println("CNPJ: " + cnpj);
@@ -323,7 +369,7 @@ public class ConvcardController {
         System.out.println("Agência: " + agencia);
         System.out.println("Conta: " + conta);
         System.out.println("NSEQ Lote: " + nseqLote);
-        System.out.println("Espaço Reservado: " + espacoReservado);
+        System.out.println("Espaço Reservado: " + espacoReservado);*/
 
         comprovanteVendaConvcard.setTipoRegistro(tipoRegistro);
         comprovanteVendaConvcard.setNseqRegistroArquivo(nseqRegistroArquivo);
@@ -394,7 +440,7 @@ public class ConvcardController {
         for (int i = 148; i < 154; i++) { nseqLote += "" + line[i]; }
         for (int i = 154; i < 240; i++) { espacoReservado += "" + line[i]; }
 
-        System.out.println("Tipo Registro: " + tipoRegistro);
+        /*System.out.println("Tipo Registro: " + tipoRegistro);
         System.out.println("NSEQ Registro Arquivo: " + nseqRegistroArquivo);
         System.out.println("NSEQ Registro Lote: " + nseqRegistroLote);
         System.out.println("CNPJ Loja: " + cnpjLoja);
@@ -412,7 +458,7 @@ public class ConvcardController {
         System.out.println("Agência: " + agencia);
         System.out.println("Conta: " + conta);
         System.out.println("NSEQ Lote: " + nseqLote);
-        System.out.println("Espaço Reservado: " + espacoReservado);
+        System.out.println("Espaço Reservado: " + espacoReservado);*/
 
         comprovantePagamentoConvcard.setTipoRegistro(tipoRegistro);
         comprovantePagamentoConvcard.setNseqRegistroArquivo(nseqRegistroArquivo);
@@ -467,7 +513,7 @@ public class ConvcardController {
         for (int i = 95; i < 101; i++) { nseqLote += "" + line[i]; }
         for (int i = 101; i < 240; i++) { espacoReservado += "" + line[i]; }
 
-        System.out.println("Tipo Registro: " + tipoRegistro);
+        /*System.out.println("Tipo Registro: " + tipoRegistro);
         System.out.println("NSEQ Registro Arquivo: " + nseqRegistroArquivo);
         System.out.println("NSEQ Registro Lote: " + nseqRegistroLote);
         System.out.println("CNPJ: " + cnpjLoja);
@@ -479,7 +525,7 @@ public class ConvcardController {
         System.out.println("Número Parcela: " + numeroParcela);
         System.out.println("Data Cancelamento: " + dataCancelamento);
         System.out.println("NSEQ Lote: " + nseqLote);
-        System.out.println("Espaço Reservado: " + espacoReservado);
+        System.out.println("Espaço Reservado: " + espacoReservado);*/
 
         cancelamentoConvcard.setTipoRegistro(tipoRegistro);
         cancelamentoConvcard.setNseqRegistroArquivo(nseqRegistroArquivo);
@@ -524,7 +570,7 @@ public class ConvcardController {
         for (int i = 67; i < 73; i++) { nseqLote += "" + line[i]; }
         for (int i = 73; i < 240; i++) { espacoReservado += "" + line[i]; }
 
-        System.out.println("Tipo Registro: " + tipoRegistro);
+        /*System.out.println("Tipo Registro: " + tipoRegistro);
         System.out.println("NSEQ Registro Arquivo: " + nseqRegistroArquivo);
         System.out.println("NSEQ Registro Lote: " + nseqRegistroLote);
         System.out.println("CNPJ: " + cnpjLoja);
@@ -534,7 +580,7 @@ public class ConvcardController {
         System.out.println("Agência: " + agencia);
         System.out.println("Conta: " + conta);
         System.out.println("NSEQ Lote: " + nseqLote);
-        System.out.println("Espaço Reservado: " + espacoReservado);
+        System.out.println("Espaço Reservado: " + espacoReservado);*/
 
         tarifaBancariaConvcard.setTipoRegistro(tipoRegistro);
         tarifaBancariaConvcard.setNseqRegistroArquivo(nseqRegistroArquivo);
@@ -567,12 +613,12 @@ public class ConvcardController {
         for (int i = 20; i < 32; i++) { valorTotalBrutoLote += "" + line[i]; }
         for (int i = 32; i < 240; i++) { espacoReservado += "" + line[i]; }
 
-        System.out.println("Tipo Registro: " + tipoRegistro);
+        /*System.out.println("Tipo Registro: " + tipoRegistro);
         System.out.println("NSEQ Registro Arquivo: " + nseqRegistroArquivo);
         System.out.println("NSEQ Lote: " + nseqLote);
         System.out.println("Quantidade Registros Lote: " + quantidadeRegistrosLote);
         System.out.println("Valor Total Bruto Lote: " + valorTotalBrutoLote);
-        System.out.println("Espaço Reservado: " + espacoReservado);
+        System.out.println("Espaço Reservado: " + espacoReservado);*/
 
         trailerLoteTransacoesConvcard.setTipoRegistro(tipoRegistro);
         trailerLoteTransacoesConvcard.setNseqRegistroArquivo(nseqRegistroArquivo);
@@ -596,10 +642,10 @@ public class ConvcardController {
         for (int i = 8; i < 17; i++) { quantidadeRegistros += "" + line[i]; }
         for (int i = 17; i < 223; i++) { espacoReservado += "" + line[i]; }
 
-        System.out.println("Tipo Registro: " + tipoRegistro);
+        /*System.out.println("Tipo Registro: " + tipoRegistro);
         System.out.println("NSEQ Registro: " + nseqRegistro);
         System.out.println("Quantidade Registros: " + quantidadeRegistros);
-        System.out.println("Espaço Reservado: " + espacoReservado);
+        System.out.println("Espaço Reservado: " + espacoReservado);*/
 
         trailerArquivoConvcard.setTipoRegistro(tipoRegistro);
         trailerArquivoConvcard.setNseqRegistro(nseqRegistro);

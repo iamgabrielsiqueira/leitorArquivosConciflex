@@ -4,7 +4,7 @@ import com.example.conciflex.MainApplication;
 import com.example.conciflex.model.classes.*;
 import com.example.conciflex.model.classes.ben.*;
 import com.example.conciflex.model.jdbc.*;
-import com.example.conciflex.model.jdbc.convcard.*;
+import com.example.conciflex.model.jdbc.ben.*;
 import javafx.animation.FadeTransition;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -88,7 +88,6 @@ public class MainController {
                         Boolean verificarOperadora = false;
 
                         try {
-                            //VERIFICA SE O ARQUIVO É BEN VISA VALE
                             verificarOperadora = verificarBenVisaVale(pasta, arquivo);
                         } catch (IOException e) {
                             gravarLog("Erro #1: " + e + " " + arquivo);
@@ -133,8 +132,6 @@ public class MainController {
                                 }
                             }
                         }
-
-
 
                     }
                 }
@@ -215,6 +212,7 @@ public class MainController {
                 }
 
                 rodarThread = false;
+                System.out.println("FIM");
             }
         });
 
