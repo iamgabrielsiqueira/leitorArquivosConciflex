@@ -148,9 +148,6 @@ public class MainController {
             }
         });
 
-        //threadBenVisaVale.setDaemon(true);
-        //threadBenVisaVale.start();
-
         Thread threadConvcard = new Thread(() -> {
             while (rodarThread) {
                 mostrarMensagem("Aguardando...");
@@ -170,8 +167,6 @@ public class MainController {
                         arquivo = listOfFiles[i].getName();
 
                         if(arquivo.contains(".txt")) {
-                            System.out.println(arquivo);
-
                             try {
                                 arquivoBuscar = JDBCArquivoDAO.getInstance().search(arquivo);
                             } catch (Exception e) {
@@ -222,6 +217,9 @@ public class MainController {
                 rodarThread = false;
             }
         });
+
+        //threadBenVisaVale.setDaemon(true);
+        //threadBenVisaVale.start();
 
         threadConvcard.setDaemon(true);
         threadConvcard.start();
