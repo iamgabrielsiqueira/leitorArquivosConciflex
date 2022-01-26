@@ -5,6 +5,7 @@ import com.example.conciflex.model.classes.convcard.HeaderLoteTransacoesConvcard
 import com.example.conciflex.model.dao.convcard.HeaderLoteTransacoesConvcardDAO;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 
 public class JDBCHeaderLoteTransacoesConvcardDAO implements HeaderLoteTransacoesConvcardDAO {
     private static JDBCHeaderLoteTransacoesConvcardDAO instance;
@@ -40,5 +41,29 @@ public class JDBCHeaderLoteTransacoesConvcardDAO implements HeaderLoteTransacoes
         preparedStatement.execute();
         preparedStatement.close();
         connection.close();
+    }
+
+    @Override
+    public String searchAutorizador(String nseqLote) throws Exception {
+        String sql = "select NOME_ADM from edi_convcard_header_lote_transacoes where NSEQ_LOTE like ?";
+
+        Connection connection = ConnectionFactory.getConnection();
+        PreparedStatement preparedStatement = connection.prepareStatement(sql);
+
+        preparedStatement.setString(1, nseqLote);
+
+        ResultSet resultSet = preparedStatement.executeQuery();
+
+        String autorizador = "";
+
+        if(resultSet.next()) {
+            autorizador = resultSet.getString("NOME_ADM");
+        }
+
+        preparedStatement.execute();
+        preparedStatement.close();
+        connection.close();
+
+        return autorizador;
     }
 }

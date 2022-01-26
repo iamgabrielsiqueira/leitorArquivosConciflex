@@ -1,5 +1,8 @@
 package com.example.conciflex.model.classes.convcard;
 
+import com.example.conciflex.model.classes.Cliente;
+import com.example.conciflex.model.classes.Empresa;
+
 public class ComprovantePagamentoConvcard {
     private String tipoRegistro;
     private String nseqRegistroArquivo;
@@ -20,6 +23,9 @@ public class ComprovantePagamentoConvcard {
     private String conta;
     private String nseqLote;
     private String espacoReservado;
+
+    private Empresa empresa;
+    private Cliente cliente;
 
     public String getTipoRegistro() {
         return tipoRegistro;
@@ -171,5 +177,21 @@ public class ComprovantePagamentoConvcard {
 
     public void setEspacoReservado(String espacoReservado) {
         this.espacoReservado = espacoReservado;
+    }
+
+    public Empresa getEmpresa() {
+        return empresa;
+    }
+
+    public void setEmpresa(Empresa empresa) {
+        this.empresa = empresa;
+    }
+
+    public Cliente getCliente() {
+        return cliente;
+    }
+
+    public void setCliente(Cliente cliente) {
+        this.cliente = cliente;
     }
 }

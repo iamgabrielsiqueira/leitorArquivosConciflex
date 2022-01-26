@@ -1,5 +1,11 @@
 package com.example.conciflex.model.classes.convcard;
 
+import com.example.conciflex.model.classes.Cliente;
+import com.example.conciflex.model.classes.Empresa;
+
+import java.sql.Date;
+import java.sql.Time;
+
 public class ComprovanteVendaConvcard {
     private String tipoRegistro;
     private String nseqRegistroArquivo;
@@ -24,6 +30,160 @@ public class ComprovanteVendaConvcard {
     private String conta;
     private String nseqLote;
     private String espacoReservado;
+
+    private Empresa empresa;
+    private Cliente cliente;
+    private String nsuFormatada;
+    private Date dataTransacaoSQL;
+    private Date dataLancamentoSQL;
+    private Double valorBrutoFormatado;
+    private Double valorDescontoFormatado;
+    private Double valorLiquidoFormatado;
+    private String numeroCartaoFormatado;
+    private int bancoFormatado;
+    private String agenciaFormatado;
+    private String contaFormatado;
+    private String autorizacaoFormatado;
+    private Double valorTaxaPercentual;
+    private String chavePagamento;
+    private Time horaTransacaoSQL;
+    private String autorizador;
+
+    public String getAutorizador() {
+        return autorizador;
+    }
+
+    public void setAutorizador(String autorizador) {
+        this.autorizador = autorizador;
+    }
+
+    public Time getHoraTransacaoSQL() {
+        return horaTransacaoSQL;
+    }
+
+    public void setHoraTransacaoSQL(Time horaTransacaoSQL) {
+        this.horaTransacaoSQL = horaTransacaoSQL;
+    }
+
+    public String getChavePagamento() {
+        return chavePagamento;
+    }
+
+    public void setChavePagamento(String chavePagamento) {
+        this.chavePagamento = chavePagamento;
+    }
+
+    public Double getValorTaxaPercentual() {
+        return valorTaxaPercentual;
+    }
+
+    public void setValorTaxaPercentual(Double valorTaxaPercentual) {
+        this.valorTaxaPercentual = valorTaxaPercentual;
+    }
+
+    public String getAutorizacaoFormatado() {
+        return autorizacaoFormatado;
+    }
+
+    public void setAutorizacaoFormatado(String autorizacaoFormatado) {
+        this.autorizacaoFormatado = autorizacaoFormatado;
+    }
+
+    public int getBancoFormatado() {
+        return bancoFormatado;
+    }
+
+    public void setBancoFormatado(int bancoFormatado) {
+        this.bancoFormatado = bancoFormatado;
+    }
+
+    public String getAgenciaFormatado() {
+        return agenciaFormatado;
+    }
+
+    public void setAgenciaFormatado(String agenciaFormatado) {
+        this.agenciaFormatado = agenciaFormatado;
+    }
+
+    public String getContaFormatado() {
+        return contaFormatado;
+    }
+
+    public void setContaFormatado(String contaFormatado) {
+        this.contaFormatado = contaFormatado;
+    }
+
+    public String getNumeroCartaoFormatado() {
+        return numeroCartaoFormatado;
+    }
+
+    public void setNumeroCartaoFormatado(String numeroCartaoFormatado) {
+        this.numeroCartaoFormatado = numeroCartaoFormatado;
+    }
+
+    public Double getValorDescontoFormatado() {
+        return valorDescontoFormatado;
+    }
+
+    public void setValorDescontoFormatado(Double valorDescontoFormatado) {
+        this.valorDescontoFormatado = valorDescontoFormatado;
+    }
+
+    public Double getValorLiquidoFormatado() {
+        return valorLiquidoFormatado;
+    }
+
+    public void setValorLiquidoFormatado(Double valorLiquidoFormatado) {
+        this.valorLiquidoFormatado = valorLiquidoFormatado;
+    }
+
+    public Double getValorBrutoFormatado() {
+        return valorBrutoFormatado;
+    }
+
+    public void setValorBrutoFormatado(Double valorBrutoFormatado) {
+        this.valorBrutoFormatado = valorBrutoFormatado;
+    }
+
+    public Date getDataLancamentoSQL() {
+        return dataLancamentoSQL;
+    }
+
+    public void setDataLancamentoSQL(Date dataLancamentoSQL) {
+        this.dataLancamentoSQL = dataLancamentoSQL;
+    }
+
+    public Date getDataTransacaoSQL() {
+        return dataTransacaoSQL;
+    }
+
+    public void setDataTransacaoSQL(Date dataTransacaoSQL) {
+        this.dataTransacaoSQL = dataTransacaoSQL;
+    }
+
+    public String getNsuFormatada() {
+        return nsuFormatada;
+    }
+
+    public void setNsuFormatada(String nsuFormatada) {
+        this.nsuFormatada = nsuFormatada;
+    }
+
+    public Empresa getEmpresa() {
+        return empresa;
+    }
+
+    public void setEmpresa(Empresa empresa) {
+        this.empresa = empresa;
+    }
+
+    public Cliente getCliente() {
+        return cliente;
+    }
+
+    public void setCliente(Cliente cliente) {
+        this.cliente = cliente;
+    }
 
     public String getTipoRegistro() {
         return tipoRegistro;
