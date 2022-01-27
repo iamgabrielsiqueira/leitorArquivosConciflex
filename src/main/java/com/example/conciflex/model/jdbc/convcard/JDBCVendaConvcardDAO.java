@@ -1,7 +1,9 @@
 package com.example.conciflex.model.jdbc.convcard;
 
 import com.example.conciflex.model.ConnectionFactory;
+import com.example.conciflex.model.classes.ben.ComprovanteVenda;
 import com.example.conciflex.model.classes.convcard.CancelamentoConvcard;
+import com.example.conciflex.model.classes.convcard.ComprovantePagamentoConvcard;
 import com.example.conciflex.model.classes.convcard.ComprovanteVendaConvcard;
 import com.example.conciflex.model.dao.convcard.VendaConvcardDAO;
 
@@ -220,6 +222,55 @@ public class JDBCVendaConvcardDAO implements VendaConvcardDAO {
         connection.close();
     }
 
+    @Override
+    public Boolean search(ComprovantePagamentoConvcard comprovantePagamentoConvcard) throws Exception {
+        Connection connection = ConnectionFactory.getConnection();
+
+        PreparedStatement preparedStatement;
+
+        String sql = "select * from vendas where ADQID = 123 and COD_CLIENTE = ? " +
+                "and DATA_VENDA = ? and VALOR_BRUTO = ? and COD_STATUS_FINANCEIRO = 1";
+
+        preparedStatement = connection.prepareStatement(sql);
+        preparedStatement.setInt(1, comprovantePagamentoConvcard.getEmpresa().getCliente().getId());
+        preparedStatement.setDate(2, comprovantePagamentoConvcard.getDataTransacaoSQL());
+        preparedStatement.setDouble(3, comprovantePagamentoConvcard.getValorBrutoFormatado());
+
+        ResultSet resultSet = preparedStatement.executeQuery();
+
+        Boolean verificar = false;
+
+        if(resultSet.next()) {
+            verificar = true;
+        }
+
+        resultSet.close();
+        preparedStatement.close();
+        connection.close();
+
+        return verificar;
+    }
+
+    @Override
+    public void updateVendaPaga(ComprovantePagamentoConvcard comprovantePagamentoConvcard, long id) throws Exception {
+        String sql = "update vendas set COD_STATUS_FINANCEIRO = ?, CHAVE_PAGAMENTO = ?, COD_PAGAMENTO = ? " +
+                "where ADQID = 123 and COD_CLIENTE = ? and DATA_VENDA = ? " +
+                "and VALOR_BRUTO = ? and COD_STATUS_FINANCEIRO = 1";
+
+        Connection connection = ConnectionFactory.getConnection();
+        PreparedStatement preparedStatement = connection.prepareStatement(sql);
+
+        preparedStatement.setInt(1, 2);
+        preparedStatement.setString(2, comprovantePagamentoConvcard.getChavePagamento());
+        preparedStatement.setLong(3, id);
+        preparedStatement.setInt(4, comprovantePagamentoConvcard.getEmpresa().getCliente().getId());
+        preparedStatement.setDate(5, comprovantePagamentoConvcard.getDataTransacaoSQL());
+        preparedStatement.setDouble(6, comprovantePagamentoConvcard.getValorBrutoFormatado());
+
+        preparedStatement.execute();
+        preparedStatement.close();
+        connection.close();
+    }
 
     public Double converterValorDouble(String valorString) {
         Double valorFinal = null;

@@ -3,6 +3,9 @@ package com.example.conciflex.model.classes.convcard;
 import com.example.conciflex.model.classes.Cliente;
 import com.example.conciflex.model.classes.Empresa;
 
+import java.sql.Date;
+import java.sql.Time;
+
 public class ComprovantePagamentoConvcard {
     private String tipoRegistro;
     private String nseqRegistroArquivo;
@@ -26,6 +29,132 @@ public class ComprovantePagamentoConvcard {
 
     private Empresa empresa;
     private Cliente cliente;
+    private String nsuFormatado;
+    private Date dataTransacaoSQL;
+    private Date dataPagamentoSQL;
+    private String autorizador;
+    private Double valorBrutoFormatado;
+    private Double valorDescontoFormatado;
+    private Double valorLiquidoFormatado;
+    private Double taxaPercentual;
+    private String numeroCartaoFormatado;
+    private String agenciaFormatado;
+    private String contaFormatado;
+    private String autorizacaoFormatado;
+    private Time horaTransacaoSQL;
+    private String chavePagamento;
+
+    public String getChavePagamento() {
+        return chavePagamento;
+    }
+
+    public void setChavePagamento(String chavePagamento) {
+        this.chavePagamento = chavePagamento;
+    }
+
+    public Time getHoraTransacaoSQL() {
+        return horaTransacaoSQL;
+    }
+
+    public void setHoraTransacaoSQL(Time horaTransacaoSQL) {
+        this.horaTransacaoSQL = horaTransacaoSQL;
+    }
+
+    public String getAutorizacaoFormatado() {
+        return autorizacaoFormatado;
+    }
+
+    public void setAutorizacaoFormatado(String autorizacaoFormatado) {
+        this.autorizacaoFormatado = autorizacaoFormatado;
+    }
+
+    public String getAgenciaFormatado() {
+        return agenciaFormatado;
+    }
+
+    public void setAgenciaFormatado(String agenciaFormatado) {
+        this.agenciaFormatado = agenciaFormatado;
+    }
+
+    public String getContaFormatado() {
+        return contaFormatado;
+    }
+
+    public void setContaFormatado(String contaFormatado) {
+        this.contaFormatado = contaFormatado;
+    }
+
+    public String getNumeroCartaoFormatado() {
+        return numeroCartaoFormatado;
+    }
+
+    public void setNumeroCartaoFormatado(String numeroCartaoFormatado) {
+        this.numeroCartaoFormatado = numeroCartaoFormatado;
+    }
+
+    public Double getTaxaPercentual() {
+        return taxaPercentual;
+    }
+
+    public void setTaxaPercentual(Double taxaPercentual) {
+        this.taxaPercentual = taxaPercentual;
+    }
+
+    public Double getValorBrutoFormatado() {
+        return valorBrutoFormatado;
+    }
+
+    public void setValorBrutoFormatado(Double valorBrutoFormatado) {
+        this.valorBrutoFormatado = valorBrutoFormatado;
+    }
+
+    public Double getValorDescontoFormatado() {
+        return valorDescontoFormatado;
+    }
+
+    public void setValorDescontoFormatado(Double valorDescontoFormatado) {
+        this.valorDescontoFormatado = valorDescontoFormatado;
+    }
+
+    public Double getValorLiquidoFormatado() {
+        return valorLiquidoFormatado;
+    }
+
+    public void setValorLiquidoFormatado(Double valorLiquidoFormatado) {
+        this.valorLiquidoFormatado = valorLiquidoFormatado;
+    }
+
+    public String getAutorizador() {
+        return autorizador;
+    }
+
+    public void setAutorizador(String autorizador) {
+        this.autorizador = autorizador;
+    }
+
+    public Date getDataPagamentoSQL() {
+        return dataPagamentoSQL;
+    }
+
+    public void setDataPagamentoSQL(Date dataPagamentoSQL) {
+        this.dataPagamentoSQL = dataPagamentoSQL;
+    }
+
+    public Date getDataTransacaoSQL() {
+        return dataTransacaoSQL;
+    }
+
+    public void setDataTransacaoSQL(Date dataTransacaoSQL) {
+        this.dataTransacaoSQL = dataTransacaoSQL;
+    }
+
+    public String getNsuFormatado() {
+        return nsuFormatado;
+    }
+
+    public void setNsuFormatado(String nsuFormatado) {
+        this.nsuFormatado = nsuFormatado;
+    }
 
     public String getTipoRegistro() {
         return tipoRegistro;
