@@ -1,5 +1,11 @@
 package com.example.conciflex.model.classes.convcard;
 
+import com.example.conciflex.model.classes.Cliente;
+import com.example.conciflex.model.classes.Empresa;
+
+import java.sql.Date;
+import java.sql.Time;
+
 public class CancelamentoConvcard {
     private String tipoRegistro;
     private String nseqRegistroArquivo;
@@ -14,6 +20,97 @@ public class CancelamentoConvcard {
     private String dataCancelamento;
     private String nseqLote;
     private String espacoReservado;
+
+    private Empresa empresa;
+    private Cliente cliente;
+    private String nsuFormatado;
+    private Date dataTransacaoSQL;
+    private Date dataCancelamentoSQL;
+    private String autorizador;
+    private String autorizacaoFormatado;
+    private Time horaTransacaoSQL;
+    private String chaveCancelamento;
+    private String numeroCartaoFormatado;
+
+    public String getNumeroCartaoFormatado() {
+        return numeroCartaoFormatado;
+    }
+
+    public void setNumeroCartaoFormatado(String numeroCartaoFormatado) {
+        this.numeroCartaoFormatado = numeroCartaoFormatado;
+    }
+
+    public String getChaveCancelamento() {
+        return chaveCancelamento;
+    }
+
+    public void setChaveCancelamento(String chaveCancelamento) {
+        this.chaveCancelamento = chaveCancelamento;
+    }
+
+    public Time getHoraTransacaoSQL() {
+        return horaTransacaoSQL;
+    }
+
+    public void setHoraTransacaoSQL(Time horaTransacaoSQL) {
+        this.horaTransacaoSQL = horaTransacaoSQL;
+    }
+
+    public String getAutorizacaoFormatado() {
+        return autorizacaoFormatado;
+    }
+
+    public void setAutorizacaoFormatado(String autorizacaoFormatado) {
+        this.autorizacaoFormatado = autorizacaoFormatado;
+    }
+
+    public String getAutorizador() {
+        return autorizador;
+    }
+
+    public void setAutorizador(String autorizador) {
+        this.autorizador = autorizador;
+    }
+
+    public Date getDataCancelamentoSQL() {
+        return dataCancelamentoSQL;
+    }
+
+    public void setDataCancelamentoSQL(Date dataCancelamentoSQL) {
+        this.dataCancelamentoSQL = dataCancelamentoSQL;
+    }
+
+    public Date getDataTransacaoSQL() {
+        return dataTransacaoSQL;
+    }
+
+    public void setDataTransacaoSQL(Date dataTransacaoSQL) {
+        this.dataTransacaoSQL = dataTransacaoSQL;
+    }
+
+    public String getNsuFormatado() {
+        return nsuFormatado;
+    }
+
+    public void setNsuFormatado(String nsuFormatado) {
+        this.nsuFormatado = nsuFormatado;
+    }
+
+    public Empresa getEmpresa() {
+        return empresa;
+    }
+
+    public void setEmpresa(Empresa empresa) {
+        this.empresa = empresa;
+    }
+
+    public Cliente getCliente() {
+        return cliente;
+    }
+
+    public void setCliente(Cliente cliente) {
+        this.cliente = cliente;
+    }
 
     public String getTipoRegistro() {
         return tipoRegistro;

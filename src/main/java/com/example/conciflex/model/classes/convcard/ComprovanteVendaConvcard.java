@@ -45,7 +45,7 @@ public class ComprovanteVendaConvcard {
     private String contaFormatado;
     private String autorizacaoFormatado;
     private Double valorTaxaPercentual;
-    private String chavePagamento;
+    private String chaveVenda;
     private Time horaTransacaoSQL;
     private String autorizador;
 
@@ -65,12 +65,12 @@ public class ComprovanteVendaConvcard {
         this.horaTransacaoSQL = horaTransacaoSQL;
     }
 
-    public String getChavePagamento() {
-        return chavePagamento;
+    public String getChaveVenda() {
+        return chaveVenda;
     }
 
-    public void setChavePagamento(String chavePagamento) {
-        this.chavePagamento = chavePagamento;
+    public void setChaveVenda(String chaveVenda) {
+        this.chaveVenda = chaveVenda;
     }
 
     public Double getValorTaxaPercentual() {
