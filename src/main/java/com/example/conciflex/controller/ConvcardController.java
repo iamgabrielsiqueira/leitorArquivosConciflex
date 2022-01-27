@@ -86,7 +86,7 @@ public class ConvcardController {
                         e.printStackTrace();
                     }*/
                 } else if(identificador.equals("L0")) {
-                    verificarProcesso++;
+                    /*verificarProcesso++;
 
                     try {
                         headerLoteTransacoesConvcard = processarHeaderLoteConvcard(line.toCharArray());
@@ -98,9 +98,9 @@ public class ConvcardController {
                         JDBCHeaderLoteTransacoesConvcardDAO.getInstance().create(headerLoteTransacoesConvcard, arquivo);
                     } catch (Exception e) {
                         e.printStackTrace();
-                    }
+                    }*/
                 } else if(identificador.equals("CV")) {
-                    verificarProcesso++;
+                    /*verificarProcesso++;
 
                     try {
                         comprovanteVendaConvcard = processarComprovanteVendaConvcard(line.toCharArray());
@@ -114,7 +114,7 @@ public class ConvcardController {
                         e.printStackTrace();
                     }
 
-                    listaVendas.add(comprovanteVendaConvcard);
+                    listaVendas.add(comprovanteVendaConvcard);*/
                 } else if(identificador.equals("CP")) {
                     verificarProcesso++;
 
@@ -134,7 +134,7 @@ public class ConvcardController {
                 } else if(identificador.equals("CC")) {
                     verificarProcesso++;
 
-                    try {
+                    /*try {
                         cancelamentoConvcard = processarCancelamentoConvcard(line.toCharArray());
                     } catch (ArrayIndexOutOfBoundsException arrayIndexOutOfBoundsException) {
                         gravarLog("5 - Erro de array");
@@ -146,23 +146,33 @@ public class ConvcardController {
                         e.printStackTrace();
                     }
 
-                    listaCancelamento.add(cancelamentoConvcard);
+                    listaCancelamento.add(cancelamentoConvcard);*/
                 } else if(identificador.equals("TB")) {
                     verificarProcesso++;
 
-                    /*try {
+                    try {
                         tarifaBancariaConvcard = processarTarifaBancariaConvcard(line.toCharArray());
                     } catch (ArrayIndexOutOfBoundsException arrayIndexOutOfBoundsException) {
                         gravarLog("6 - Erro de array");
                     }
 
+                    Boolean verificaTarifaBancariaExiste = false;
+
                     try {
-                        JDBCTarifaBancariaConvcardDAO.getInstance().create(tarifaBancariaConvcard, arquivo);
+                        verificaTarifaBancariaExiste = JDBCTarifaBancariaConvcardDAO.getInstance().searchTarifa(tarifaBancariaConvcard);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
 
-                    listaTarifaBancaria.add(tarifaBancariaConvcard);*/
+                    if(verificaTarifaBancariaExiste == false) {
+                        try {
+                            JDBCTarifaBancariaConvcardDAO.getInstance().create(tarifaBancariaConvcard, arquivo);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
+                        listaTarifaBancaria.add(tarifaBancariaConvcard);
+                    }
                 } else if(identificador.equals("L9")) {
                     verificarProcesso++;
 
@@ -204,7 +214,7 @@ public class ConvcardController {
         stream.close();
 
         for (ComprovanteVendaConvcard venda:listaVendas) {
-            Boolean verificaVendaExiste = false;
+            /*Boolean verificaVendaExiste = false;
 
             try {
                 verificaVendaExiste = JDBCVendaConvcardDAO.getInstance().verificarDuplicidade(venda.getChaveVenda());
@@ -218,7 +228,7 @@ public class ConvcardController {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-            }
+            }*/
         }
 
         for (ComprovantePagamentoConvcard pagamento:listaPagamentos) {
@@ -226,7 +236,7 @@ public class ConvcardController {
         }
 
         for (CancelamentoConvcard cancelamento:listaCancelamento) {
-            Boolean verificaCancelamentoExiste = false;
+            /*Boolean verificaCancelamentoExiste = false;
 
             try {
                 verificaCancelamentoExiste = JDBCCancelamentoConvcardDAO.getInstance().searchCancelamento(cancelamento);
@@ -266,11 +276,18 @@ public class ConvcardController {
                         }
                     }
                 }
-            }
+            }*/
         }
 
+        System.out.println(listaTarifaBancaria.size());
+
         for (TarifaBancariaConvcard tarifaBancaria:listaTarifaBancaria) {
-            Boolean verificaTarifaBancariaExiste = false;
+            try {
+                System.out.println("Criando tarifa bancaria..." + tarifaBancaria.getDataTransacaoSQL());
+                JDBCTarifaBancariaConvcardDAO.getInstance().createPagamento(tarifaBancaria, dataImportacao, horaImportacao, arquivo);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -733,7 +750,7 @@ public class ConvcardController {
 
         horaTransacaoSQL = new Time(horaTransacaoDate.getTime());
 
-        String chaveCancelamento = null;
+        String chaveCancelamento = "";
 
         if(cliente != null) {
             chaveCancelamento = cliente.getId()+"-123-"+dataCancelamentoSQL+"-1-1-"+nsuFormatada+autorizacaoFormatada+"-185-3";
@@ -819,6 +836,35 @@ public class ConvcardController {
         System.out.println("NSEQ Lote: " + nseqLote);
         System.out.println("Espaço Reservado: " + espacoReservado);*/
 
+        Empresa empresa = null;
+        Cliente cliente = null;
+
+        try {
+            empresa = JDBCEmpresaDAO.getInstance().search(cnpjLoja);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        if(empresa != null) {
+            if(empresa.getCliente() != null) {
+                cliente = empresa.getCliente();
+            }
+        }
+
+        Date dataTransacaoSQL = converterDataSQL(dataTransacao);
+
+        String autorizador = "";
+
+        try {
+            autorizador = JDBCHeaderLoteTransacoesConvcardDAO.getInstance().searchAutorizador(nseqLote);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        Double valorFormatado = converterValorDouble(valor);
+        String agenciaFormatada = agencia.replaceFirst("^0+(?!$)", "");
+        String contaFormatada = conta.replaceFirst("^0+(?!$)", "");
+
         tarifaBancariaConvcard.setTipoRegistro(tipoRegistro);
         tarifaBancariaConvcard.setNseqRegistroArquivo(nseqRegistroArquivo);
         tarifaBancariaConvcard.setNseqRegistroLote(nseqRegistroLote);
@@ -830,6 +876,13 @@ public class ConvcardController {
         tarifaBancariaConvcard.setConta(conta);
         tarifaBancariaConvcard.setNseqLote(nseqLote);
         tarifaBancariaConvcard.setEspacoReservado(espacoReservado);
+        tarifaBancariaConvcard.setEmpresa(empresa);
+        tarifaBancariaConvcard.setCliente(cliente);
+        tarifaBancariaConvcard.setDataTransacaoSQL(dataTransacaoSQL);
+        tarifaBancariaConvcard.setAutorizador(autorizador);
+        tarifaBancariaConvcard.setValorFormatado(valorFormatado);
+        tarifaBancariaConvcard.setAgenciaFormatada(agenciaFormatada);
+        tarifaBancariaConvcard.setContaFormatada(contaFormatada);
 
         return tarifaBancariaConvcard;
     }

@@ -1,5 +1,10 @@
 package com.example.conciflex.model.classes.convcard;
 
+import com.example.conciflex.model.classes.Cliente;
+import com.example.conciflex.model.classes.Empresa;
+
+import java.sql.Date;
+
 public class TarifaBancariaConvcard {
     private String tipoRegistro;
     private String nseqRegistroArquivo;
@@ -12,6 +17,79 @@ public class TarifaBancariaConvcard {
     private String conta;
     private String nseqLote;
     private String espacoReservado;
+
+    private Empresa empresa;
+    private Cliente cliente;
+    private Date dataTransacaoSQL;
+    private String autorizador;
+    private String chaveTarifaBancaria;
+    private String agenciaFormatada;
+    private String contaFormatada;
+    private Double valorFormatado;
+
+    public Double getValorFormatado() {
+        return valorFormatado;
+    }
+
+    public void setValorFormatado(Double valorFormatado) {
+        this.valorFormatado = valorFormatado;
+    }
+
+    public String getAgenciaFormatada() {
+        return agenciaFormatada;
+    }
+
+    public void setAgenciaFormatada(String agenciaFormatada) {
+        this.agenciaFormatada = agenciaFormatada;
+    }
+
+    public String getContaFormatada() {
+        return contaFormatada;
+    }
+
+    public void setContaFormatada(String contaFormatada) {
+        this.contaFormatada = contaFormatada;
+    }
+
+    public String getChaveTarifaBancaria() {
+        return chaveTarifaBancaria;
+    }
+
+    public void setChaveTarifaBancaria(String chaveTarifaBancaria) {
+        this.chaveTarifaBancaria = chaveTarifaBancaria;
+    }
+
+    public String getAutorizador() {
+        return autorizador;
+    }
+
+    public void setAutorizador(String autorizador) {
+        this.autorizador = autorizador;
+    }
+
+    public Date getDataTransacaoSQL() {
+        return dataTransacaoSQL;
+    }
+
+    public void setDataTransacaoSQL(Date dataTransacaoSQL) {
+        this.dataTransacaoSQL = dataTransacaoSQL;
+    }
+
+    public Empresa getEmpresa() {
+        return empresa;
+    }
+
+    public void setEmpresa(Empresa empresa) {
+        this.empresa = empresa;
+    }
+
+    public Cliente getCliente() {
+        return cliente;
+    }
+
+    public void setCliente(Cliente cliente) {
+        this.cliente = cliente;
+    }
 
     public String getTipoRegistro() {
         return tipoRegistro;
