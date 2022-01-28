@@ -5,6 +5,8 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
+
 import java.io.IOException;
 
 public class MainApplication extends Application {
@@ -17,6 +19,7 @@ public class MainApplication extends Application {
         stage.setTitle("Leitura de Arquivos");
         stage.setScene(scene);
         stage.setResizable(false);
+/*        stage.initStyle(StageStyle.UTILITY);*/
         stage.show();
     }
 

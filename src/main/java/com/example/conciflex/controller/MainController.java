@@ -48,9 +48,12 @@ public class MainController {
     private ObservableList<ComprovanteVenda> listaPagamentosBen = FXCollections.observableArrayList();
 
     private File folderBenVisaVale = new File("Z:\\SKYLINE");
-    private File folderConvcard = new File("C:\\Users\\Gabriel\\Desktop\\teste");
+    private File folderConvcard = new File("Z:\\CONVCARD");
+
+    //private File folderConvcard = new File("C:\\Users\\Gabriel\\Desktop\\teste");
 
     private Boolean rodarThread = true;
+    private String nomeArquivo = "";
 
     public void initialize() {
         listarTiposLancamento();
@@ -135,6 +138,7 @@ public class MainController {
 
                     }
                 }
+                mostrarMensagem("Aguardando...");
 
                 try {
                     Thread.sleep(1000);
@@ -148,7 +152,9 @@ public class MainController {
         Thread threadConvcard = new Thread(() -> {
             while (rodarThread) {
                 mostrarMensagem("Aguardando...");
+
                 File[] listOfFiles = folderConvcard.listFiles();
+
                 ConvcardController convcardController = new ConvcardController();
                 convcardController.setLbMensagem(lbMensagem);
 
@@ -168,7 +174,6 @@ public class MainController {
                                 arquivoBuscar = JDBCArquivoDAO.getInstance().search(arquivo);
                             } catch (Exception e) {
                                 gravarLog("Erro #2: " + e + " " + arquivo);
-                                mostrarMensagem("Erro #2" + e);
                             }
 
                             if(arquivoBuscar  == false) {
@@ -185,19 +190,18 @@ public class MainController {
                                     convcardController.lerArquivoConvcard(pasta, arquivo, estabelecimento);
                                 } catch (IOException e) {
                                     gravarLog("Erro #4: " + e + " " + arquivo);
-                                    mostrarMensagem("Erro #4" + e);
                                 } catch (ParseException e) {
                                     gravarLog("Erro #5: " + e + " " + arquivo);
-                                    mostrarMensagem("Erro #5" + e);
                                 }
 
-                                mostrarMensagem("Arquivo " + arquivo + " processado!");
+                                Platform.runLater(() -> {
+                                    lbMensagem.setText("Aguardando...");
+                                });
 
                                 try {
                                     Thread.sleep(2000);
                                 } catch (InterruptedException interruptedException) {
                                     gravarLog("Erro #6: " + interruptedException + " " + arquivo);
-                                    mostrarMensagem("Erro #6" + interruptedException);
                                 }
                             }
                         }
@@ -208,95 +212,15 @@ public class MainController {
                     Thread.sleep(1000);
                 } catch (InterruptedException interruptedException) {
                     gravarLog("Erro #7: " + interruptedException);
-                    mostrarMensagem("Erro #7" + interruptedException);
                 }
-
-                rodarThread = false;
-                System.out.println("FIM");
             }
         });
 
-        //threadBenVisaVale.setDaemon(true);
-        //threadBenVisaVale.start();
+        threadBenVisaVale.setDaemon(true);
+        threadBenVisaVale.start();
 
         threadConvcard.setDaemon(true);
         threadConvcard.start();
-
-        /*Thread threadAtualizar = new Thread(() -> {
-            while (rodarThread) {
-                listaArquivos.clear();
-
-                try {
-                    listaArquivos.addAll(JDBCArquivoDAO.getInstance().listarArquivos());
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-
-                for (Arquivo arquivo: listaArquivos) {
-                    System.out.println(arquivo.getArquivo());
-
-                    try {
-                        JDBCVendaDAO.getInstance().deletarVendas(arquivo.getArquivo());
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-
-                    try {
-                        JDBCPagamentoDAO.getInstance().deletarPagamentos(arquivo.getArquivo());
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-
-                    try {
-                        JDBCComprovanteVendaDAO.getInstance().deletar(arquivo.getArquivo());
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-
-                    try {
-                        JDBCHeaderArquivoDAO.getInstance().deletar(arquivo.getArquivo());
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-
-                    try {
-                        JDBCHeaderLoteTransacoesDAO.getInstance().deletar(arquivo.getArquivo());
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-
-                    try {
-                        JDBCResumoVendasDAO.getInstance().deletar(arquivo.getArquivo());
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-
-                    try {
-                        JDBCTrailerArquivoDAO.getInstance().deletar(arquivo.getArquivo());
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-
-                    try {
-                        JDBCTrailerLoteTransacoesDAO.getInstance().deletar(arquivo.getArquivo());
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-
-                    try {
-                        JDBCArquivoDAO.getInstance().deletarControleArquivos(arquivo.getArquivo());
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-
-                System.out.println("Fim!");
-                rodarThread = false;
-            }
-        });
-
-        threadAtualizar.setDaemon(true);
-        threadAtualizar.start();*/
     }
 
     public Estabelecimento getFileEstabelecimentoBenVisaVale(String pasta, String arquivo) throws IOException {
@@ -605,7 +529,7 @@ public class MainController {
                 mostrarMensagem("Erro #24" + e);
             }
 
-            String novaPasta = "Z:\\SKYLINE\\Processados\\" + arquivo;
+            String novaPasta = "Z:\\SKYLINE\\Lidos\\" + arquivo;
             Files.move(Paths.get(pasta + "\\" + arquivo), Paths.get(novaPasta), StandardCopyOption.REPLACE_EXISTING);
         }
     }
@@ -1467,7 +1391,7 @@ public class MainController {
         });
     }
 
-    private void mostrarMensagem(String mensagem) {
+    public void mostrarMensagem(String mensagem) {
         Platform.runLater(() -> {
             lbMensagem.setVisible(true);
             lbMensagem.setText(mensagem);
@@ -1482,8 +1406,8 @@ public class MainController {
         FileWriter fw = null;
 
         try {
-            //fw = new FileWriter("C:\\Users\\opc\\Documents\\LeitorArquivos\\leitor-log.txt", true);
-            fw = new FileWriter("C:\\Users\\Gabriel\\IdeaProjects\\LeituraArquivosConciflex\\out\\artifacts\\LeituraArquivosConciflex_jar\\leitor-log.txt", true);
+            fw = new FileWriter("C:\\Users\\opc\\Documents\\LeitorArquivos\\leitor-log.txt", true);
+            //fw = new FileWriter("C:\\Users\\Gabriel\\IdeaProjects\\LeituraArquivosConciflex\\out\\artifacts\\LeituraArquivosConciflex_jar\\leitor-log.txt", true);
         } catch (IOException e) {
             e.printStackTrace();
         }

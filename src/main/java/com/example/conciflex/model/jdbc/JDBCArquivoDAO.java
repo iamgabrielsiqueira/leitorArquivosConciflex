@@ -1,5 +1,6 @@
 package com.example.conciflex.model.jdbc;
 
+import com.example.conciflex.controller.ConvcardController;
 import com.example.conciflex.model.ConnectionFactory;
 import com.example.conciflex.model.classes.Arquivo;
 import com.example.conciflex.model.dao.ArquivoDAO;
@@ -126,6 +127,40 @@ public class JDBCArquivoDAO implements ArquivoDAO {
         } catch (SQLException e){
             e.printStackTrace();
         }
+
+        try {
+            Connection connection = ConnectionFactory.getConnection();
+            PreparedStatement preparedStatement;
+
+            String sql = "SELECT NOME_ARQUIVO, DATA_GERACAO FROM edi_convcard_header_arquivo GROUP BY NOME_ARQUIVO ORDER BY DATA_GERACAO";
+            preparedStatement = connection.prepareStatement(sql);
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            ConvcardController convcardController = new ConvcardController();
+
+            while (resultSet.next()){
+                String nomeArquivo = resultSet.getString("NOME_ARQUIVO");
+                String dataGeracao = resultSet.getString("DATA_GERACAO");
+                Date dataGeracaoSQL = convcardController.converterDataSQL(dataGeracao);
+                String dataString = new SimpleDateFormat("dd/MM/yyyy").format(dataGeracaoSQL);
+
+                Arquivo arquivo = new Arquivo();
+
+                arquivo.setArquivo(nomeArquivo);
+                arquivo.setDataArquivo(dataGeracaoSQL);
+                arquivo.setDataArquivoString(dataString);
+
+                arquivoObservableList.add(arquivo);
+            }
+
+            resultSet.close();
+            preparedStatement.close();
+            connection.close();
+        } catch (SQLException e){
+            e.printStackTrace();
+        }
+
         return arquivoObservableList;
     }
 
