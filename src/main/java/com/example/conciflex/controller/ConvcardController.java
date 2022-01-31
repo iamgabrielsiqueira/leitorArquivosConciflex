@@ -287,12 +287,6 @@ public class ConvcardController {
                     } catch (Exception e) {
                         gravarLog("Erro #241 Convcard - " + e.getCause() + " - "  + arquivo);
                     }
-                } else {
-                    try {
-                        JDBCPagamentoDAO.getInstance().updatePaymentStatusNotConc(id);
-                    } catch (Exception e) {
-                        gravarLog("Erro #242 Convcard - " + e.getCause() + " - "  + arquivo);
-                    }
                 }
             }
         }

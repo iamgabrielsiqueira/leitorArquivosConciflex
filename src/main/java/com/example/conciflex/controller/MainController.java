@@ -519,12 +519,6 @@ public class MainController {
                         } catch (Exception e) {
                             gravarLog("Erro #211: " + e + " " + arquivo);
                         }
-                    } else {
-                        try {
-                            JDBCPagamentoDAO.getInstance().updatePaymentStatusNotConc(id);
-                        } catch (Exception e) {
-                            gravarLog("Erro #212: " + e + " " + arquivo);
-                        }
                     }
                 }
             } catch (Exception e) {

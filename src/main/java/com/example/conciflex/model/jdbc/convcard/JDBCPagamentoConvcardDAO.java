@@ -32,7 +32,7 @@ public class JDBCPagamentoConvcardDAO implements PagamentoConvcardDAO {
                 "AGENCIA, CONTA, CODIGO_AUTORIZACAO, COD_BANDEIRA, COD_PRODUTO," +
                 "COD_STATUS_FINANCEIRO, NOME_ARQUIVO, PARCELA, TOTAL_PARCELAS, OBSERVACOES," +
                 "TAXA_PERCENTUAL, HORA_VENDA, COD_TIPO_PAGAMENTO, COD_TIPO_LANCAMENTO, ID_LOJA," +
-                "CHAVE_PAGAMENTO" +
+                "CHAVE_PAGAMENTO, COD_STATUS" +
                 ") values(" +
                 "?, ?, ?, ?, ?," +
                 "?, ?, ?, ?, ?," +
@@ -41,7 +41,7 @@ public class JDBCPagamentoConvcardDAO implements PagamentoConvcardDAO {
                 "?, ?, ?, ?, ?," +
                 "?, ?, ?, ?, ?," +
                 "?, ?, ?, ?, ?," +
-                "?" +
+                "?, ?" +
                 ")";
 
         PreparedStatement preparedStatement = connection.prepareStatement(sql, generatedColumns);
@@ -82,6 +82,7 @@ public class JDBCPagamentoConvcardDAO implements PagamentoConvcardDAO {
         preparedStatement.setInt(34, 1);
         preparedStatement.setString(35, comprovantePagamentoConvcard.getCnpjLoja());
         preparedStatement.setString(36, comprovantePagamentoConvcard.getChavePagamento());
+        preparedStatement.setInt(37, 2);
 
         preparedStatement.execute();
 
