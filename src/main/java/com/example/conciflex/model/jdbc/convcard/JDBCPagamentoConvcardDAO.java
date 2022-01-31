@@ -124,4 +124,20 @@ public class JDBCPagamentoConvcardDAO implements PagamentoConvcardDAO {
 
         return verificar;
     }
+
+    @Override
+    public void updatePaymentStatus(String paymentKey, String saleKey) throws Exception {
+        String sql = "update pagamentos_operadoras set COD_STATUS = ?, CHAVE_VENDA_OPERADORA = ? WHERE CHAVE_PAGAMENTO LIKE ?";
+
+        Connection connection = ConnectionFactory.getConnection();
+        PreparedStatement preparedStatement = connection.prepareStatement(sql);
+
+        preparedStatement.setInt(1, 1);
+        preparedStatement.setString(2, saleKey);
+        preparedStatement.setString(3, paymentKey);
+
+        preparedStatement.execute();
+        preparedStatement.close();
+        connection.close();
+    }
 }

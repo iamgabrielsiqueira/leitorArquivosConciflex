@@ -10,4 +10,5 @@ public interface PagamentoDAO {
     Pagamento search(ComprovanteVenda comprovanteVenda) throws Exception;
     Boolean verificarDuplicidade(String chavePagamento) throws Exception;
     void deletarPagamentos(String arquivo) throws Exception;
+    void updatePaymentStatusNotConc(long id) throws Exception;
 }

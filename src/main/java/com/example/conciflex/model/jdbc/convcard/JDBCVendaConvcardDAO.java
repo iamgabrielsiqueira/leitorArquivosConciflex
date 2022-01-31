@@ -1,24 +1,55 @@
 package com.example.conciflex.model.jdbc.convcard;
 
 import com.example.conciflex.model.ConnectionFactory;
-import com.example.conciflex.model.classes.ben.ComprovanteVenda;
 import com.example.conciflex.model.classes.convcard.CancelamentoConvcard;
 import com.example.conciflex.model.classes.convcard.ComprovantePagamentoConvcard;
 import com.example.conciflex.model.classes.convcard.ComprovanteVendaConvcard;
 import com.example.conciflex.model.dao.convcard.VendaConvcardDAO;
-
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import java.sql.*;
 
 public class JDBCVendaConvcardDAO implements VendaConvcardDAO {
     private static JDBCVendaConvcardDAO instance;
+    private ObservableList<String[]> paymentKeyList;
 
-    private JDBCVendaConvcardDAO(){}
+    private JDBCVendaConvcardDAO(){
+        paymentKeyList = FXCollections.observableArrayList();
+    }
 
     public static JDBCVendaConvcardDAO getInstance() {
         if(instance == null) {
             instance = new JDBCVendaConvcardDAO();
         }
         return instance;
+    }
+
+    @Override
+    public ObservableList<String[]> salesUpdateList() throws Exception {
+        paymentKeyList.clear();
+
+        Connection connection = ConnectionFactory.getConnection();
+        PreparedStatement preparedStatement;
+
+        String sql = "SELECT CHAVE_PAGAMENTO, CHAVE_VENDA FROM vendas where ADQID = 268 AND COD_STATUS_FINANCEIRO = 2 LIMIT 5000,1000";
+
+        preparedStatement = connection.prepareStatement(sql);
+        ResultSet resultSet = preparedStatement.executeQuery();
+
+        while (resultSet.next()){
+            String paymentKey = resultSet.getString("CHAVE_PAGAMENTO");
+            String saleKey = resultSet.getString("CHAVE_VENDA");
+
+            String[] keys = {paymentKey, saleKey};
+
+            paymentKeyList.add(keys);
+        }
+
+        resultSet.close();
+        preparedStatement.close();
+        connection.close();
+
+        return paymentKeyList;
     }
 
     private ComprovanteVendaConvcard carregarComprovanteVendaConvcard(ResultSet resultSet) throws Exception {
@@ -223,12 +254,12 @@ public class JDBCVendaConvcardDAO implements VendaConvcardDAO {
     }
 
     @Override
-    public Boolean search(ComprovantePagamentoConvcard comprovantePagamentoConvcard) throws Exception {
+    public String search(ComprovantePagamentoConvcard comprovantePagamentoConvcard) throws Exception {
         Connection connection = ConnectionFactory.getConnection();
 
         PreparedStatement preparedStatement;
 
-        String sql = "select * from vendas where ADQID = 123 and COD_CLIENTE = ? " +
+        String sql = "select CHAVE_VENDA from vendas where ADQID = 123 and COD_CLIENTE = ? " +
                 "and DATA_VENDA = ? and VALOR_BRUTO = ? and COD_STATUS_FINANCEIRO = 1";
 
         preparedStatement = connection.prepareStatement(sql);
@@ -238,17 +269,17 @@ public class JDBCVendaConvcardDAO implements VendaConvcardDAO {
 
         ResultSet resultSet = preparedStatement.executeQuery();
 
-        Boolean verificar = false;
+        String saleKey = "";
 
         if(resultSet.next()) {
-            verificar = true;
+            saleKey = resultSet.getString("CHAVE_VENDA");
         }
 
         resultSet.close();
         preparedStatement.close();
         connection.close();
 
-        return verificar;
+        return saleKey;
     }
 
     @Override

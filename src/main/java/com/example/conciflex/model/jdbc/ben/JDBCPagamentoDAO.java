@@ -157,4 +157,19 @@ public class JDBCPagamentoDAO implements PagamentoDAO {
         preparedStatement.close();
         connection.close();
     }
+
+    @Override
+    public void updatePaymentStatusNotConc(long id) throws Exception {
+        String sql = "update pagamentos_operadoras set COD_STATUS = ? WHERE COD_STATUS = ?";
+
+        Connection connection = ConnectionFactory.getConnection();
+        PreparedStatement preparedStatement = connection.prepareStatement(sql);
+
+        preparedStatement.setInt(1, 2);
+        preparedStatement.setLong(2, id);
+
+        preparedStatement.execute();
+        preparedStatement.close();
+        connection.close();
+    }
 }

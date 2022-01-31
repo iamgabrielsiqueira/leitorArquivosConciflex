@@ -5,6 +5,7 @@ import com.example.conciflex.model.classes.*;
 import com.example.conciflex.model.classes.ben.*;
 import com.example.conciflex.model.jdbc.*;
 import com.example.conciflex.model.jdbc.ben.*;
+import com.example.conciflex.model.jdbc.convcard.JDBCPagamentoConvcardDAO;
 import javafx.animation.FadeTransition;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -71,7 +72,6 @@ public class MainController {
 
     @FXML
     public void processar() {
-
         Thread threadBenVisaVale = new Thread(() -> {
             while (rodarThread) {
                 mostrarMensagem("Aguardando...");
@@ -497,21 +497,33 @@ public class MainController {
                 id = JDBCPagamentoDAO.getInstance().create(pagamento, dataImportacao, horaImportacao, arquivo);
 
                 if(id != 0) {
-                    Boolean verificarVenda = false;
+                    String saleKey = "";
 
                     try {
-                        verificarVenda = JDBCVendaDAO.getInstance().search(pagamento);
+                        saleKey = JDBCVendaDAO.getInstance().search(pagamento);
                     } catch (Exception e) {
                         gravarLog("Erro #19: " + e + " " + arquivo);
                         mostrarMensagem("Erro #19" + e);
                     }
 
-                    if(verificarVenda == true) {
+                    if(saleKey.length() > 1) {
                         try {
                             JDBCVendaDAO.getInstance().updateVendaPaga(pagamento, id);
                         } catch (Exception e) {
                             gravarLog("Erro #20: " + e + " " + arquivo);
                             mostrarMensagem("Erro #20" + e);
+                        }
+
+                        try {
+                            JDBCPagamentoConvcardDAO.getInstance().updatePaymentStatus(pagamento.getChavePagamento(), saleKey);
+                        } catch (Exception e) {
+                            gravarLog("Erro #211: " + e + " " + arquivo);
+                        }
+                    } else {
+                        try {
+                            JDBCPagamentoDAO.getInstance().updatePaymentStatusNotConc(id);
+                        } catch (Exception e) {
+                            gravarLog("Erro #212: " + e + " " + arquivo);
                         }
                     }
                 }
@@ -1415,43 +1427,5 @@ public class MainController {
         printer = new PrintWriter(fw);
         printer.println(dtf.format(now) + " - " +log);
         printer.close();
-    }
-
-    public void limpar() {
-        ObservableList<Arquivo> listaArquivos = FXCollections.observableArrayList();
-
-        try {
-            listaArquivos.addAll(JDBCArquivoDAO.getInstance().listarArquivos());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        int i = 1;
-
-        for (Arquivo arquivo:listaArquivos) {
-            System.out.println("Arquivo #"+i+": " + arquivo.getArquivo());
-
-            try {
-                JDBCVendaDAO.getInstance().deletarVendas(arquivo.getArquivo());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-            try {
-                JDBCPagamentoDAO.getInstance().deletarPagamentos(arquivo.getArquivo());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-            try {
-                JDBCArquivoDAO.getInstance().deletarControleArquivos(arquivo.getArquivo());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-            i++;
-        }
-
-        System.out.println("Fim!");
     }
 }

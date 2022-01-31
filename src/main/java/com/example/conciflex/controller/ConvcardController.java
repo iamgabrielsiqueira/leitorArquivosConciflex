@@ -8,6 +8,7 @@ import com.example.conciflex.model.classes.convcard.*;
 import com.example.conciflex.model.jdbc.JDBCArquivoDAO;
 import com.example.conciflex.model.jdbc.JDBCEmpresaDAO;
 import com.example.conciflex.model.jdbc.JDBCEstabelecimentoDAO;
+import com.example.conciflex.model.jdbc.ben.JDBCPagamentoDAO;
 import com.example.conciflex.model.jdbc.convcard.*;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -265,20 +266,32 @@ public class ConvcardController {
             }
 
             if(id != 0) {
-                Boolean verificarVenda = false;
+                String saleKey = "";
 
                 try {
-                    verificarVenda = JDBCVendaConvcardDAO.getInstance().search(pagamento);
+                    saleKey = JDBCVendaConvcardDAO.getInstance().search(pagamento);
                 } catch (Exception e) {
                     gravarLog("Erro #23 Convcard - " + e.getCause() + " - "  + arquivo);
                 }
 
-                if(verificarVenda == true) {
+                if(saleKey.length() > 1) {
                     try {
                         System.out.println("Atualizando venda... " + pagamento.getDataTransacaoSQL());
                         JDBCVendaConvcardDAO.getInstance().updateVendaPaga(pagamento, id);
                     } catch (Exception e) {
                         gravarLog("Erro #24 Convcard - " + e.getCause() + " - "  + arquivo);
+                    }
+
+                    try {
+                        JDBCPagamentoConvcardDAO.getInstance().updatePaymentStatus(pagamento.getChavePagamento(), saleKey);
+                    } catch (Exception e) {
+                        gravarLog("Erro #241 Convcard - " + e.getCause() + " - "  + arquivo);
+                    }
+                } else {
+                    try {
+                        JDBCPagamentoDAO.getInstance().updatePaymentStatusNotConc(id);
+                    } catch (Exception e) {
+                        gravarLog("Erro #242 Convcard - " + e.getCause() + " - "  + arquivo);
                     }
                 }
             }

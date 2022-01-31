@@ -96,12 +96,12 @@ public class JDBCVendaDAO implements VendaDAO {
     }
 
     @Override
-    public Boolean search(ComprovanteVenda comprovanteVenda) throws Exception {
+    public String search(ComprovanteVenda comprovanteVenda) throws Exception {
         Connection connection = ConnectionFactory.getConnection();
 
         PreparedStatement preparedStatement;
 
-        String sql = "select * from vendas where ADQID = 268 and cod_cliente = ? " +
+        String sql = "select CHAVE_VENDA from vendas where ADQID = 268 and cod_cliente = ? " +
                 "and DATA_VENDA = ? and VALOR_BRUTO = ? and COD_STATUS_FINANCEIRO = 1";
 
         preparedStatement = connection.prepareStatement(sql);
@@ -111,17 +111,17 @@ public class JDBCVendaDAO implements VendaDAO {
 
         ResultSet resultSet = preparedStatement.executeQuery();
 
-        Boolean verificar = false;
+        String saleKey = "";
 
         if(resultSet.next()) {
-            verificar = true;
+            saleKey = resultSet.getString("CHAVE_VENDA");
         }
 
         resultSet.close();
         preparedStatement.close();
         connection.close();
 
-        return verificar;
+        return saleKey;
     }
 
     @Override
